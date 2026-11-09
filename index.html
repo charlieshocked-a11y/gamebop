@@ -24,6 +24,7 @@
   --r: 14px;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { height: 100%; }
 body { margin: 0; background: var(--ground); color: var(--ink); font: 15px/1.45 var(--body); }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
@@ -85,13 +86,8 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
 .badge { position: absolute; top: 8px; left: 8px; background: var(--berry); color: #fff; font: 11px/1 var(--display); padding: 5px 7px; border-radius: 6px; letter-spacing: .5px; }
 .badge.best { background: var(--pop); color: var(--pop-ink); font-size: 13px; }
 .feat .badge.best { top: 14px; left: 14px; font-size: 16px; padding: 8px 12px; }
-.tip { position: relative; flex: none; }
-.tipbtn { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-.tipbtn:hover, .tipbtn[aria-expanded="true"] { color: var(--ink); border-color: var(--pop); }
-.tippop { position: absolute; right: 0; top: calc(100% + 10px); z-index: 20; width: 230px; background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; display: grid; gap: 10px; justify-items: center; text-align: center; box-shadow: 0 14px 30px rgba(0,0,0,.45); }
-.tippop p { margin: 0; font-size: 14px; }
-.tippop img { width: 180px; height: 180px; border-radius: 10px; background: #fff; }
-.tippop a { color: var(--mint); font-weight: 700; font-size: 14px; }
+.tipbtn { flex: none; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.tipbtn:hover { color: var(--ink); border-color: var(--pop); }
 .drop { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; background: linear-gradient(100deg, var(--pop), var(--berry)); color: var(--pop-ink); border-radius: var(--r); padding: 12px 18px; }
 .drop b { font: 20px/1.1 var(--display); }
 .drop span { font-weight: 600; }
@@ -146,8 +142,7 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
   <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
     <input id="q" type="search" placeholder="Search games" autocomplete="off"></label>
   <span class="count" id="count"></span>
-  <div class="tip"><button class="tipbtn" id="tipbtn" aria-expanded="false" aria-controls="tippop">Donate 🙂</button>
-    <div class="tippop" id="tippop" hidden><p>Enjoying the games? Tips keep them coming 🙂</p><img src="img/donate-qr.png" alt="Cash App QR code for $CharlieShocked" width="180" height="180"><a href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">$CharlieShocked on Cash App</a></div></div>
+  <a class="tipbtn" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Donate 🙂</a>
 </header>
 <div class="shell">
   <nav class="rail" id="rail" aria-label="Categories"></nav>
@@ -255,10 +250,6 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
     if (h.startsWith('cat-')) { const c = cats.find(c => c.toLowerCase() === h.slice(4)); if (c) return list(c, GAMES.filter(g => g.category === c), h, GAMES.filter(g => g.category === c).length + ' games'); }
     home();
   }
-  const tb = $('#tipbtn'), tp = $('#tippop');
-  tb.addEventListener('click', e => { e.stopPropagation(); tp.hidden = !tp.hidden; tb.setAttribute('aria-expanded', String(!tp.hidden)); });
-  document.addEventListener('click', e => { if (!tp.hidden && !tp.contains(e.target)) { tp.hidden = true; tb.setAttribute('aria-expanded', 'false'); } });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !tp.hidden) { tp.hidden = true; tb.setAttribute('aria-expanded', 'false'); } });
   q.addEventListener('input', () => { if (location.hash.startsWith('#play-')) { history.replaceState(null, '', location.pathname); } route(); });
   window.addEventListener('hashchange', () => { if (!location.hash.startsWith('#play-')) q.value = ''; route(); });
   route();
