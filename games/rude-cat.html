@@ -60,6 +60,8 @@ text-shadow:4px 0 0 var(--ink),-4px 0 0 var(--ink),0 4px 0 var(--ink),0 -4px 0 v
 .lvl .diff{display:flex;gap:2px;justify-content:center;margin-top:3px;height:12px}
 .lvl .diff i{width:11px;height:11px;border-radius:50%;background:#e8dccb;border:2px solid var(--ink);display:block}
 .lvl .diff i.on{background:#e2483d}
+.endhdr{grid-column:1/-1;text-align:center;font-weight:900;font-size:22px;color:#ffd23f;text-shadow:0 3px 0 var(--ink);margin:10px 0 0}
+.lvl .twist{position:absolute;top:6px;right:8px;font-size:20px}
 .threats{font-weight:900;font-size:15px;margin:6px 0 2px}
 .runinfo{display:inline-flex;gap:8px;align-items:center;background:#ffe7c2;border:3px solid var(--ink);border-radius:999px;padding:3px 12px;font-weight:900;font-size:14px;margin:4px 0}
 .coat{display:flex;align-items:center;gap:10px;justify-content:center;color:#fff6e6;font-weight:900;text-shadow:0 2px 0 var(--ink);font-size:16px}
@@ -177,7 +179,7 @@ text-shadow:4px 0 0 var(--ink),-4px 0 0 var(--ink),0 4px 0 var(--ink),0 -4px 0 v
   <div class="perk" id="catPerk"></div>
   <button class="btn big" id="bPlay">PLAY</button>
   <button class="btn donate" id="bDonate">&#9829; Donate</button>
-  <div class="menurow"><button class="btn mid lives" id="bRun">9 LIVES</button><button class="btn mid alt" id="bAch">&#127942; Trophies</button></div>
+  <div class="menurow"><button class="btn mid lives" id="bRun">9 LIVES</button><button class="btn mid alt" id="bAch">&#127942; Achievements</button></div>
   <div class="totalstars" id="titleStars"></div>
   <div class="keys" id="titleKeys"><kbd>A</kbd><kbd>D</kbd> move &middot; <kbd>W</kbd> jump &middot; <kbd>E</kbd> swat &amp; eat &middot; <kbd>S</kbd> sneak &middot; <kbd>P</kbd> pause &middot; <kbd>M</kbd> mute</div>
 </section>
@@ -244,7 +246,7 @@ text-shadow:4px 0 0 var(--ink),-4px 0 0 var(--ink),0 4px 0 var(--ink),0 -4px 0 v
 
 <section class="screen scrim" id="sAch">
   <div class="card achwrap">
-    <div class="row" style="justify-content:space-between"><h2>Trophies</h2><div class="goal" id="achCount">0 / 0</div></div>
+    <div class="row" style="justify-content:space-between"><h2>Achievements</h2><div class="goal" id="achCount">0 / 0</div></div>
     <div class="achgrid" id="achGrid"></div>
     <div class="row"><button class="btn ghost" id="bAchBack">&#9664; Back</button></div>
   </div>
@@ -252,8 +254,8 @@ text-shadow:4px 0 0 var(--ink),-4px 0 0 var(--ink),0 4px 0 var(--ink),0 -4px 0 v
 
 <section class="screen scrim" id="sDonate">
   <div class="card donatecard">
-    <h2>Support the dev &#9829;</h2>
-    <div class="muted" style="font-weight:800">Scan with your phone camera to tip on Cash App</div>
+    <h2>Donate &#9829;</h2>
+    <div class="muted" style="font-weight:800">Scan with your phone camera to donate on Cash App</div>
     <div class="qrbox"><canvas id="qrCanvas" width="10" height="10" aria-label="Cash App QR code"></canvas></div>
     <div class="cashtag">$CharlieShocked</div>
     <div class="row" style="justify-content:center"><a class="btn" id="bCashLink" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener" style="text-decoration:none">Open Cash App</a><button class="btn ghost" id="bDonateBack">Close</button></div>
@@ -1293,7 +1295,7 @@ const QR = (() => {
 /* =====================================================================
    WORLD & PHYSICS
    ===================================================================== */
-const GRAV = 2100, STEP = 1 / 120, EXT = 30, IWALL = 20, DOORH = 262;
+let GRAV = 2100; const STEP = 1 / 120, EXT = 30, IWALL = 20, DOORH = 262;
 
 class Level {
   constructor(def) {
@@ -1442,9 +1444,9 @@ function updateItems(L, dt) {
 }
 function restItem(L, it, dt) {
   if (it.rot !== it.restRot) { const d = it.restRot - it.rot; it.rot += clamp(d, -10 * dt, 10 * dt); }
-  if (Math.abs(it.vx) > 1) {
+  if (Math.abs(it.vx) > 22) {
     it.x += it.vx * dt;
-    it.vx *= Math.exp(-(it.d.fric || 7) * dt);
+    it.vx *= Math.exp(-Math.max(it.d.fric || 7, it.surface && it.surface.floor ? 9 : 0) * dt);
     itemWalls(L, it);
     if (it.dead) return;
     it.rollT = (it.rollT || 0) + Math.abs(it.vx) * dt;
@@ -1500,13 +1502,13 @@ function landItem(L, it, surf) {
   const v = it.vy, drop = it.y - it.minY;
   if (it.d.onLand && it.d.onLand(L, it, surf, v, drop)) return;
   const topple = it.fragile && v <= 250 && it.h > it.w * 1.15 && (it.swatted || drop > 25) && ['ceramic', 'china', 'glass', 'terracotta'].includes(it.d.mat) && Math.abs(Math.cos(snapAngle(it))) < 0.5;
-  if (it.fragile && (v > it.d.breakV || (it.smash && v > 40) || topple)) {
+  if (it.fragile && (v > it.d.breakV * (G.breakMul || 1) || (it.smash && v > 40) || topple)) {
     if (it.d.crack) crackItem(L, it, drop);
     else { breakItem(L, it, drop, surf); return; }
   }
   if (!it.scored && drop >= 50) { it.scored = true; scoreFall(L, it, drop); }
   if (v > 250) {
-    it.vy = -v * (it.d.bounce || 0.28); it.vx *= 0.62; it.vr = it.vr * 0.5 + rand(-3, 3);
+    it.vy = -v * Math.min(0.85, (it.d.bounce || 0.28) * (G.bounceMul || 1)); it.vx *= 0.62; it.vr = it.vr * 0.5 + rand(-3, 3);
     impactSound(it, v);
     if (v > 500) dust(L, it.x, it.y, 3);
   } else {
@@ -3081,7 +3083,7 @@ PF.mouseHole = function (L, x, F, o = {}) {
     update(L, dt) {
       if (L !== G.L || G.state !== 'play') return;
       this.next -= dt;
-      if (this.next <= 0 && !this.mice.length) { this.next = rand(9, 15); this.mice.push({ x: x + dir0 * 4, F, dir: dir0, t: 0, state: 'out', goal: x + dir0 * rand(range * 0.5, range), wait: 0, ph: 0 }); Sound.squeak(panOf(x)); }
+      if (this.next <= 0 && !this.mice.length) { this.next = rand(9, 15) * (o.fast ? 0.35 : 1); this.mice.push({ x: x + dir0 * 4, F, dir: dir0, t: 0, state: 'out', goal: x + dir0 * rand(range * 0.5, range), wait: 0, ph: 0 }); Sound.squeak(panOf(x)); }
       const k = G.cat;
       for (const m of this.mice) {
         m.t += dt; m.ph += dt * (m.state === 'home' ? 30 : 18);
@@ -3094,7 +3096,7 @@ PF.mouseHole = function (L, x, F, o = {}) {
           m.caught = true; m.state = 'dizzy'; m.dz = m.t + 2.2;
           const pounce = !k.onGround || k.airT > 0 || k.vy > 50;
           rude(m.x, F - 50, pounce ? 320 : 220, pounce ? 'POUNCE! GOT IT!' : pick(['GOTCHA!', 'Mouse: caught!', 'Squeak!', 'Snack? No. Toy.']), { big: true });
-          Sound.squeak(panOf(m.x)); Sound.squeak(panOf(m.x));
+          Sound.squeak(panOf(m.x)); Sound.squeak(panOf(m.x)); if (pounce) ach('pounce');
           for (let i = 0; i < 8; i++) L.parts.push({ type: 'spark', x: m.x + rand(-12, 12), y: F - rand(4, 24), vx: rand(-90, 90), vy: rand(-160, -30), t: 0, life: rand(0.3, 0.6), size: rand(4, 7) });
           G.stats.mice = (G.stats.mice || 0) + 1; cnt('mice');
         }
@@ -3135,11 +3137,11 @@ PF.roomba = function (L, x, F, x0, x1) {
       if (nx < x0 || nx > x1) this.dir *= -1;
       else { const dx = nx - this.rx; this.rx = nx; plat.x = nx - 24; if (riding) k.x += dx; }
       for (const it of L.items) {
-        if (it.state !== 'rest' || !it.surface || !it.surface.floor || it.d.heavy || it.dead) continue;
+        if (!riding || it.state !== 'rest' || !it.surface || !it.surface.floor || it.d.heavy || it.dead) continue;
         if (Math.abs(it.x - (this.rx + this.dir * 28)) < 10 && Math.abs(it.y - F) < 2) { toAir(it); it.vx = this.dir * rand(170, 260); it.vy = -rand(160, 240); it.vr = rand(-7, 7); it.swatted = riding; it.auto = !riding; if (it.fragile) it.smash = true; Sound.boing(panOf(it.x)); }
       }
       if (!mine || G.state !== 'play') return;
-      if (riding) { this.ride += dt; this.rideTot += dt; if (this.ride >= 1) { this.ride = 0; rude(this.rx, F - 90, 25, pick(['ROOMBA RODEO!', 'Yeehaw!', 'Wheee!', 'Cruise control.']), { small: true }); } if (this.rideTot >= 5) ach('rodeo'); }
+      if (riding) { this.ride += dt; this.rideTot += dt; if (this.ride >= 1) { this.ride = 0; rude(this.rx, F - 90, 25, pick(['ROOMBA RODEO!', 'Yeehaw!', 'Wheee!', 'Cruise control.']), { small: true }); } if (this.rideTot >= 5) ach('rodeo'); this.rideC = (this.rideC || 0) + dt; if (this.rideC >= 1) { this.rideC = 0; cnt('ride'); } }
       else if (k.onGround && k.ground && k.ground.floor && Math.abs(k.x - (this.rx + this.dir * 30)) < 12 && Math.abs(k.y - F) < 3) { k.vy = -720; k.vx = this.dir * 160; k.onGround = false; k.ground = null; Sound.boing(panOf(k.x)); popup(k.x, k.y - 70, 'EEK! VACUUM!', 0, { small: true }); this.dir *= -1; }
     },
     draw(c, L, t) { const X = this.rx; shadowE(c, X, F, 28, 4, 0.2); rbox(c, X - 27, F - 17, 54, 13, 6.5, '#4a4550', 2.4); ell(c, X, F - 17, 26, 6, '#6a6570', 2.2); ell(c, X - 6, F - 18, 9, 2, 'rgba(255,255,255,.25)', 0); circ(c, X + this.dir * 14, F - 18, 2.6, (t * 2 % 1) > 0.5 ? '#5aff8a' : '#2a8a4a', 1.2); circ(c, X + this.dir * 22, F - 6, 4 + Math.sin(t * 20), '#9aa3ad', 1.4); }
@@ -3214,7 +3216,7 @@ PF.fridge = function (L, x, F, o = {}) {
     hit: { x: x, y: dy, w: w, h: F - dy - 10 },
     onSwat(L, k) {
       if (this.opened) return false;
-      this.opened = true; Sound.box(panOf(x)); Sound.chirp(1.3, panOf(x));
+      this.opened = true; ach('fridge'); Sound.box(panOf(x)); Sound.chirp(1.3, panOf(x));
       o.food.forEach((f, i) => { const it = makeItem(f); it.x = x + w * 0.3 + i * 12; it.y = dy + 60 + i * 30; it.state = 'air'; it.minY = it.y; it.vx = k.facing * rand(120, 260) * (i % 2 ? 1 : 0.6); it.vy = -rand(80, 220); it.vr = rand(-6, 6); it.swatted = true; L.items.push(it); });
       rude(x + w / 2, dy - 20, 80, pick(['FRIDGE RAID!', 'Open sesame!', 'The fridge is OPEN!']), { big: true }); L.addDmg(x + w / 2, F);
       return true;
@@ -3459,7 +3461,7 @@ PF.tesla = function (L, x, F, o = {}) {
       for (let i = 0; i < 9; i++) rbox(c, x - 14 + (i % 2), F - 26 - i * 14, 28, 12, 6, i % 2 ? '#d4a53a' : '#b8862a', 1.8);
       ln(c, x, F - 150, x, F - h + 10, 6, '#9aa3ad');
       circ(c, x, F - h, 22, '#c9d2da', 2.6); c.fillStyle = 'rgba(255,255,255,.5)'; c.beginPath(); c.arc(x - 7, F - h - 8, 6, 0, TAU); c.fill();
-      if (this.warn) { glow(c, x, F - h, 50, '#b8e8ff', 0.4); if (Math.random() < 0.5) star5(c, x + rand(-24, 24), F - h + rand(-24, 24), 4, '#ffffff', 1); }
+      if (this.warn) { glow(c, x, F - h, 50, '#b8e8ff', 0.3 + 0.2 * Math.sin(t * 20)); }
       if (this.lit) {
         glow(c, x, F - h, 110, '#9fdcff', 0.45);
         c.lineJoin = 'round';
@@ -4138,7 +4140,7 @@ function drawCat(c, k, t, C) {
   const pose = k.pose;
   c.save();
   c.translate(k.x, k.y);
-  const csz = C.size || 1; if (csz !== 1) c.scale(csz, csz);
+  const csz = (C.size || 1) * (G.mega && k === G.cat ? 1.45 : 1); if (csz !== 1) c.scale(csz, csz);
   if (C.ghost) { glow(c, 0, -22, 50, '#bfe6ff', 0.4); c.globalAlpha *= 0.78; }
   if (pose === 'climb') {
     c.translate(0, -22); c.rotate(-Math.PI / 2); c.scale(1, k.facing);
@@ -4265,7 +4267,7 @@ const CATS = [
   { name: 'Ninja', fur: '#2b2730', dark: '#18151c', belly: '#3c3742', eye: '#ff5a5a', nose: '#6b5562', acc: 'ninja', perk: { sneak: 0.55, spd: 1.08 }, perkTxt: 'Nearly invisible', unlock: 25 },
   { name: 'Royal Persian', fur: '#fbf6ef', dark: '#d9cbbb', belly: '#ffffff', eye: '#6fb3ff', nose: '#f6a0b0', fluff: true, acc: 'crown', size: 1.04, perk: { spd: 1.08, jmp: 1.08, pwr: 1.15 }, perkTxt: 'Good at everything', unlock: 28 },
   { name: 'Ghost Cat', fur: '#d8ecff', dark: '#a8c8ec', belly: '#f2f9ff', eye: '#7fe0ff', nose: '#c8b8ff', ghost: true, perk: { jmp: 1.22, sneak: 0.8 }, perkTxt: 'Floaty jumps', unlockAch: 'allLives', unlockTxt: 'Lose all 9 lives' },
-  { name: 'Golden Cat', fur: '#ffd34d', dark: '#d99a1e', belly: '#fff2b8', eye: '#ff7a3a', nose: '#ff9aa8', stripes: true, golden: true, perk: { spd: 1.15, jmp: 1.15, pwr: 1.35 }, perkTxt: 'The best cat', unlockAch: 'runAll', unlockTxt: 'Beat a 9 Lives run' },
+  { name: 'Golden Cat', fur: '#ffd34d', dark: '#d99a1e', belly: '#fff2b8', eye: '#ff7a3a', nose: '#ff9aa8', stripes: true, golden: true, perk: { spd: 1.15, jmp: 1.15, pwr: 1.35 }, perkTxt: 'The best cat', unlockAch: 'runAll', unlockTxt: 'Clear 10 homes in 9 Lives' },
 ];
 function catUnlocked(i) {
   const C = CATS[i]; if (!C) return false;
@@ -4696,7 +4698,7 @@ function resolveVisit(L) {
   const fresh = L.dmg.some(x => x.fresh);
   if (o.caught) {
     const lost = Math.floor(G.score * 0.3 / 5) * 5;
-    G.score -= lost; G.stats.busted++; ach('busted');
+    G.score -= lost; G.stats.busted++; ach('busted'); cnt('busts');
     G.invT = 0; loseLife(L, 'BUSTED!');
     o.look = 'angry'; o.result = 'busted';
     say(o.reason === 'act' ? pick(['RIGHT IN FRONT OF ME?!', 'I AM LITERALLY WATCHING YOU!']) : pick(d.yells), true);
@@ -4709,10 +4711,10 @@ function resolveVisit(L) {
     if (d.dog) {
       o.look = 'angry'; o.result = 'framed'; say(d.framed, true);
       if (L.dog) { L.dog.state = 'blamed'; L.dog.blameT = 3.2; L.dog.wake = 0; L.parts.push({ type: 'q', x: L.dog.x + 30, y: L.dog.F - 70, vx: 0, vy: -20, t: 0, life: 2.2, txt: '?' }); setTimeout(() => Sound.whine(panOf(L.dog.x)), 700); }
-      bonus(k.x, k.y - 90, 250, 'FRAMED THE DOG!', '#ffd23f'); G.stats.framed++; ach('framed');
+      bonus(k.x, k.y - 90, 250, 'FRAMED THE DOG!', '#ffd23f'); G.stats.framed++; ach('framed'); cnt('frames');
     } else {
       o.look = 'suspicious'; o.result = 'framed'; say(d.blameLine, false);
-      bonus(k.x, k.y - 90, d.blameBonus || 150, d.blameLabel || 'Got away with it!', '#ffd23f'); G.stats.framed++; ach('framed');
+      bonus(k.x, k.y - 90, d.blameBonus || 150, d.blameLabel || 'Got away with it!', '#ffd23f'); G.stats.framed++; ach('framed'); cnt('frames');
     }
     G.flash = { t: 0, col: '#ffd23f', a: 0.25 };
   } else if (o.innocentAll) {
@@ -4930,7 +4932,7 @@ function renderWorld(c, L, vx, vy, vw, vh, t, opts = {}) {
   const o = G.owner;
   if (L === G.L && o && (opts.owner || (!opts.snap && (ownerPresent() || o.phase === 'leave' || o.phase === 'final')))) drawOwnerInWorld(c, L, t, opts.snap);
   const k = (L === G.L) ? G.cat : (opts.cat || null);
-  if (k && !(L === G.L && G.invT > 0 && Math.floor(G.realT * 12) % 2)) drawCat(c, k, t, G.coat);
+  if (k) { const inv = L === G.L && G.invT > 0; if (inv) { c.save(); c.globalAlpha *= 0.6 + 0.25 * Math.sin(G.realT * 9); } drawCat(c, k, t, G.coat); if (inv) c.restore(); }
   if (k && L === G.L && !opts.snap) drawWorldExtras(c, L, k, t);
   for (const p of props) if (p.drawFront && vis(p)) p.drawFront(c, L, t);
   if (k && k.pose === 'hide' && k.hideZone) {
@@ -5116,6 +5118,7 @@ Object.assign(Sound, {
 function catMul(kind) {
   const p = (G.coat && G.coat.perk) || {};
   let m = p[kind] || 1;
+  if (G.mega && kind === 'pwr') m *= 1.6;
   if (G.zoomT > 0) { if (kind === 'spd') m *= 1.6; else if (kind === 'jmp') m *= 1.12; else if (kind === 'pwr') m *= 1.3; }
   return m;
 }
@@ -5146,13 +5149,40 @@ const ACHS = [
   ['ninth', '🙀', 'Ninth Life', 'Finish a home with 1 life left'],
   ['secret1', '🏆', 'Ultimate Rudeness', 'Find a secret'],
   ['secret5', '🕵️', 'Secret Agent', 'Find 5 secrets'],
-  ['secretAll', '💎', 'Master of Mischief', 'Find every secret'],
+  ['secretAll', '💎', 'Master of Mischief', 'Find every secret in homes 1-10'],
   ['star3', '⭐', 'Three Stars', 'Get 3 stars in a home'],
   ['stars15', '🌟', 'Star Collector', 'Collect 15 stars'],
-  ['starsAll', '✨', 'Perfectionist', 'Get every star'],
+  ['starsAll', '✨', 'Perfectionist', 'Get every star in homes 1-10'],
   ['run3', '❤️', 'Survivor', 'Clear 3 homes in a 9 Lives run'],
-  ['runAll', '🏅', 'Nine Lives', 'Clear every home in a 9 Lives run'],
+  ['runAll', '🏅', 'Nine Lives', 'Clear 10 homes in a 9 Lives run'],
   ['allCats', '😺', 'Crazy Cat Collector', 'Unlock every cat'],
+  ['cats8', '🐈', 'Cat Herder', 'Unlock 8 cats'],
+  ['gold', '🪙', 'Jackpot!', 'Smash a golden cat statue'],
+  ['gold10', '👑', 'Gold Rush', 'Smash 10 golden cats'],
+  ['endless1', '♾️', 'No Way Out', 'Play an endless home'],
+  ['endless5', '🏠', 'House Hopper', 'Clear 5 endless homes'],
+  ['endless15', '🏘️', 'Neighborhood Menace', 'Clear 15 endless homes'],
+  ['endless30', '🌆', 'City-Wide Disaster', 'Clear 30 endless homes'],
+  ['twist', '🎲', 'Plot Twist', 'Play a home with a twist'],
+  ['allTwists', '🌀', 'Seen It All', 'Play every kind of twist'],
+  ['score10k', '💯', 'Big Numbers', 'Score 10,000 in one home'],
+  ['score25k', '🚀', 'Off the Charts', 'Score 25,000 in one home'],
+  ['points100k', '💰', 'Rude Millionaire Jr.', 'Earn 100,000 points total'],
+  ['points1m', '🤑', 'Rude Millionaire', 'Earn 1,000,000 points total'],
+  ['smash30', '🧨', 'One-Cat Wrecking Crew', 'Break 30 things in one home'],
+  ['untouch', '🛡️', 'Untouchable', 'Finish a home without losing a life'],
+  ['turkey', '🦃', 'Turkey Bandit', 'Eat a whole turkey'],
+  ['feast100', '🍔', 'Snack Legend', 'Eat 100 snacks'],
+  ['pounce', '🐾', 'Pounce!', 'Catch a mouse by landing on it'],
+  ['mouse50', '🐀', 'Pied Piper', 'Catch 50 mice'],
+  ['rodeo30', '🤠', 'Roomba Cowboy', 'Ride robot vacuums for 30 seconds total'],
+  ['zoom10', '💫', 'Zoom Zoom Zoom', 'Get the zoomies 10 times'],
+  ['fridge', '🧊', 'Fridge Raider', 'Open a fridge'],
+  ['busted10', '🚨', 'Repeat Offender', 'Get caught 10 times'],
+  ['framed10', '🕵️‍♂️', 'Master of Blame', 'Blame someone else 10 times'],
+  ['stars30', '🌠', 'Starry Night', 'Collect 30 stars'],
+  ['run5', '💖', 'Cat of Steel', 'Clear 5 homes in a 9 Lives run'],
+  ['run20', '♥️', 'Immortal', 'Clear 20 homes in a 9 Lives run'],
 ].map(([id, icon, name, desc]) => ({ id, icon, name, desc }));
 function achData() { const d = Save.data; if (!d.ach) d.ach = {}; if (!d.cnt) d.cnt = {}; return d; }
 function hasAch(id) { return !!achData().ach[id]; }
@@ -5169,7 +5199,14 @@ function cnt(key, n = 1) {
   const v = d.cnt[key];
   if (key === 'broken') { ach('smash1'); if (v >= 50) ach('smash50'); if (v >= 250) ach('smash250'); if (v >= 1000) ach('smash1000'); }
   if (key === 'meals') { ach('snack'); if (v >= 20) ach('glutton'); }
-  if (key === 'mice') { ach('mouse'); if (v >= 10) ach('mouse10'); }
+  if (key === 'mice') { ach('mouse'); if (v >= 10) ach('mouse10'); if (v >= 50) ach('mouse50'); }
+  if (key === 'meals' && v >= 100) ach('feast100');
+  if (key === 'golds') { ach('gold'); if (v >= 10) ach('gold10'); }
+  if (key === 'zooms' && v >= 10) ach('zoom10');
+  if (key === 'busts' && v >= 10) ach('busted10');
+  if (key === 'frames' && v >= 10) ach('framed10');
+  if (key === 'points') { if (v >= 100000) ach('points100k'); if (v >= 1000000) ach('points1m'); }
+  if (key === 'ride' && v >= 30) ach('rodeo30');
   return v;
 }
 const achQueue = [];
@@ -5180,13 +5217,13 @@ function achToast(a) {
 function showNextAch() {
   const a = achQueue[0]; if (!a) return;
   const el = document.getElementById('achToast'); if (!el) { achQueue.length = 0; return; }
-  el.innerHTML = `<span class="ai">${a.icon}</span><span><small>TROPHY!</small><b>${a.name}</b></span>`;
+  el.innerHTML = `<span class="ai">${a.icon}</span><span><small>ACHIEVEMENT!</small><b>${a.name}</b></span>`;
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   Sound.achieve();
   setTimeout(() => { el.classList.remove('show'); setTimeout(() => { achQueue.shift(); showNextAch(); }, 350); }, 2400);
 }
 function onBreakStat(L, it) {
-  cnt('broken');
+  cnt('broken'); if (it.type === 'goldCat') cnt('golds');
   if (G.stats) G.stats.smashedT = (G.stats.smashedT || 0) + 1;
 }
 
@@ -5295,20 +5332,20 @@ function biteFood(L, k, it) {
     for (let i = 0; i < 6; i++) L.parts.push({ type: 'heart', x: k.x + rand(-10, 10), y: k.y - 50, vx: rand(-30, 30), vy: -rand(50, 90), t: 0, life: 1.2, size: rand(4, 7) });
     rude(it.x, it.y - it.h - 14, per + (F.bonus ?? 60) * mult, F.label || ('STOLE THE ' + F.name.toUpperCase() + '!'), { big: true });
     Sound.gulp(panOf(k.x)); k.purrT = 1.5;
-    G.stats.meals = (G.stats.meals || 0) + 1; cnt('meals');
+    G.stats.meals = (G.stats.meals || 0) + 1; cnt('meals'); if (it.type === 'turkey') ach('turkey');
     if (L.def.onEat) L.def.onEat(L, it);
   }
 }
 function eatCatnip(L, k, it) {
   it.dead = true;
-  const dur = 7 * ((G.coat.perk && G.coat.perk.zoom) || 1);
+  const dur = 7 * ((G.coat.perk && G.coat.perk.zoom) || 1) * (L.def.mods && L.def.mods.catnip ? 1.4 : 1);
   G.zoomT = Math.max(G.zoomT, dur); G.zoomDur = G.zoomT;
   Sound.zoomies(); Sound.meow(1.5, panOf(k.x), true);
   G.banner = { text: 'ZOOMIES!!!', sub: 'Run into EVERYTHING', t: 0, life: 2.2, col: '#9be36b' };
   G.flash = { t: 0, col: '#9be36b', a: 0.3 };
   for (let i = 0; i < 18; i++) L.parts.push({ type: 'spark', x: it.x + rand(-20, 20), y: it.y - rand(0, 40), vx: rand(-200, 200), vy: rand(-260, -40), t: 0, life: rand(0.4, 0.9), size: rand(4, 8) });
   rude(it.x, it.y - 40, 50, 'CATNIP!', { big: true });
-  ach('zoomies');
+  ach('zoomies'); cnt('zooms');
 }
 const RAINBOW = ['#ff6b6b', '#ffb347', '#ffe066', '#7be36b', '#6bc8ff', '#b28cff'];
 function zoomTick(L, k, dt) {
@@ -5336,6 +5373,9 @@ function funStart(L) {
   G.lives = G.run ? G.run.lives : 9;
   G.invT = 0; G.zoomT = 0; G.lifeFx = 0; G.outOfLives = false; G.newAch = []; G.prompt = null; G.wentOut = false;
   G.stats.lives = 0; G.stats.meals = 0; G.stats.bites = 0; G.stats.mice = 0;
+  const M = L.def.mods || {};
+  GRAV = 2100 * (M.lowgrav ? 0.45 : 1); G.breakMul = M.glass ? 0.45 : 1; G.bounceMul = M.bouncy ? 2.6 : 1; G.mega = !!M.mega;
+  if (L.def.twist) { const tw = ETWISTS[L.def.twist]; G.banner = { text: tw[0] + ' ' + tw[1] + '!', sub: tw[2], t: 0, life: 3, col: '#ffd23f' }; }
   achData();
 }
 function funTick(L, dt) {
@@ -5345,6 +5385,7 @@ function funTick(L, dt) {
   if (k.purrT > 0) k.purrT -= dt;
   if (k.wet > 0 && Math.random() < dt * 14) L.parts.push({ type: 'drop', x: k.x + rand(-14, 14), y: k.y - rand(10, 30), vx: rand(-20, 20), vy: 30, t: 0, col: k.wetCol || '#9fd8f6', size: rand(2, 3.5), g: 1 });
   zoomTick(L, k, dt);
+  if (L.def.onTick && G.state === 'play') L.def.onTick(L, dt);
   if (G.state === 'play') hazardTick(L, k);
   // outdoors?
   if (!G.wentOut) { const r = roomAt(L, k.x, k.y - 10); if (r && r.outdoor) { G.wentOut = true; ach('outside'); } }
@@ -5458,14 +5499,21 @@ function funFinish(L, stars) {
   if (!G.stats.busted && ok) ach('angel');
   if (G.lives === 1 && ok) ach('ninth');
   if (L.secret) ach('secret1');
+  if (G.score >= 10000) ach('score10k'); if (G.score >= 25000) ach('score25k');
+  if (G.score > 0) cnt('points', G.score);
+  if (G.stats.broken >= 30) ach('smash30');
+  if (ok && !G.stats.lives) ach('untouch');
+  if (L.def.endless) { ach('endless1'); const ec = LEVELS.filter(x => x.endless && Save.lvl(x.id).stars > 0).length; if (ec >= 5) ach('endless5'); if (ec >= 15) ach('endless15'); if (ec >= 30) ach('endless30'); }
+  if (L.def.twist) { ach('twist'); const d = achData(); d.twists = d.twists || {}; d.twists[L.def.twist] = 1; Save.save(); if (Object.keys(ETWISTS).every(k => d.twists[k])) ach('allTwists'); }
+  if (!G.run && totalStars() >= 30) ach('stars30');
   const secrets = LEVELS.filter(x => Save.lvl(x.id).secret).length;
-  if (secrets >= 5) ach('secret5'); if (secrets >= LEVELS.length) ach('secretAll');
+  if (secrets >= 5) ach('secret5'); if (LEVELS.slice(0, CAMPAIGN).every(x => Save.lvl(x.id).secret)) ach('secretAll');
   if (!G.run) {
     if (stars >= 3) ach('star3');
-    const ts = totalStars(); if (ts >= 15) ach('stars15'); if (ts >= LEVELS.length * 3) ach('starsAll');
+    const ts = totalStars(); if (ts >= 15) ach('stars15'); if (LEVELS.slice(0, CAMPAIGN).every(x => Save.lvl(x.id).stars >= 3)) ach('starsAll');
   } else {
     const R = G.run; R.lives = G.lives; R.total += G.score;
-    if (G.lives > 0) { R.cleared++; if (R.cleared >= 3) ach('run3'); if (R.cleared >= R.order.length) { ach('runAll'); R.done = true; } }
+    if (G.lives > 0) { R.cleared++; if (R.cleared >= 3) ach('run3'); if (R.cleared >= 5) ach('run5'); if (R.cleared >= 10) ach('runAll'); if (R.cleared >= 20) ach('run20'); }
     else R.over = true;
     if (R.over || R.done) {
       R.newBest = R.total > (Save.data.runBest || 0);
@@ -5475,8 +5523,8 @@ function funFinish(L, stars) {
   }
 }
 function startRun() {
-  G.run = { lives: 9, total: 0, i: 0, order: LEVELS.map((_, i) => i), cleared: 0 };
-  openIntro(G.run.order[0]);
+  G.run = { lives: 9, total: 0, i: 0, cleared: 0 };
+  openIntro(0);
 }
 /* =====================================================================
    HUD — score, stars, timer, CHAOS COMBO, owner warnings
@@ -6313,6 +6361,254 @@ LEVELS.push(
   }
 })();
 /* =====================================================================
+   ENDLESS HOMES — after the castle the homes never stop. Each home is
+   built from its number (same number = same house), gets harder, and
+   may come with a fun twist.
+   ===================================================================== */
+const CAMPAIGN = LEVELS.length;
+defItem('goldCat', { w: 30, h: 38, mass: 1.3, mat: 'ceramic', breakV: 220, pts: 500, valuable: true, shards: 10, color: '#ffd23f', labels: ['JACKPOT!', 'GOLDEN CAT: SMASHED!', 'Cha-ching!'], draw(c) { ell(c, 0, 9, 13, 10, '#ffd23f', 2.2); circ(c, 0, -7, 10, '#ffd23f', 2.2); poly(c, [-9, -11, -7, -19, -2, -15], '#ffd23f', 1.8); poly(c, [9, -11, 7, -19, 2, -15], '#ffd23f', 1.8); const a = Math.sin(G.realT * 5) * 0.4; c.save(); c.translate(9, -2); c.rotate(-0.6 + a); rbox(c, -2, -11, 6, 12, 3, '#ffd23f', 1.8); c.restore(); ln(c, -6, -8, -2, -8, 1.6); ln(c, 2, -8, 6, -8, 1.6); circ(c, 0, 3, 3.4, '#e2483d', 1.4); glow(c, 0, 0, 30, '#fff3a0', 0.35 + 0.15 * Math.sin(G.realT * 4)); if (Math.sin(G.realT * 3) > 0.9) star5(c, 6, -12, 4, '#ffffff', 1); } });
+
+const EWALLS = [
+  { type: 'stripes', a: '#cfe0c0', b: '#c2d6b2', trim: '#fff6e8' }, { type: 'stripes', a: '#f6d6d0', b: '#ecc6be', trim: '#ffffff' },
+  { type: 'dots', a: '#d8e6f4', b: '#b8cce4', trim: '#ffffff' }, { type: 'dots', a: '#fbe7b8', b: '#f0cf86', trim: '#fff6e8' },
+  { type: 'floral', a: '#f4ead8', b: '#e8dcc4', c: '#d98a96', trim: '#ffffff' }, { type: 'floral', a: '#e2f0e6', b: '#cfe4d6', c: '#7aa86a', trim: '#ffffff' },
+  { type: 'tile', a: '#e8f0f2', b: '#d2e0e6', trim: '#ffffff' }, { type: 'brick', a: '#c98a6a', b: '#a86a4e', trim: '#f2dcc8' },
+  { type: 'panel', a: '#c9d6e3', b: '#b8c8d8', trim: '#ffffff' }, { type: 'damask', a: '#8a6aa8', b: '#7a5a98', trim: '#d4a53a' },
+  { type: 'plain', a: '#f2c9a8', trim: '#fff6e8', board: '#c99a6a' }, { type: 'plain', a: '#b8d8d0', trim: '#ffffff', board: '#7aa8a0' },
+  { type: 'stripes', a: '#2f6a8a', b: '#2a5e7a', trim: '#d4a53a' }, { type: 'plain', a: '#e8d8f0', trim: '#ffffff', board: '#a898c0' },
+];
+const EFLOORS = [
+  { type: 'wood', a: '#c99a6a', b: '#a87a4e' }, { type: 'wood', a: '#9a6a40', b: '#7a5030' }, { type: 'parquet', a: '#a8784e', b: '#86583a' },
+  { type: 'checker', a: '#ffffff', b: '#c8553d' }, { type: 'tile', a: '#d8e0e4', b: '#b8c4ca' }, { type: 'carpet', a: '#7a8aa8', b: '#6a7a98' },
+  { type: 'carpet', a: '#c0393b', b: '#a83234' }, { type: 'marble', a: '#e8e2d8', b: '#b8ac9c' },
+];
+const ECAB = ['#e8a35a', '#7a9ac8', '#c8553d', '#8ab88a', '#5a6a7a', '#d9b382', '#ffffff'];
+const EPOOL = {
+  kitchen: ['mug', 'plates', 'bowl', 'glass', 'pan', 'fruitBowl', 'canister', 'eggs', 'flour', 'bottle', 'cookieJar', 'pie', 'teapot', 'cereal'],
+  shelf: ['mug', 'glass', 'vase', 'plant', 'succulent', 'frame', 'book', 'snowglobe', 'figurine', 'teacup', 'candle', 'trophy', 'clock', 'piggy', 'duck', 'dplate', 'bowl', 'orchid'],
+  living: ['remote', 'mug', 'candle', 'vase', 'book', 'candyDish', 'fruitBowl', 'keybowl', 'plant'],
+  bed: ['lamp', 'clock', 'glass', 'perfume', 'jewelry', 'book', 'frame', 'piggy', 'plush', 'robot', 'snowglobe'],
+  bath: ['soap', 'perfume', 'duck', 'candle', 'glass', 'succulent'],
+  office: ['mug', 'lamp', 'book', 'globe', 'trophy', 'mclock', 'plant', 'frame'],
+  dining: ['plate', 'wineGlass', 'glass', 'candle', 'pie', 'teapot', 'teacup', 'fruitBowl', 'plate', 'vase'],
+  play: ['duck', 'block', 'robot', 'plush', 'piggy', 'block', 'globe'],
+  fancy: ['ming', 'urn', 'sculpture', 'vase', 'orchid'],
+};
+const EFOOD = ['drumstick', 'cheese', 'pizza', 'burger', 'sushi', 'steak', 'hotdog', 'watermelon', 'fishMeal'];
+const ETWISTS = {
+  lowgrav: ['🪶', 'LOW GRAVITY', 'Everything floats!'], glass: ['💎', 'GLASS HOUSE', 'Everything breaks super easily'],
+  catnip: ['🌿', 'CATNIP PARTY', 'Catnip everywhere'], mice: ['🐭', 'MOUSE PARADE', 'So. Many. Mice.'],
+  mega: ['🐘', 'MEGA CAT', 'You are HUGE'], bouncy: ['🏀', 'BOUNCY HOUSE', 'Everything bounces'],
+  speedy: ['⚡', 'SPEEDY OWNER', 'They come back fast'],
+};
+const ENAMES = [['Cozy', 'Fancy', 'Tiny', 'Messy', 'Sunny', 'Spooky', 'Quiet', 'Fluffy', 'Shiny', 'Grumpy', 'Sleepy', 'Royal', 'Retro', 'Secret', 'Wobbly', 'Sparkly'], ['Cottage', 'Apartment', 'Bungalow', 'Loft', 'Cabin', 'Beach House', 'Ranch', 'Flat', 'Studio']];
+const ENAMES2 = ['Townhouse', 'Mansion', 'Farmhouse', 'Lake House', 'Villa', 'Manor', 'Chalet'];
+const ECATS = ['Nugget', 'Pickles', 'Biscuit', 'Waffles', 'Noodle', 'Gizmo', 'Mochi', 'Tater Tot', 'Pudding', 'Bean', 'Muffin', 'Sprinkles', 'Chaos', 'Zoom', 'Crumpet', 'Taco'];
+const EDOGNAMES = ['Buster', 'Daisy', 'Max', 'Bean', 'Lola', 'Rocky', 'Pickle', 'Waffles'];
+
+function makeEndless(n) {
+  const rng = mulberry32(n * 7919 + 101), R = () => rng(), rp = a => a[Math.floor(rng() * a.length)], ri = (a, b) => a + Math.floor(rng() * (b - a + 1));
+  const two = n >= 3 && R() < 0.45, yard = !two && R() < 0.42;
+  const roomW = () => ri(560, 780);
+  const wall = () => Object.assign({}, rp(EWALLS)), floor = () => Object.assign({}, rp(EFLOORS));
+  let stories, types;
+  if (!two) {
+    const m = ri(3, n > 5 ? 5 : 4);
+    const ws = Array.from({ length: m }, roomW);
+    const ts = ['living', 'kitchen']; while (ts.length < m) ts.push(rp(['dining', 'bedroom', 'bathroom', 'office', 'play', 'living']));
+    for (let i = ts.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [ts[i], ts[j]] = [ts[j], ts[i]]; }
+    const rooms = ws.map(w => ({ w, wall: wall(), floor: floor() }));
+    if (yard) { rooms.push({ w: ri(1050, 1350), outdoor: true, fence: 150, wall: { a: '#9ccc80' }, floor: { type: 'grass', a: '#7cc46a', b: '#5fae55' } }); ts.push('yard'); }
+    stories = [{ ceil: 40, floor: 500, rooms }]; types = [ts];
+  } else {
+    const gm = 3, gws = Array.from({ length: gm }, roomW), total = gws.reduce((a, b) => a + b, 0) + 20 * gm;
+    const um = 3, uws = []; let left = total - 20 * um;
+    for (let i = 0; i < um; i++) { const w = i === um - 1 ? left : Math.round(left / (um - i) * (0.85 + R() * 0.3)); uws.push(w); left -= w; }
+    const gts = ['kitchen', rp(['living', 'dining']), rp(['living', 'dining', 'office', 'play'])].slice(0, gm);
+    const uts = ['bedroom', rp(['bathroom', 'office', 'play']), rp(['bedroom', 'play', 'office', 'bathroom'])].slice(0, um);
+    const hall = { wall: wall(), floor: floor() };
+    stories = [
+      { ceil: 40, floor: 500, gaps: [[30, 640]], rooms: [{ w: 610, void: true, wall: hall.wall }].concat(uws.map(w => ({ w, wall: wall(), floor: floor() }))) },
+      { ceil: 540, floor: 1000, rooms: [{ w: 610, wall: hall.wall, floor: hall.floor }].concat(gws.map(w => ({ w, wall: wall(), floor: floor() }))) }];
+    types = [['void'].concat(uts), ['hall'].concat(gts)];
+  }
+  const W = 60 + stories[stories.length - 1].rooms.reduce((a, r) => a + r.w, 0) + 20 * (stories[stories.length - 1].rooms.length - 1);
+  // difficulty climbs with every home
+  const twistKeys = Object.keys(ETWISTS).filter(k => k !== 'speedy' || n >= 6);
+  const twist = n >= 2 && R() < 0.65 ? rp(twistKeys) : null;
+  const ownerKey = rp(Object.keys(OWNERS)), owner = OWNERS[ownerKey], cat = rp(ECATS);
+  const hasDog = R() < 0.4, dog = hasDog ? { kind: rp(Object.keys(DOGS)), name: rp(EDOGNAMES) } : null;
+  const visits = Math.min(6, 2 + Math.floor(n / 3)), span = 76;
+  const secret = rp(['gold', 'feast', 'mice', 'combo', 'smash']);
+  const SECRETS = { gold: ['Golden Cat Heist', 'There is a golden cat statue hidden somewhere. Break it.'], feast: ['All You Can Eat', 'Eat every snack in the house.'], mice: ['Mouse Party', 'Catch 3 mice.'], combo: ['Chaos Master', 'Reach a ×3 chaos combo.'], smash: ['Wrecking Crew', 'Break 22 things.'] };
+  const sky = rp(['day', 'day', 'sunset', 'night']);
+  const d = {
+    id: 'e' + n, endless: n, name: `${rp(ENAMES[0])} ${two ? rp(ENAMES2) : rp(ENAMES[1])}`, owner: ownerKey, catName: cat, dog,
+    desc: `Home ${CAMPAIGN + n}. ${owner.name}'s place. ${twist ? ETWISTS[twist][0] + ' ' + ETWISTS[twist][1] + '!' : 'Wreck it.'}`,
+    w: W, h: two ? 1060 : 560, viewH: two ? 620 : 590, sky, view: rp(['city', 'suburb', 'trees']), seed: n * 13 + 7, time: 90,
+    diff: clamp(1 + Math.floor((n + 2) / 3), 2, 5), stories, mods: twist ? { [twist]: true } : {}, twist,
+    stars: [500, 1500, 3000], visits: Array.from({ length: visits }, (_, i) => Math.round(14 + i * (span - 14) / Math.max(1, visits - 1) + (i ? R() * 4 - 2 : 0))),
+    warn: Math.max(2.0, 3.9 - n * 0.12) * (twist === 'speedy' ? 0.7 : 1), lookT: Math.min(2.4, 1.7 + n * 0.04), nearR: Math.min(300, 245 + n * 4), surprise: Math.min(0.6, 0.12 + n * 0.04),
+    homeText: owner.name.toUpperCase() + ' IS HOME!', warnText: rp(['KEYS JINGLING!', 'CAR DOOR SLAM!', 'FOOTSTEPS!', 'DOORBELL?!']),
+    secretName: SECRETS[secret][0], secretHint: SECRETS[secret][1],
+    yells: [`${cat.toUpperCase()}! WHAT DID YOU DO?!`, 'MY STUFF! ALL MY STUFF!', `NOT AGAIN, ${cat.toUpperCase()}!`, 'YOU ARE SO GROUNDED!', 'THAT WAS EXPENSIVE!'],
+    aww: [`Aww, ${cat}, were you good?`, 'Who\'s a good kitty? You are!'],
+    framed: dog ? `${dog.name.toUpperCase()}! Did you do this?!` : undefined,
+    blameLine: 'Hmm. Must have been the wind.', blameLabel: 'BLAMED THE WIND!', blameBonus: 200 + n * 5, blameWord: 'Winds blamed',
+    endQuotes: ['Huh. Looks... fine?', 'WHAT HAPPENED HERE?!', 'MY HOUSE! MY BEAUTIFUL HOUSE!', '*stares in total silence*'],
+    thumbX: 0.45,
+    onBreak(L, it) { if (secret === 'gold' && it.type === 'goldCat') secretDone(L, 'GOLDEN CAT HEIST', 600 + n * 20, it.x, it.y - 100); },
+    onEat(L, it) { if (secret === 'feast' && !L.items.some(i => !i.dead && i.d.food && !i.d.food.catnip)) secretDone(L, 'ALL YOU CAN EAT', 600 + n * 20, it.x, it.y - 100); },
+    onTick(L) {
+      if (L.secret) return;
+      const k = G.cat;
+      if (secret === 'mice' && G.stats.mice >= 3) secretDone(L, 'MOUSE PARTY', 600 + n * 20, k.x, k.y - 120);
+      if (secret === 'combo' && comboMult(G.combo) >= 3) secretDone(L, 'CHAOS MASTER', 600 + n * 20, k.x, k.y - 120);
+      if (secret === 'smash' && G.stats.broken >= 22) secretDone(L, 'WRECKING CREW', 600 + n * 20, k.x, k.y - 120);
+    },
+  };
+  d.build = function (L) { buildEndless(L, d, n, types, secret); };
+  return d;
+}
+
+function buildEndless(L, d, n, types, secret) {
+  const rng = mulberry32(n * 104729 + 3), R = () => rng(), rp = a => a[Math.floor(rng() * a.length)], ri = (a, b) => a + Math.floor(rng() * (b - a + 1));
+  const ctx = { highs: [], floors: [], food: 0 };
+  const fill = (plat, x0, x1, pool, foodP = 0) => {
+    let x = x0 + 8;
+    for (let tries = 0; tries < 30 && x < x1 - 16; tries++) {
+      const isFood = R() < foodP, t = isFood ? rp(EFOOD) : rp(pool), w = IT[t].w;
+      if (x + w > x1 - 6) continue;
+      L.put(t, x + w / 2, plat); if (isFood) ctx.food++; x += w + 5 + R() * 12;
+    }
+  };
+  const stories = d.stories, ground = stories.length - 1;
+  // every room, story by story
+  stories.forEach((st, si) => {
+    const F = st.floor, ceil = st.ceil, isGround = si === ground;
+    const rooms = L.rooms.filter(r => r.story === si);
+    rooms.forEach((r, ri2) => {
+      const type = types[si][ri2]; if (type === 'void') return;
+      const s = { cx: r.x0 + 16, x1: r.x1 - 16 };
+      const place = w => { if (s.cx + w > s.x1) return null; const x = s.cx; s.cx += w + 14 + R() * 26; return x; };
+      if (type === 'hall') {
+        PF.frontDoor(L, 50, F, { color: rp(ECAB) }); PF.stairs(L, 210, F, 10, 50, 43, { color: '#a87a4e', side: '#d9c3a8' });
+        return;
+      }
+      const lastIndoor = isGround && types[si].slice(ri2 + 1).every(t => t === 'yard');
+      if (isGround && ri2 === 0 && ground === 0) { PF.frontDoor(L, s.cx, F, { color: rp(ECAB) }); s.cx += 122; }
+      if (lastIndoor && type !== 'yard') { PF.catBed(L, s.x1 - 80, F, { color: rp(['#e86a5a', '#3d6fb5', '#9b7bd0', '#4fa865']) }); L.catStart = { x: s.x1 - 42, y: F, bed: true }; s.x1 -= 96; }
+      if (type !== 'yard' && R() < 0.45) { PF.mouseHole(L, s.x1 - 6, F, { dir: -1, range: Math.min(380, r.x1 - r.x0 - 100), fast: d.mods.mice }); s.x1 -= 30; }
+      if (type !== 'yard') ctx.floors.push([r.x0 + 150, r.x1 - 60, F, r]);
+      const winAt = (x, w) => { if (R() < 0.6) { const wi = PF.window(L, x, F - 400, w, 160, { F, curtains: R() < 0.5, ccol: rp(['#e2483d', '#3d6fb5', '#4fa865', '#9b7bd0']), view: d.view }); if (wi && wi.sill) { fill(wi.sill, x, x + w, ['plant', 'succulent', 'vase', 'candle', 'duck']); ctx.highs.push(wi.sill); } } };
+      const shelfAt = (x, w, y, pool) => { const sh = PF.wallShelf(L, x, y, w); fill(sh, x, x + w, pool); ctx.highs.push(sh); return sh; };
+      let x;
+      switch (type) {
+        case 'kitchen': {
+          if ((x = place(96)) !== null) { const fr = PF.fridge(L, x, F, { w: 96, food: [rp(EFOOD), rp(EFOOD), 'milk'] }); ctx.highs.push(fr.top); fill(fr.top, x, x + 96, ['cereal', 'bowl', 'plant']); }
+          const cw = Math.min(400, s.x1 - s.cx - 10);
+          if (cw >= 200 && (x = place(cw)) !== null) {
+            const ct = PF.counter(L, x, F, { w: cw, color: rp(ECAB), top: '#fff3e0' }); let end = x + cw;
+            if (n >= 2) { PF.hotStove(L, x + cw - 92, ct.top.y, { w: 76, ph: R() * 5 }); end = x + cw - 100; }
+            fill(ct.top, x, end, EPOOL.kitchen, 0.3);
+            shelfAt(x + 16, Math.min(180, cw - 40), F - 292, EPOOL.shelf);
+            if (cw > 300) { const uc = PF.upperCab(L, x + cw - 150, F - 330, 140, 70); fill(uc, x + cw - 150, x + cw - 10, ['plates', 'bowl', 'mug', 'glass', 'teapot']); ctx.highs.push(uc); }
+          }
+          break;
+        }
+        case 'living': {
+          if (R() < 0.5 && (x = place(186)) !== null) { const fp = PF.fireplace(L, x, F, { w: 186, color: rp(['#e8dcc8', '#c9a27a', '#d8cbb8']), mantel: '#5a3a2a' }); fill(fp.top, x, x + 186, EPOOL.shelf); ctx.highs.push(fp.top); if (n >= 3) PF.fireZone(L, x + 63, F - 50, 60, 50); }
+          const cw = ri(230, 270);
+          if ((x = place(cw)) !== null) { PF.couch(L, x, F, { w: cw, color: rp(['#e86a5a', '#5a8fd8', '#4fa865', '#9b7bd0', '#d9a35a']), pillowCol: rp(['#ffd23f', '#ffffff', '#ff9ac0']), pillowCol2: rp(['#6bc8ff', '#9be36b']) }); winAt(x + 40, 140); }
+          if ((x = place(126)) !== null) { PF.rug(L, x - 60, F, 250, { color: rp(['#c8553d', '#3d6fb5', '#4fa865']), col2: '#ffd23f' }); const tb = PF.coffeeTable(L, x, F, { w: 126 }); fill(tb.top, x, x + 126, EPOOL.living, 0.35); }
+          if (d.dog && !ctx.dogDone && (x = place(136)) !== null) { PF.dogBed(L, x, F, Object.assign({ bed: rp(['#3d6fb5', '#e2483d']) }, d.dog)); ctx.dogDone = true; }
+          if ((x = place(112)) !== null) { const bc = PF.bookcase(L, x, F, { w: 112, h: ri(250, 300), n: 3, color: rp(['#7a5a3a', '#a87a4e', '#ffffff']) }); bc.shelves.forEach(p => fill(p, x, x + 112, EPOOL.shelf)); fill(bc.top, x, x + 112, EPOOL.shelf); ctx.highs.push(bc.top); }
+          if ((x = place(90)) !== null) PF.floorPlant(L, x + 45, F, { s: 0.9 });
+          break;
+        }
+        case 'dining': {
+          const tw = Math.min(300, s.x1 - s.cx - 60);
+          if (tw >= 180) { s.cx += 40; if ((x = place(tw)) !== null) { const tb = PF.table(L, x, F, { w: tw, h: 118, cloth: rp(['#fff7f2', '#e8f0f2', '#ffe7c2']) }); fill(tb.top, x, x + tw, EPOOL.dining, 0.4); PF.chair(L, x - 34, F); PF.chair(L, x + tw + 4, F); PF.pendant(L, x + tw / 2, st.ceil, 150); } }
+          if ((x = place(186)) !== null) { const h = PF.hutch(L, x, F, { w: 186 }); [h.base, h.s1, h.s2].forEach(p => p && fill(p, x, x + 186, ['dplate', 'teacup', 'vase', 'teapot', 'figurine', 'dplate'])); if (h.crown) ctx.highs.push(h.crown); }
+          break;
+        }
+        case 'bedroom': {
+          const bw = ri(220, 260);
+          if ((x = place(bw)) !== null) { PF.bed(L, x, F, { w: bw, color: rp(['#9b7bd0', '#5a8fd8', '#e86a5a', '#4fa865']) }); winAt(x + 50, 130); }
+          if ((x = place(56)) !== null) { const ns = PF.cabinet(L, x, F, { w: 56, h: 74, color: rp(ECAB) }); fill(ns.top, x, x + 56, EPOOL.bed); }
+          if ((x = place(128)) !== null) { const dr = PF.cabinet(L, x, F, { w: 128, h: 110, mirror: true, color: rp(['#f4ede0', '#c9a27a', '#ffffff']) }); fill(dr.top, x, x + 128, EPOOL.bed); }
+          if (s.x1 - s.cx > 60) shelfAt(s.cx, Math.min(170, s.x1 - s.cx), F - 270, EPOOL.bed);
+          break;
+        }
+        case 'bathroom': {
+          if ((x = place(150)) !== null) PF.tub(L, x, F, { w: 150 });
+          if ((x = place(84)) !== null) { PF.toilet(L, x + 4, F); PF.tp(L, x + 110, F - 120); s.cx += 40; }
+          if ((x = place(84)) !== null) { const sk = PF.bathSink(L, x, F, { w: 84 }); fill(sk.top, x, x + 84, EPOOL.bath); }
+          shelfAt(r.x0 + 30, 150, F - 300, EPOOL.bath);
+          break;
+        }
+        case 'office': {
+          if ((x = place(150)) !== null) { const dk = PF.desk(L, x, F, { w: 150 }); PF.laptop(L, x + 100, dk.top); fill(dk.top, x, x + 70, EPOOL.office); PF.decor(L, rp(['diploma', 'monitors', 'poster']), x + 75, F - 320, { color: rp(['#6fbbe3', '#ffd23f']), art: 'rocket' }); }
+          if ((x = place(112)) !== null) { const bc = PF.bookcase(L, x, F, { w: 112, h: ri(260, 310), n: 3, color: rp(['#7a5a3a', '#5a6a7a']) }); bc.shelves.forEach(p => fill(p, x, x + 112, EPOOL.office)); fill(bc.top, x, x + 112, EPOOL.fancy); ctx.highs.push(bc.top); }
+          if (s.x1 - s.cx > 80) shelfAt(s.cx, Math.min(180, s.x1 - s.cx), F - 280, EPOOL.office);
+          break;
+        }
+        case 'play': {
+          if (R() < 0.5 && (x = place(250)) !== null) PF.piano(L, x, F);
+          if ((x = place(112)) !== null) { const bc = PF.bookcase(L, x, F, { w: 112, h: 240, n: 3, color: rp(['#ff9ac0', '#6fbbe3', '#ffd23f']) }); bc.shelves.forEach(p => fill(p, x, x + 112, EPOOL.play)); fill(bc.top, x, x + 112, EPOOL.play); ctx.highs.push(bc.top); }
+          if ((x = place(50)) !== null) PF.box(L, x, F);
+          PF.balloons(L, r.x0 + (r.x1 - r.x0) * 0.6, F - 300, 3);
+          if (s.x1 - s.cx > 60) shelfAt(s.cx, Math.min(160, s.x1 - s.cx), F - 260, EPOOL.play);
+          break;
+        }
+        case 'yard': {
+          if ((x = place(170)) !== null) { const g = PF.grill(L, x, F); [0, 1, 2].forEach(i => L.put('sausage', x + 22 + i * 28, g.grate)); ctx.food += 3; }
+          if ((x = place(230)) !== null) { const pt = PF.picnicTable(L, x + 26, F, 200); fill(pt.top, x + 26, x + 226, EPOOL.dining, 0.5); }
+          if ((x = place(300)) !== null) { const tr = PF.tree(L, x + 130, F); ctx.highs.push(tr.tb, tr.rb); L.put(rp(['gnome', 'succulent']), x + 240, tr.rb); }
+          if ((x = place(220)) !== null) PF.pool(L, x, F, 220);
+          if ((x = place(60)) !== null) L.put('gnome', x + 30, L.floorAt(x + 30, F));
+          if (n >= 4 && (x = place(160)) !== null) PF.sprinkler(L, x + 80, F, { r: 100 });
+          const fence = L.plat(r.x0 + 10, F - BAND - 144, r.x1 - r.x0 - 20);
+          for (let fx = r.x0 + 80; fx < r.x1 - 60; fx += ri(160, 320)) L.put(rp(['plant', 'succulent', 'gnome']), fx, fence);
+          break;
+        }
+      }
+      if (type !== 'yard' && type !== 'bathroom') { const sw = Math.min(200, r.x1 - r.x0 - 80), sx = r.x0 + 40 + R() * Math.max(1, r.x1 - r.x0 - 80 - sw); shelfAt(sx, sw, F - 372 + R() * 20, rp([EPOOL.shelf, EPOOL.fancy, EPOOL.shelf])); }
+      if (type !== 'yard' && R() < 0.6) PF.decor(L, rp(['clock', 'poster', 'mirror', 'cuckoo', 'plaque']), r.x0 + (r.x1 - r.x0) * (0.3 + R() * 0.4), F - 330 + R() * 30, { color: rp(['#6fbbe3', '#ffd23f', '#ff9ac0']), art: rp(['rocket', 'cat', 'fish']) });
+    });
+  });
+  // hazards, critters and goodies scale with the home number
+  const F0 = stories[ground].floor;
+  const spots = ctx.floors.filter(f => f[1] > f[0] + 40);
+  const traps = Math.min(4, Math.floor(n / 2));
+  for (let i = 0; i < traps && spots.length; i++) { const [a, b, F] = rp(spots); PF.mousetrap(L, a + R() * (b - a), F); }
+  const groundRooms = L.rooms.filter(r => r.story === ground && !r.outdoor && !r.void);
+  const wide = groundRooms.slice().sort((a, b) => (b.x1 - b.x0) - (a.x1 - a.x0))[0];
+  if (wide && R() < 0.4) PF.roomba(L, wide.x0 + 80, F0, wide.x0 + 50, wide.x1 - 50);
+  if (wide && n >= 5 && R() < 0.45) PF.guardDog(L, wide.x0 + 60, wide.x1 - 60, F0, {});
+  const highs = ctx.highs.filter(Boolean);
+  const putHigh = t => { for (let k = 0; k < 6 && highs.length; k++) { const p = rp(highs), x = p.x + 14 + R() * Math.max(1, p.w - 28); if (!L.items.some(it => it.surface === p && Math.abs(it.x - x) < 24)) { L.put(t, x, p); return true; } } return false; };
+  const nips = d.mods.catnip ? 4 : 1; for (let i = 0; i < nips; i++) putHigh('catnip');
+  putHigh('goldCat');
+  if (d.mods.mice) for (const r of groundRooms.slice(0, 2)) PF.mouseHole(L, r.x0 + 22, F0, { dir: 1, range: 300, fast: true });
+  if (!L.catStart) { const r = groundRooms[groundRooms.length - 1] || L.rooms[0]; PF.catBed(L, r.x1 - 100, F0, { color: '#e86a5a' }); L.catStart = { x: r.x1 - 62, y: F0, bed: true }; }
+  if (secret === 'feast' && ctx.food < 3) for (let i = 0; i < 3; i++) putHigh(rp(EFOOD));
+  // star goals from what's in the house
+  const sum = L.items.reduce((a, it) => a + (it.d.pts || 0), 0), f = 2.3 + Math.min(n, 20) * 0.02;
+  const r100 = v => Math.max(100, Math.round(v / 100) * 100);
+  d.stars = [r100(sum * f * 0.2), r100(sum * f * 0.58), r100(sum * f)];
+}
+
+function endlessUnlockedCount() {
+  let hi = 0;
+  for (let i = CAMPAIGN; i < LEVELS.length; i++) if (Save.lvl(LEVELS[i].id).stars > 0) hi = i - CAMPAIGN + 1;
+  for (const id in (Save.data.levels || {})) { const m = /^e(\d+)$/.exec(id); if (m && Save.data.levels[id].stars > 0) hi = Math.max(hi, +m[1]); }
+  return hi;
+}
+function ensureEndless(count) { while (LEVELS.length < count) LEVELS.push(makeEndless(LEVELS.length - CAMPAIGN + 1)); }
+function ensureEndlessShown() { ensureEndless(CAMPAIGN + Math.max(3, endlessUnlockedCount() + 2)); }
+ensureEndlessShown();
+/* =====================================================================
    SCREENS, TOUCH CONTROLS, KEYBOARD SHORTCUTS & MAIN LOOP
    ===================================================================== */
 const $ = id => document.getElementById(id);
@@ -6327,12 +6623,13 @@ function starsHTML(n, total = 3) { let s = ''; for (let i = 0; i < total; i++) s
 
 // ---------- title ----------
 function goTitle() {
-  G.state = 'title'; show('sTitle'); hudButtons(false); showTouch(false); Input.gameKeys = false; G.run = null;
+  G.state = 'title'; show('sTitle'); hudButtons(false); showTouch(false); Input.gameKeys = false; G.run = null; GRAV = 2100; G.mega = false;
   ensureMenuLevel(); computeScale();
   setCoat(Save.data.coat || 0, true);
   if (CATS.every((c, i) => catUnlocked(i))) ach('allCats');
+  if (CATS.filter((c, i) => catUnlocked(i)).length >= 8) ach('cats8');
   const ts = totalStars(), na = ACHS.filter(a => hasAch(a.id)).length, rb = Save.data.runBest;
-  $('titleStars').textContent = [ts ? `★ ${ts} / ${LEVELS.length * 3}` : '', na ? `🏆 ${na} / ${ACHS.length}` : '', rb ? `❤ Best run ${fmt(rb)}` : ''].filter(Boolean).join('   ');
+  $('titleStars').textContent = [ts ? `★ ${ts}` : '', na ? `🏆 ${na} / ${ACHS.length}` : '', rb ? `❤ Best run ${fmt(rb)}` : ''].filter(Boolean).join('   ');
   if (Input.usedTouch) $('titleKeys').innerHTML = 'Tap the buttons to move, jump, swat and sneak.<br>Turn your phone sideways for the best view.';
   Sound.music('menu');
 }
@@ -6369,13 +6666,15 @@ function drawTitleCat(t) {
 // ---------- level select ----------
 const thumbs = {};
 function goSelect() {
-  G.state = 'select'; show('sSelect'); hudButtons(false); showTouch(false); Input.gameKeys = false; G.run = null;
+  G.state = 'select'; show('sSelect'); hudButtons(false); showTouch(false); Input.gameKeys = false; G.run = null; GRAV = 2100; G.mega = false;
   ensureMenuLevel(); computeScale();
+  ensureEndlessShown(); GRAV = 2100;
   const grid = $('levelGrid'); grid.innerHTML = '';
   LEVELS.forEach((d, i) => {
+    if (i === CAMPAIGN) { const h = document.createElement('div'); h.className = 'endhdr'; h.textContent = '∞ ENDLESS HOMES'; grid.appendChild(h); }
     const rec = Save.lvl(d.id), un = unlocked(i);
     const b = document.createElement('button'); b.className = 'lvl' + (un ? '' : ' locked'); b.setAttribute('aria-label', d.name + (un ? '' : ' (locked)'));
-    b.innerHTML = `<div class="num">${i + 1}</div><canvas width="360" height="180"></canvas><div class="nm">${d.name}</div>${starsHTML(rec.stars)}<div class="best">${rec.best ? 'Best: ' + fmt(rec.best) : (un ? 'Not yet ruined' : '&nbsp;')}</div>` +
+    b.innerHTML = `<div class="num">${i + 1}</div>${d.twist ? `<div class="twist">${ETWISTS[d.twist][0]}</div>` : ''}<canvas width="360" height="180"></canvas><div class="nm">${d.name}</div>${starsHTML(rec.stars)}<div class="best">${rec.best ? 'Best: ' + fmt(rec.best) : (un ? 'Not yet ruined' : '&nbsp;')}</div>` +
       `<div class="diff">${Array.from({ length: 5 }, (_, k) => `<i class="${k < (d.diff || 1) ? 'on' : ''}"></i>`).join('')}</div>` +
       (rec.secret ? `<svg class="trophy" viewBox="0 0 24 24"><path d="M7 3h10v4a5 5 0 0 1-10 0z" fill="#ffd23f" stroke="#3a2530" stroke-width="2"/><path d="M7 5H4a3 3 0 0 0 3 5M17 5h3a3 3 0 0 1-3 5" fill="none" stroke="#3a2530" stroke-width="2"/><path d="M12 12v4M8 20h8l-1-4H9z" fill="#ffd23f" stroke="#3a2530" stroke-width="2"/></svg>` : '') +
       (un ? '' : `<div class="lock"><svg width="36" height="40" viewBox="0 0 24 26"><rect x="3" y="11" width="18" height="13" rx="3" fill="#fff3dd" stroke="#3a2530" stroke-width="2.4"/><path d="M7 11V8a5 5 0 0 1 10 0v3" fill="none" stroke="#3a2530" stroke-width="2.6"/></svg></div>`);
@@ -6384,7 +6683,7 @@ function goSelect() {
     const cv = b.querySelector('canvas');
     requestAnimationFrame(() => drawThumb(cv, i));
   });
-  $('selStars').innerHTML = `${totalStars()} / ${LEVELS.length * 3} ${starsHTML(1, 1)}`;
+  $('selStars').innerHTML = `${totalStars()} ${starsHTML(1, 1)}`;
   Sound.music('menu');
   setTimeout(() => { const f = grid.querySelector('.lvl:not(.locked)'); if (f && !Input.usedTouch) f.focus({ preventScroll: true }); }, 30);
 }
@@ -6402,7 +6701,7 @@ function openIntro(i) {
   startLevel(i);
   const d = G.def;
   G.state = 'intro'; show('sIntro'); hudButtons(false); showTouch(false); Input.gameKeys = false;
-  $('introNum').textContent = G.run ? `9 LIVES RUN · Home ${G.run.i + 1} of ${G.run.order.length}` : `Home ${i + 1} of ${LEVELS.length}`;
+  $('introNum').textContent = G.run ? `9 LIVES RUN · Home ${G.run.i + 1}` : (i >= CAMPAIGN ? `Endless · Home ${i + 1}` : `Home ${i + 1} of ${CAMPAIGN}`);
   $('introName').textContent = d.name;
   $('introDesc').textContent = d.desc;
   const hz = new Set(G.L.props.filter(p => p.hazard).map(p => p.hazard)), icons = { fire: '🔥', trap: '🪤', water: '💦', zap: '⚡', goo: '🧪', dog: '🐶', spray: '💦' };
@@ -6488,11 +6787,12 @@ function showResults(r) {
     ['Lives left', G.lives + ' / 9'], ['Times busted', st.busted], [framedWord, st.framed], ['Biggest drop', (st.bestFall / 180).toFixed(1) + ' m']
   ].map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('');
   $('resSecret').innerHTML = r.secret ? `<div class="secretwin">🏆 Ultimate Rudeness: ${d.secretName}</div>` : `<div class="muted" style="font-weight:800;font-size:14px">Secret Ultimate Rudeness still hidden — hint: ${d.secretHint}</div>`;
-  if (G.newAch && G.newAch.length) $('resSecret').innerHTML += `<div style="margin-top:8px;font-weight:900">New trophies: ${G.newAch.map(a => a.icon + ' ' + a.name).join(' · ')}</div>`;
+  if (G.newAch && G.newAch.length) $('resSecret').innerHTML += `<div style="margin-top:8px;font-weight:900">New achievements: ${G.newAch.map(a => a.icon + ' ' + a.name).join(' · ')}</div>`;
+  ensureEndless(G.idx + 2);
   let nextOk;
   if (G.run) {
     const R = G.run, cont = !R.over && !R.done;
-    $('resBest').innerHTML = `<div class="runinfo">❤ ${G.lives} · Home ${R.i + 1}/${R.order.length} · Run ${fmt(R.total)}</div>` + (cont ? '' : `<div><span class="newbest">${R.done ? 'RUN COMPLETE!' : 'RUN OVER'}</span> ${R.newBest ? '<b>New best run!</b>' : `<span class="muted" style="font-size:13px;font-weight:800">Best: ${fmt(Save.data.runBest || 0)}</span>`}</div>`);
+    $('resBest').innerHTML = `<div class="runinfo">❤ ${G.lives} · Home ${R.i + 1} · Run ${fmt(R.total)}</div>` + (cont ? '' : `<div><span class="newbest">${R.done ? 'RUN COMPLETE!' : 'RUN OVER'}</span> ${R.newBest ? '<b>New best run!</b>' : `<span class="muted" style="font-size:13px;font-weight:800">Best: ${fmt(Save.data.runBest || 0)}</span>`}</div>`);
     nextOk = cont;
     $('bNext').style.display = cont ? '' : 'none'; $('bNext').disabled = false; $('bNext').textContent = 'Next home ▶';
     $('bRetry').style.display = cont ? 'none' : ''; $('bRetry').textContent = 'New run';
@@ -6539,7 +6839,7 @@ $('bQuit').onclick = () => { Sound.ui(); Sound.purr(false); if (G.run) goTitle()
 $('bSound').onclick = () => toggleMute();
 $('bRetry').onclick = () => { Sound.ui(); if (G.run) startRun(); else openIntro(G.idx); };
 $('bLevels').onclick = () => { Sound.ui(); if (G.run) goTitle(); else goSelect(); };
-$('bNext').onclick = () => { if (G.run) { if (!G.run.over && !G.run.done) { Sound.ui(); G.run.i++; openIntro(G.run.order[G.run.i]); } return; } if (G.idx + 1 < LEVELS.length && unlocked(G.idx + 1)) { Sound.ui(); openIntro(G.idx + 1); } };
+$('bNext').onclick = () => { if (G.run) { if (!G.run.over && !G.run.done) { Sound.ui(); G.run.i++; ensureEndless(G.run.i + 2); openIntro(G.run.i); } return; } ensureEndless(G.idx + 2); if (G.idx + 1 < LEVELS.length && unlocked(G.idx + 1)) { Sound.ui(); openIntro(G.idx + 1); } };
 
 // ---------- keyboard shortcuts ----------
 let cheat = '';
