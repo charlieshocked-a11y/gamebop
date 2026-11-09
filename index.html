@@ -85,6 +85,9 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
 .badge { position: absolute; top: 8px; left: 8px; background: var(--berry); color: #fff; font: 11px/1 var(--display); padding: 5px 7px; border-radius: 6px; letter-spacing: .5px; }
 .badge.best { background: var(--pop); color: var(--pop-ink); font-size: 13px; }
 .feat .badge.best { top: 14px; left: 14px; font-size: 16px; padding: 8px 12px; }
+.drop { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; background: linear-gradient(100deg, var(--pop), var(--berry)); color: var(--pop-ink); border-radius: var(--r); padding: 12px 18px; }
+.drop b { font: 20px/1.1 var(--display); }
+.drop span { font-weight: 600; }
 .badge.ext { left: auto; right: 8px; background: var(--mint); color: #062a20; }
 .fav-on { position: absolute; top: 8px; right: 8px; color: var(--berry); font-size: 18px; text-shadow: 0 1px 4px #000; }
 .empty { color: var(--muted); padding: 30px 0; }
@@ -159,7 +162,7 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   // newest first, stable by title
   GAMES.sort((a, b) => (Date.parse(b.added) || 0) - (Date.parse(a.added) || 0) || a.title.localeCompare(b.title));
-  $('#count').textContent = GAMES.length + ' games';
+  $('#count').textContent = GAMES.length + ' games · +30 every week';
 
   const cats = [...new Set(GAMES.map(g => g.category))].sort();
   function renderRail(active) {
@@ -171,7 +174,7 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
 
   const tile = g => `<button class="tile" data-play="${g.slug}" aria-label="Play ${esc(g.title)}">
       <div class="th"><img src="${g.thumb}" alt="" loading="lazy"></div>
-      ${g.featured ? '<span class="badge best">★ BEST</span>' : isNew(g) ? '<span class="badge">NEW</span>' : ''}${g.mine ? '<span class="badge ext">YOURS</span>' : ''}
+      ${g.featured ? '<span class="badge best">★ BEST</span>' : isNew(g) ? '<span class="badge">NEW</span>' : ''}
       ${favs.includes(g.slug) && !g.external ? '<span class="fav-on" aria-hidden="true">♥</span>' : ''}
       <div class="meta"><span class="t">${esc(g.title)}</span><span class="c"><span class="dot" style="background:${CAT_COLORS[g.category] || '#a69dcc'}"></span>${esc(g.category)}</span></div></button>`;
   const shelf = (title, list, opts = {}) => list.length ? `<section class="shelf"><h2>${title}${opts.sub ? `<small>${opts.sub}</small>` : ''}</h2><div class="${opts.row ? 'row' : 'grid'}">${list.map(tile).join('')}</div></section>` : '';
@@ -187,8 +190,7 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
     const f = (star ? [star, pickN(0), pickN(1), pickN(2)] : [pickN(0), pickN(1), pickN(2)]).filter((g, i, a) => a.indexOf(g) === i).slice(0, 3);
     const rec = recent.map(s => bySlug[s]).filter(Boolean);
     const fav = favs.map(s => bySlug[s]).filter(Boolean);
-    let html = `<div class="hero">${feat(f[0])}<div class="side">${f.slice(1).map(feat).join('')}</div></div>`;
-    html += shelf('Your games', GAMES.filter(g => g.mine), { row: true, sub: 'made by you' });
+    let html = `<div class="drop"><b>30 new games every week</b><span>Fresh games land every Sunday. Check back to see what's new.</span></div><div class="hero">${feat(f[0])}<div class="side">${f.slice(1).map(feat).join('')}</div></div>`;
     html += shelf('Continue playing', rec, { row: true });
     html += shelf('Favorites', fav, { row: true });
     html += shelf('New this week', fresh, { sub: fresh.length + ' fresh games' });
