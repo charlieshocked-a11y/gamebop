@@ -17,6 +17,9 @@ canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 .logo .a{display:block;color:#fff;text-shadow:0 0 .08em var(--cy),0 0 .25em var(--cy),0 .06em 0 #0a5a7a}
 .logo .b{display:block;background:linear-gradient(#fff 10%,#ff9aea 45%,#c020ff 90%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 .12em rgba(255,63,210,.8)) drop-shadow(0 .05em 0 #5a0a5a);margin-left:.4em}
 #title .btn{font-size:min(6vw,5vh,30px);padding:.45em 1.6em}
+#title #howBtn{font-size:min(4.2vw,3.4vh,17px);padding:.55em 1.4em}
+#support{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));font-size:11.5px;color:#cfe;opacity:.55;text-decoration:none;text-shadow:0 1px 2px rgba(0,0,0,.8);transition:opacity .2s}
+#support:hover{opacity:1}
 .hint{font-size:13px;background:rgba(0,0,0,.45);padding:4px 12px;border-radius:20px;color:#cfe}
 #mute,#pauseBtn{position:fixed;top:10px;width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(0,0,0,.45);cursor:pointer;padding:7px;z-index:20}
 #mute{right:10px}#pauseBtn{right:56px}
@@ -72,7 +75,7 @@ canvas.hm,canvas.gr{width:100%;display:block;border-radius:12px;background:rgba(
 </style></head><body>
 <canvas id="c"></canvas>
 <input id="kb" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-<div id="title"><div class="logo"><span class="a">GHOST</span><span class="b">TYPER</span></div><button class="btn" id="playBtn">PLAY</button><div class="hint">Type to drive · race your ghosts · top 2 advance</div></div>
+<div id="title"><div class="logo"><span class="a">GHOST</span><span class="b">TYPER</span></div><button class="btn" id="playBtn">PLAY</button><button class="btn cy" id="howBtn">HOW TO PLAY</button><div class="hint">Type to drive · race your ghosts · top 2 advance</div><a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a></div>
 <div id="lobby" class="hidden"><div class="panel">
  <div class="lg"><button class="arrow" id="lPrev">‹</button><canvas id="badge" width="168" height="168"></canvas><div style="flex:1;min-width:0"><div class="nm" id="lName"></div><div class="w" id="lW"></div><div class="pipz" id="lPips"></div></div><button class="arrow" id="lNext">›</button></div>
  <div id="rivals"></div>
@@ -276,7 +279,8 @@ function renderLobby(){const l=viewLeague;badge($('badge'),l);$('lName').textCon
  $('lHint').textContent=l===G.top?'Place top 2 twice to advance · Enter':'Practice league · Enter'}
 $('lPrev').onclick=()=>{viewLeague=Math.max(0,viewLeague-1);SFX.click();renderLobby()};$('lNext').onclick=()=>{viewLeague=Math.min(G.top,viewLeague+1);SFX.click();renderLobby()};
 $('raceBtn').onclick=startRace;
-$('playBtn').onclick=()=>{viewLeague=G.top;goLobby()};if(hadSave)$('playBtn').textContent='CONTINUE';
+$('playBtn').onclick=()=>{viewLeague=G.top;goLobby();maybeTut()};if(hadSave)$('playBtn').textContent='CONTINUE';
+$('howBtn').onclick=()=>{viewLeague=G.top;goLobby();maybeTut(true)};
 function openModal(t,el){$('mTitle').innerHTML=t;const b=$('mBody');b.innerHTML='';b.appendChild(el);$('modal').classList.remove('hidden')}
 $('mClose').onclick=()=>{SFX.click();goLobby()};
 function chip(v,l){return'<div class="chip"><b>'+v+'</b><small>'+l+'</small></div>'}
@@ -344,7 +348,7 @@ function refocus(){if(state==='race'&&!paused){try{kb.focus({preventScroll:true}
 window.addEventListener('keydown',e=>{audioInit();
  if(e.key==='Escape'){if(state==='race'){togglePause();e.preventDefault();return}if(!$('modal').classList.contains('hidden')){goLobby();return}}
  if(state==='race'){if(e.ctrlKey||e.metaKey||e.altKey)return;if(e.key.length===1){e.preventDefault();typeChar(e.key)}else if(e.key==='Backspace'||e.key==='Tab'||e.key===' ')e.preventDefault();return}
- if(e.key==='Enter'||e.key===' '){e.preventDefault();if(state==='title'){viewLeague=G.top;goLobby()}else if(state==='lobby'&&$('modal').classList.contains('hidden'))startRace();else if(state==='results'&&resultsOpen){$('modal').classList.add('hidden');startRace()}}
+ if(e.key==='Enter'||e.key===' '){e.preventDefault();if(state==='title'){viewLeague=G.top;goLobby();maybeTut()}else if(state==='lobby'&&$('modal').classList.contains('hidden'))startRace();else if(state==='results'&&resultsOpen){$('modal').classList.add('hidden');startRace()}}
  if(state==='lobby'&&$('modal').classList.contains('hidden')){if(e.key==='ArrowLeft')$('lPrev').click();if(e.key==='ArrowRight')$('lNext').click()}});
 kb.addEventListener('input',()=>{const v=kb.value;kb.value='';for(const ch of v)typeChar(ch)});
 $('psg').addEventListener('pointerdown',()=>refocus());cv.addEventListener('pointerdown',()=>refocus());
@@ -357,5 +361,107 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(!paused){T
  ctx.setTransform(DPR,0,0,DPR,0,0);
  if((state==='race'||state==='results')&&R){drawRaceBg();drawTrack()}else drawTitleScene();
  requestAnimationFrame(loop)}
+const TUTCFG={pfx:'gamebop.'+SLUG+'.',acc:'#ffe14a',bg:'linear-gradient(#2e1660,#140a2c)',bd:'#ff3fd2',font:'"Trebuchet MS","Segoe UI",system-ui,sans-serif',place:()=>state==='race'?{x:W/2,y:H-62}:{x:W/2,y:56},frozen:()=>paused||(TUT.step>0&&state==='race'&&R&&R.cd>0),abort:()=>TUT.step>=1&&state!=='race',ok:()=>SFX.key()};
+// ---------- first-time tutorial (teach by doing) ----------
+const TUT=(()=>{
+ const C=TUTCFG,KEY=C.pfx+'tutorialDone';
+ const css=document.createElement('style');css.textContent=
+ '#tut{position:fixed;inset:0;pointer-events:none;z-index:'+(C.z||38)+';font-family:'+C.font+'}'+
+ '#tut.off{display:none}#tutc{position:absolute;inset:0;width:100%;height:100%}'+
+ '#tutCap{position:absolute;left:50%;top:calc('+(C.top||'70px')+' + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;align-items:center;gap:10px;width:max-content;max-width:calc(100vw - 24px);box-sizing:border-box;padding:7px 7px 7px 16px;border-radius:'+(C.rad||'999px')+';background:'+C.bg+';border:2px solid '+C.bd+';box-shadow:0 6px 0 rgba(0,0,0,.28),0 10px 26px rgba(0,0,0,.35);color:'+(C.fg||'#fff')+';animation:tutIn .5s cubic-bezier(.2,1.5,.4,1)}'+
+ '#tutTxt{font-weight:900;font-size:clamp(14px,3.8vw,20px);line-height:1.15;letter-spacing:.3px;text-shadow:0 2px 0 rgba(0,0,0,.3)}'+
+ '#tutTxt.pop{animation:tutPop .45s cubic-bezier(.2,1.6,.4,1)}'+
+ '#tutDots{display:flex;gap:4px;flex:none}#tutDots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.25);transition:background .3s,transform .3s cubic-bezier(.2,1.6,.4,1)}#tutDots i.on{background:'+C.acc+';transform:scale(1.35)}'+
+ '#tutSkip{flex:none;pointer-events:auto;font:inherit;font-weight:900;font-size:13px;letter-spacing:1px;color:'+(C.fg||'#fff')+';background:rgba(0,0,0,.32);border:2px solid rgba(255,255,255,.4);border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap;transition:transform .1s,background .2s;touch-action:manipulation}'+
+ '#tutSkip:hover{background:rgba(0,0,0,.5)}#tutSkip:active{transform:scale(.92)}'+
+ '@keyframes tutIn{from{transform:translate(-50%,-30px);opacity:0}to{transform:translate(-50%,0);opacity:1}}'+
+ '@keyframes tutPop{0%{transform:translateY(8px) scale(.85);opacity:0}100%{transform:none;opacity:1}}';
+ document.head.appendChild(css);
+ const root=document.createElement('div');root.id='tut';root.className='off';
+ root.innerHTML='<canvas id="tutc"></canvas><div id="tutCap"><span id="tutTxt"></span><span id="tutDots"></span><button id="tutSkip" type="button">SKIP ›</button></div>';
+ document.body.appendChild(root);
+ const cv=root.querySelector('#tutc'),g=cv.getContext('2d'),txt=root.querySelector('#tutTxt'),dotsEl=root.querySelector('#tutDots'),skip=root.querySelector('#tutSkip');
+ let steps=[],i=0,on=false,st=0,okT=-1,last=0,raf=0,onEnd=null,W=0,H=0,T=0,cur=null,okAt=null;
+ function size(){const d=Math.min(2,window.devicePixelRatio||1);W=window.innerWidth;H=window.innerHeight;cv.width=Math.round(W*d);cv.height=Math.round(H*d);g.setTransform(d,0,0,d,0,0);placeCap()}
+ function placeCap(){if(!C.place)return;let q=null;try{q=C.place()}catch(e){}if(!q)return;const ce=root.querySelector('#tutCap');ce.style.left=q.x+'px';ce.style.top=q.y+'px'}
+ window.addEventListener('resize',()=>{if(on)size()});
+ function isDone(){try{return localStorage.getItem(KEY)==='1'}catch(e){return false}}
+ function mark(){try{localStorage.setItem(KEY,'1')}catch(e){}}
+ const stop=e=>{e.stopPropagation()};
+ ['pointerdown','pointerup','mousedown','mouseup','touchstart','touchend','click'].forEach(ev=>skip.addEventListener(ev,stop));
+ skip.addEventListener('mousedown',e=>e.preventDefault());
+ skip.addEventListener('click',()=>{finish(false)});
+ function start(s,cb){steps=s;i=-1;on=true;onEnd=cb||null;cur=null;root.classList.remove('off');size();
+  dotsEl.innerHTML=steps.map(()=>'<i></i>').join('');next();last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(tick)}
+ function next(){i++;okT=-1;st=0;if(i>=steps.length){finish(true);return}const s=steps[i];if(s.enter)try{s.enter()}catch(e){}placeCap();
+  txt.textContent=s.cap;txt.classList.remove('pop');void txt.offsetWidth;txt.classList.add('pop');
+  [...dotsEl.children].forEach((d,k)=>d.classList.toggle('on',k<=i))}
+ function finish(complete){if(!on)return;on=false;mark();root.classList.add('off');cancelAnimationFrame(raf);const cb=onEnd;onEnd=null;if(cb)cb(complete)}
+ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;T+=dt;
+  if(on&&C.abort){let ab=false;try{ab=C.abort()}catch(e){}if(ab){finish(false);return}}
+  if(on&&!(C.frozen&&C.frozen())){st+=dt;const s=steps[i];
+   if(okT<0){let ok=false;try{ok=st>.3&&s.check()}catch(e){}if(ok){okT=0;okAt=cur?{...cur}:null;if(C.ok)try{C.ok()}catch(e){}}}
+   else{okT+=dt;if(okT>.6){next();if(!on)return}}}
+  draw();raf=requestAnimationFrame(tick)}
+ const ease=t=>1-Math.pow(1-Math.min(1,Math.max(0,t)),3);
+ const back=t=>{t=Math.min(1,Math.max(0,t));const c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2)};
+ function rrect(x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+ function ring(x,y,r,a){for(let k=0;k<2;k++){const p=((T*.9+k*.5)%1);g.globalAlpha=a*(1-p)*.9;g.strokeStyle=C.acc;g.lineWidth=4*(1-p)+1.5;g.beginPath();g.arc(x,y,r*(1+p*.55),0,Math.PI*2);g.stroke()}
+  g.globalAlpha=a;g.lineWidth=3;g.setLineDash([10,7]);g.lineDashOffset=-T*30;g.strokeStyle='#fff';g.beginPath();g.arc(x,y,r*(1+Math.sin(T*5)*.04),0,Math.PI*2);g.stroke();g.setLineDash([]);g.globalAlpha=1}
+ function arrow(x,y,r,dir,a){// dir: side of the target the arrow sits on
+  const v={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[dir||'up'];const bob=Math.abs(Math.sin(T*4))*12;const d=r+14+bob;
+  g.save();g.translate(x+v[0]*d,y+v[1]*d);g.rotate(Math.atan2(-v[1],-v[0]));g.globalAlpha=a;
+  g.beginPath();g.moveTo(0,0);g.lineTo(-20,-17);g.lineTo(-20,-7);g.lineTo(-46,-7);g.lineTo(-46,7);g.lineTo(-20,7);g.lineTo(-20,17);g.closePath();
+  g.lineJoin='round';g.lineWidth=6;g.strokeStyle='rgba(0,0,0,.45)';g.stroke();g.fillStyle=C.acc;g.fill();g.lineWidth=2.5;g.strokeStyle='#fff';g.stroke();g.restore();g.globalAlpha=1}
+ function hand(x,y,press,a){// ghost hand, fingertip at (x,y)
+  g.save();g.translate(x,y);const s=1-press*.12;g.scale(s,s);g.rotate(-.35);g.globalAlpha=a*.92;
+  g.fillStyle='#fff';g.strokeStyle='rgba(20,20,40,.75)';g.lineWidth=2.5;g.lineJoin='round';
+  g.beginPath();g.moveTo(-6,2);g.arcTo(-6,-8,0,-8,6);g.arcTo(6,-8,6,2,6);g.lineTo(6,22);
+  g.quadraticCurveTo(10,16,15,18);g.quadraticCurveTo(20,20,19,28);g.quadraticCurveTo(25,25,28,30);g.lineTo(28,50);g.quadraticCurveTo(26,64,12,66);g.lineTo(-4,66);g.quadraticCurveTo(-14,62,-18,50);g.lineTo(-24,34);g.quadraticCurveTo(-26,26,-18,27);g.lineTo(-6,36);g.closePath();g.fill();g.stroke();
+  g.beginPath();g.moveTo(15,18);g.lineTo(15,30);g.moveTo(-6,30);g.lineTo(-6,36);g.stroke();
+  if(press>.5){g.globalAlpha=a*(press-.5)*1.6;g.strokeStyle=C.acc;g.lineWidth=3;g.beginPath();g.arc(0,-8,16+press*6,0,Math.PI*2);g.stroke()}
+  g.restore();g.globalAlpha=1}
+ function key(x,y,lbl,down,a,w){w=w||40;const h=40,yo=down?4:0;g.globalAlpha=a;g.fillStyle='rgba(0,0,0,.4)';rrect(x-w/2,y-h/2+6,w,h,9);g.fill();
+  g.fillStyle=down?C.acc:'#f4f1ea';rrect(x-w/2,y-h/2+yo,w,h-2,9);g.fill();g.strokeStyle='rgba(30,30,50,.6)';g.lineWidth=2;g.stroke();
+  g.fillStyle=down?'#fff':'#2a2a3a';g.font='900 '+(lbl.length>2?13:19)+'px '+C.font;g.textAlign='center';g.textBaseline='middle';g.fillText(lbl,x,y+yo-1);g.globalAlpha=1}
+ function tick2(x,y,p){const s=back(p*2.2);g.save();g.translate(x,y);g.globalAlpha=Math.min(1,(1-p)*3);
+  g.strokeStyle=C.acc;g.lineWidth=3;g.beginPath();g.arc(0,0,20+ease(p)*60,0,Math.PI*2);g.stroke();
+  for(let k=0;k<10;k++){const an=k/10*Math.PI*2,rr=20+ease(p)*70;g.fillStyle=k%2?'#fff':C.acc;g.beginPath();g.arc(Math.cos(an)*rr,Math.sin(an)*rr+p*p*30,4*(1-p)+.1,0,Math.PI*2);g.fill()}
+  g.scale(s,s);g.fillStyle='#3ad16a';g.beginPath();g.arc(0,0,22,0,Math.PI*2);g.fill();g.strokeStyle='#fff';g.lineWidth=5;g.lineCap='round';g.beginPath();g.moveTo(-10,0);g.lineTo(-3,8);g.lineTo(11,-8);g.stroke();g.restore();g.globalAlpha=1;g.lineCap='butt'}
+ function draw(){g.clearRect(0,0,W,H);if(!on)return;const s=steps[i];if(!s)return;
+  let tg=null;try{tg=s.at?s.at():null}catch(e){}
+  if(tg){if(!cur)cur={...tg};else{cur.x+=(tg.x-cur.x)*.18;cur.y+=(tg.y-cur.y)*.18;cur.r+=(tg.r-cur.r)*.18}}
+  const fade=okT>=0?1-ease(okT/.25):ease(st/.35);
+  if(okT>=0&&okAt)tick2(okAt.x,okAt.y,okT/.6);
+  if(!cur||!tg){drawKeys(s,null,fade);return}
+  const x=cur.x,y=cur.y,r=cur.r;
+  if(s.ring!==false)ring(x,y,r,fade);
+  if(s.arrow)arrow(x,y,r,s.arrow,fade);
+  if(s.hand){let hx=x,hy=y,pr=0;const m=s.hand;
+   if(m==='tap'){const p=(T*1.2)%1;pr=p<.25?ease(p/.25):p<.45?1-ease((p-.25)/.2):0;hy=y+(1-pr)*10}
+   else if(m==='hold'){const p=(T*.6)%1;pr=p<.15?ease(p/.15):p<.8?1:1-ease((p-.8)/.2)}
+   else{const p=(T*.55)%1;const span=s.span||70;pr=.9;
+    if(m==='dragx'||m==='dragy'){const o=Math.sin(ease(p<.5?p*2:2-p*2)*Math.PI-Math.PI/2)*span;if(m==='dragx')hx=x+o;else hy=y+o}
+    else{const to=s.to?s.to():{x:x+span,y};const q=p<.7?ease(p/.7):1;hx=x+(to.x-x)*q;hy=y+(to.y-y)*q;pr=p<.85?1:0;
+     g.globalAlpha=fade*.5;g.setLineDash([6,8]);g.strokeStyle='#fff';g.lineWidth=3;g.beginPath();g.moveTo(x,y);g.lineTo(to.x,to.y);g.stroke();g.setLineDash([]);g.globalAlpha=1}}
+   hand(hx,hy,pr,fade)}
+  drawKeys(s,cur,fade)}
+ function drawKeys(s,c,fade){if(!s.keys||!s.keys.length)return;const n=s.keys.length,gap=8;const ws=s.keys.map(k=>k.length>2?Math.max(64,k.length*11):40);const tot=ws.reduce((a,b)=>a+b,0)+gap*(n-1);
+  let kx,ky;if(s.keysAt){const p=s.keysAt();kx=p.x;ky=p.y}else if(c){kx=c.x;ky=c.y+c.r+(s.hand?96:44);if(ky>H-30)ky=c.y-c.r-44}else{kx=W/2;ky=H*.62}
+  kx=Math.max(tot/2+10,Math.min(W-tot/2-10,kx));
+  let x=kx-tot/2;const ph=Math.floor(T*2.2)%n;s.keys.forEach((k,j)=>{key(x+ws[j]/2,ky,k,j===ph&&(T*2.2%1)<.55,fade,ws[j]);x+=ws[j]+gap})}
+ function el(id,pad){const e=typeof id==='string'?document.getElementById(id):id;if(!e)return null;const b=e.getBoundingClientRect();if(!b.width)return null;return{x:b.left+b.width/2,y:b.top+b.height/2,r:Math.max(b.width,b.height)/2+(pad||10)}}
+ return{start,finish,isDone,mark,el,get on(){return on},get step(){return i}};
+})();
+let tutP0=0;
+function tutCarAt(){if(!R||state!=='race')return null;const th=trackH(),n=4+R.ghosts.length,top=34,laneH=(th-top-8)/n,x0=clamp(laneH*.85,24,64)+8,x1=W-40,L=clamp(laneH*1.5,28,80);return{x:x0+(x1-x0-L*.4)*clamp(R.pos/R.text.length,0,1),y:top+laneH*(n-.5),r:Math.max(26,L*.6)}}
+function tutLetter(){if(!R||!R.spans)return null;const sp=R.spans[R.pos];if(!sp)return null;const b=sp.getBoundingClientRect();return{x:b.left+b.width/2,y:b.top+b.height/2,r:Math.max(18,b.height*.75)}}
+const TUT_STEPS=[
+ {cap:'Hit RACE to start',at:()=>state==='lobby'&&$('modal').classList.contains('hidden')?TUT.el('raceBtn',8):null,arrow:'up',hand:'tap',keys:['ENTER'],check:()=>state==='race'},
+ {cap:'Type the glowing letter',at:tutLetter,arrow:'up',get keys(){const c=R&&R.text[R.pos];return c?[c===' '?'SPACE':c]:[]},keysAt:()=>{const b=$('psg').getBoundingClientRect();return{x:W/2,y:Math.min(H-90,b.bottom+32)}},check:()=>R&&R.pos>=4},
+ {cap:'Every right key drives your car',enter:()=>{tutP0=R?R.pos:0},at:tutCarAt,arrow:'down',check:()=>R&&R.pos>=tutP0+12},
+ {cap:'Finish top 2 to move up',enter:()=>{tutP0=R?R.pos:0},at:()=>state==='race'?TUT.el('lvP',8):null,arrow:'right',check:()=>R&&R.pos>=tutP0+12}
+];
+function maybeTut(force){if(TUT.on)return;if(!force){if(TUT.isDone())return;if(hadSave&&G.races>0){TUT.mark();return}}TUT.start(TUT_STEPS,()=>refocus())}
 resize();requestAnimationFrame(loop);
 </script></body></html>

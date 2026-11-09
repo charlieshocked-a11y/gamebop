@@ -552,5 +552,94 @@ window.GAMEBOP_GAMES = [
   "keywords": "ice penguin sliding snow winter puzzle brain",
   "file": "games/ice-slide.html",
   "thumb": "thumbs/ice-slide.jpg"
+ },
+ {
+  "slug": "boing-voyage",
+  "title": "Boing Voyage",
+  "category": "Platformer",
+  "tags": [
+   "bouncy ball",
+   "physics",
+   "bosses",
+   "skins"
+  ],
+  "blurb": "Bounce a springy ball through 5 worlds, chaining epic combos",
+  "controls": "A/D or ←/→ steer · Hold ↑/Space super-bounce · ↓ ground-pound · Touch",
+  "keywords": "bouncing ball bouncy platformer bounce springs combos worlds bosses skins jump physics cute",
+  "deep": false,
+  "added": "2026-11-09",
+  "file": "games/boing-voyage.html",
+  "thumb": "thumbs/boing-voyage.jpg"
+ },
+ {
+  "slug": "tilt-palace",
+  "title": "Tilt Palace",
+  "category": "Arcade",
+  "tags": [
+   "pinball",
+   "physics",
+   "unlocks",
+   "daily"
+  ],
+  "blurb": "Six themed pinball tables, boss toys, multiball and wizard modes.",
+  "controls": "←/→ or Z / / flip · Space plunge · Shift nudge · Touch",
+  "keywords": "pinball arcade flippers ball tables multiball jackpot bumpers ramps physics retro high score",
+  "deep": false,
+  "added": "2026-11-09",
+  "file": "games/tilt-palace.html",
+  "thumb": "thumbs/tilt-palace.jpg"
+ },
+ {
+  "slug": "kickflip-alley",
+  "title": "Kickflip Alley",
+  "category": "Sports",
+  "tags": [
+   "skateboarding",
+   "tricks",
+   "combos",
+   "career"
+  ],
+  "blurb": "Flip, grind and manual huge combos across sunset city spots",
+  "controls": "Arrows · Z ollie · X flip · C grab · Touch joystick + 3 buttons",
+  "keywords": "skateboard skating skate kickflip grind tricks combo sports sunset city ramps",
+  "deep": false,
+  "added": "2026-11-09",
+  "file": "games/kickflip-alley.html",
+  "thumb": "thumbs/kickflip-alley.jpg"
+ },
+ {
+  "slug": "junction-jam",
+  "title": "Junction Jam",
+  "category": "Puzzle",
+  "tags": [
+   "trains",
+   "puzzle",
+   "routing",
+   "levels"
+  ],
+  "blurb": "Flip switches and steer toy trains home before they crash!",
+  "controls": "Mouse/Touch tap · 1-9 switches · F fast-forward · P pause",
+  "keywords": "train trains railway switches junction tracks routing stations model railroad diorama colours puzzle",
+  "deep": false,
+  "added": "2026-11-09",
+  "file": "games/junction-jam.html",
+  "thumb": "thumbs/junction-jam.jpg"
+ },
+ {
+  "slug": "noodle-rush",
+  "title": "Noodle Rush",
+  "category": "Casual",
+  "tags": [
+   "cooking",
+   "time management",
+   "upgrades"
+  ],
+  "blurb": "Boil, slice, sizzle and serve ramen at a cozy night-market stall!",
+  "controls": "Mouse/Touch drag or tap · Keys A-L, Q/W/E, 1-4, Enter",
+  "keywords": "cooking noodles ramen restaurant food time management chef customers kitchen serving night market",
+  "deep": false,
+  "added": "2026-11-09",
+  "file": "games/noodle-rush.html",
+  "thumb": "thumbs/noodle-rush.jpg"
  }
 ];
