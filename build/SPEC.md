@@ -17,6 +17,19 @@ Charlie's feedback: games must be deeper, more interactive and much more fun, wi
 - **Builders must playtest for fun:** after building, play your own game for a while (by bot and by reasoning through the first 10 minutes) and ask "would a kid keep playing this?" If the answer is "it gets samey", add variety before reporting.
 - Bigger is fine: prefer one rich, deep game (up to ~400 KB) over a thin one.
 
+## LOOKS LIKE A REAL, QUALITY GAME (not "AI-made")
+- Graphics must look like a polished commercial indie game: a deliberate art style (e.g. hand-drawn, cozy pixel art, clean vector, painterly, low-poly 2.5D), a cohesive palette, real lighting/shading, layered parallax backgrounds, animated characters with personality (idle/walk/hit/celebrate frames or procedural squash-and-stretch).
+- Avoid the generic "AI look": no plain flat rectangles on a black screen, no default system fonts for titles, no random neon gradients on everything, no emoji as art, no walls of centered text, no identical rounded buttons everywhere. Draw custom UI that matches the game's world (wooden signs for a farm, holo panels for sci-fi…).
+- "Realistic" where it fits: believable physics, weight, momentum, materials, animals and places that behave like the real thing, sounds that match actions.
+- Animated, alive worlds: ambient motion (wind, water, critters, weather, day/night), reactive environments, smooth transitions between screens.
+- Mobile and desktop both look good.
+
+## Ideas Charlie likes (use these kinds of games, all original)
+Card games / deckbuilders, ant colony builders (dig tunnels, manage castes, raids, queen), town / city builders with deep economies, daily word-guessing puzzles (Wordle-style, original name and twist), plus anything with real depth: progression, challenge, satisfying feedback, "just one more" pull.
+
+## Metadata
+Add a "keywords" string to each game's JSON: 8-15 plain topic words people might search for (e.g. "fishing fish ocean boat relaxing collection"), so topic search ("fishing game", "cars", "word game") finds it.
+
 ## Hard rules
 - Single file, vanilla JS + CSS + canvas/DOM. NO external requests of any kind: no CDNs, no web fonts, no images by URL. Draw everything in code (canvas, SVG, CSS). Sounds are synthesized with WebAudio.
 - Original game: no names, characters, logos or signature look of existing branded games.
@@ -39,4 +52,4 @@ Then Read the screenshots it made (`/home/claude/gamebop-site/thumbs/<slug>.jpg`
 Re-run check.js after the final edit so the thumbnail is current.
 
 ## Report back (exactly this JSON per game, in a ```json block)
-{"slug":"...","title":"...","category":"one of: Action, Arcade, Puzzle, Strategy, Racing, Sports, Typing, Idle, Casual, Adventure, Music, Word","tags":["2-4 short tags"],"blurb":"max 12 words, punchy","controls":"short, e.g. Mouse · Arrows/WASD · Touch","prompt":"the prompt you built it from"}
+{"slug":"...","title":"...","keywords":"8-15 topic words","category":"one of: Action, Arcade, Puzzle, Strategy, Racing, Sports, Typing, Idle, Casual, Adventure, Music, Word","tags":["2-4 short tags"],"blurb":"max 12 words, punchy","controls":"short, e.g. Mouse · Arrows/WASD · Touch","prompt":"the prompt you built it from"}

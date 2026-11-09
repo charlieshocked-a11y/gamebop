@@ -140,7 +140,7 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
 <header class="top">
   <a class="logo" href="#" aria-label="Gamebop home"><span><b>GAME</b><i>BOP</i></span></a>
   <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-    <input id="q" type="search" placeholder="Search games" autocomplete="off"></label>
+    <input id="q" type="search" placeholder="Search games or topics: fishing, cars, word…" autocomplete="off"></label>
   <span class="count" id="count"></span>
   <a class="tipbtn" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Donate 🙂</a>
 </header>
@@ -236,11 +236,54 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
 
   main.addEventListener('click', e => { const b = e.target.closest('[data-play]'); if (b) go('play-' + b.dataset.play); });
   function go(h) { if (location.hash.slice(1) === h) route(); else location.hash = h; }
+  // Topic search: matches ideas ("fishing game", "cars", "word puzzle"), not just titles.
+  const STOP = new Set(['game','games','a','an','the','and','or','of','to','with','play','like','some','fun','free','online','me','i','want','for','in','on','that','where','you','your','my','about']);
+  const SYN = {
+    car:'racing driving vehicle', cars:'racing driving vehicle', race:'racing', drive:'driving', bike:'motorbike', motorcycle:'motorbike',
+    fish:'fishing ocean', ocean:'fishing sea', sea:'fishing ocean', shoot:'shooter', shooting:'shooter', gun:'shooter', guns:'shooter',
+    zombie:'zombies', war:'army tanks strategy', battle:'tactics rpg', fight:'battle action', fighting:'battle action',
+    type:'typing keyboard', keyboard:'typing', word:'words letters', wordle:'words letters spelling', spell:'spelling words',
+    city:'city builder town', town:'city builder village', build:'builder building', builder:'building', colony:'colony hive build',
+    ant:'insect colony', ants:'insect colony', bug:'insect', bugs:'insect', animal:'animals pet', pets:'pet animal', cat:'cat kitty', dog:'pet animal',
+    space:'space aliens planet', alien:'aliens space', brain:'puzzle logic', logic:'puzzle brain', puzzles:'puzzle', math:'numbers',
+    music:'rhythm songs', rhythm:'music', farm:'farming crops', cook:'cooking food', cooking:'food baking', food:'cooking baking',
+    sport:'sports', ball:'sports', soccer:'sports ball', golf:'minigolf', basketball:'hoops', card:'cards deck', cards:'card deck',
+    jump:'platformer jumping', platform:'platformer', run:'runner', idle:'clicker incremental', clicker:'idle incremental',
+    tower:'tower defense', defense:'tower defense', scary:'horror', relax:'relaxing cozy', chill:'relaxing cozy', cozy:'relaxing',
+    two:'2 player multiplayer', multiplayer:'2 player', friends:'2 player multiplayer', magic:'wizard spells', draw:'drawing doodle'
+  };
+  const stem = w => w.replace(/(ing|ers|er|es|s)$/,'');
+  function searchGames(q) {
+    const words = q.toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).filter(w => w && !STOP.has(w));
+    if (!words.length) return GAMES.slice();
+    const scored = GAMES.map(g => {
+      const title = g.title.toLowerCase(), cat = g.category.toLowerCase();
+      const kw = ((g.tags || []).join(' ') + ' ' + (g.keywords || '')).toLowerCase();
+      const blurb = (g.blurb || '').toLowerCase();
+      const fields = [[title, 6], [kw, 4], [cat, 4], [blurb, 1.5]];
+      let score = 0, matched = 0;
+      for (const w of words) {
+        const variants = [w, ...(SYN[w] || '').split(' ').filter(Boolean)];
+        let best = 0;
+        variants.forEach((v, i) => {
+          const sv = stem(v), weight = i === 0 ? 1 : 0.7;
+          for (const [text, pts] of fields) {
+            const toks = text.split(/[^a-z0-9]+/);
+            if (toks.some(t => t === v || (sv.length > 2 && stem(t) === sv) || (v.length > 3 && t.startsWith(v)))) best = Math.max(best, pts * weight);
+          }
+        });
+        if (best) { score += best; matched++; }
+      }
+      return { g, score: score * (matched / words.length) };
+    }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+    const top = scored.length ? scored[0].score : 0;
+    return scored.filter(x => x.score >= top * 0.45).map(x => x.g);
+  }
   function route() {
     const h = location.hash.slice(1);
     const term = q.value.trim().toLowerCase();
     if (term && !h.startsWith('play-')) {
-      const hits = GAMES.filter(g => (g.title + ' ' + g.category + ' ' + (g.tags || []).join(' ') + ' ' + g.blurb).toLowerCase().includes(term));
+      const hits = searchGames(term);
       return list('Results for “' + esc(term) + '”', hits, '', hits.length + ' found');
     }
     if (h.startsWith('play-')) return play(h.slice(5));

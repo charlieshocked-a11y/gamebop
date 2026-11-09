@@ -15,6 +15,7 @@ window.GAMEBOP_GAMES = [
   "added": "2026-11-08",
   "mine": true,
   "featured": true,
+  "keywords": "cat kitty pet animal house chaos destroy prank funny comedy home",
   "file": "games/rude-cat.html",
   "thumb": "thumbs/rude-cat.jpg"
  },
@@ -31,6 +32,7 @@ window.GAMEBOP_GAMES = [
   "controls": "Mouse / touch: draw shapes",
   "added": "2026-11-03",
   "mine": true,
+  "keywords": "drawing draw doodle magic wizard spells monsters waves defense pen",
   "file": "games/scribble-wizard.html",
   "thumb": "thumbs/scribble-wizard.jpg"
  },
@@ -47,6 +49,7 @@ window.GAMEBOP_GAMES = [
   "controls": "WASD drive · Shift boost · Space fly",
   "added": "2026-11-08",
   "mine": true,
+  "keywords": "car driving flying police cops chase 3d city open world vehicle boost",
   "file": "games/skybolt-roadster.html",
   "thumb": "thumbs/skybolt-roadster.jpg"
  },
@@ -63,6 +66,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Drift tiny glowing cars, build embers, unleash blazing boosts.",
   "controls": "Arrows/WASD · Space drift · Touch",
   "added": "2026-11-08",
+  "keywords": "car racing drift race track time trial driving vehicle neon",
   "file": "games/ember-drift.html",
   "thumb": "thumbs/ember-drift.jpg"
  },
@@ -79,6 +83,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Grow a buzzing hex hive, survive seasons, repel wasp raids.",
   "controls": "Mouse · Touch",
   "added": "2026-11-08",
+  "keywords": "bee bees insect hive honey colony idle clicker incremental nature build",
   "file": "games/hive-mind.html",
   "thumb": "thumbs/hive-mind.jpg"
  },
@@ -95,6 +100,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Type symbols, numbers and code fast or the city burns.",
   "controls": "Keyboard",
   "added": "2026-11-08",
+  "keywords": "typing keyboard words meteors space hard wpm type",
   "file": "games/keystorm.html",
   "thumb": "thumbs/keystorm.jpg"
  },
@@ -111,6 +117,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Bend a marble's path with gravity wells into a black hole.",
   "controls": "Mouse · Touch · Space",
   "added": "2026-11-08",
+  "keywords": "physics space marble planet gravity black hole puzzle brain",
   "file": "games/gravity-gulp.html",
   "thumb": "thumbs/gravity-gulp.jpg"
  },
@@ -127,6 +134,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Command a pixel squad through 20 battles of grid tactics.",
   "controls": "Mouse · Touch",
   "added": "2026-11-08",
+  "keywords": "turn based tactics strategy chess army knights medieval rpg battle war",
   "file": "games/tiny-tactics.html",
   "thumb": "thumbs/tiny-tactics.jpg"
  },
@@ -143,6 +151,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Glowing snake with portals, power-ups and a closing arena",
   "controls": "Arrows/WASD · Swipe",
   "added": "2026-11-08",
+  "keywords": "snake retro classic arcade neon",
   "file": "games/neon-serpent.html",
   "thumb": "thumbs/neon-serpent.jpg"
  },
@@ -159,6 +168,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Drill to the 1000m core, sell ore, upgrade your pod",
   "controls": "Arrows/WASD · E bomb · Touch d-pad",
   "added": "2026-11-08",
+  "keywords": "mining dig drill ore underground cave upgrade miner",
   "file": "games/mine-deep.html",
   "thumb": "thumbs/mine-deep.jpg"
  },
@@ -175,6 +185,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Wall-jump up an endless tower ahead of rising lava",
   "controls": "Arrows/WASD · Space jump · Shift dash · Touch",
   "added": "2026-11-08",
+  "keywords": "jumping jump climbing tower platformer endless lava",
   "file": "games/sky-hopper.html",
   "thumb": "thumbs/sky-hopper.jpg"
  },
@@ -190,6 +201,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Rotate orbital rings of turrets to stop spiraling alien swarms",
   "controls": "Mouse · Touch",
   "added": "2026-11-08",
+  "keywords": "tower defense td space planet aliens turrets strategy",
   "file": "games/orbit-defense.html",
   "thumb": "thumbs/orbit-defense.jpg"
  },
@@ -205,6 +217,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "27 tricky minigolf holes with slopes, ice and spinners",
   "controls": "Mouse drag · Touch · Arrows + Space",
   "added": "2026-11-08",
+  "keywords": "golf minigolf mini golf putt sports ball physics",
   "file": "games/pocket-golf.html",
   "thumb": "thumbs/pocket-golf.jpg"
  },
@@ -221,6 +234,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Merge pastries into wedding cakes and serve the hungry line",
   "controls": "Mouse/Touch drag · Space bake",
   "added": "2026-11-08",
+  "keywords": "merge baking bakery cake food cooking cute cafe shop",
   "file": "games/block-bakery.html",
   "thumb": "thumbs/block-bakery.jpg"
  },
@@ -237,6 +251,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Bend glowing beams through mirrors and prisms to power up",
   "controls": "Mouse/Touch · Tap rotate · Drag place · Z undo",
   "added": "2026-11-08",
+  "keywords": "lasers mirrors light logic puzzle brain science",
   "file": "games/laser-lab.html",
   "thumb": "thumbs/laser-lab.jpg"
  },
@@ -253,6 +268,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Blast rocks, grab ore, upgrade your ship, beat ten bosses",
   "controls": "WASD move · Mouse aim & shoot · Touch dual sticks",
   "added": "2026-11-08",
+  "keywords": "space ship shooter asteroids aliens bullet hell roguelite",
   "file": "games/asteroid-miner.html",
   "thumb": "thumbs/asteroid-miner.jpg"
  },
@@ -269,6 +285,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Type real code at speed before the trace catches you",
   "controls": "Keyboard · Tab autocomplete · Esc pause",
   "added": "2026-11-08",
+  "keywords": "typing hacker hacking code programming keyboard hard computer",
   "file": "games/terminal-rush.html",
   "thumb": "thumbs/terminal-rush.jpg"
  },
@@ -285,6 +302,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Plant, harvest, bake and grow a cozy farm through the seasons",
   "controls": "Mouse/Touch tap & drag · 1-9 pick seed",
   "added": "2026-11-08",
+  "keywords": "farming farm crops animals cows chickens harvest cozy idle simulation sim",
   "file": "games/farm-loop.html",
   "thumb": "thumbs/farm-loop.jpg"
  },
@@ -301,6 +319,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Smash bricks, stack wild upgrades, topple five boss worlds",
   "controls": "Mouse · Arrows/A D · Space · Touch drag",
   "added": "2026-11-08",
+  "keywords": "brick breaker breakout paddle ball arcade",
   "file": "games/bounce-brigade.html",
   "thumb": "thumbs/bounce-brigade.jpg"
  },
@@ -317,6 +336,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Match runes to slash, burn and freeze monsters",
   "controls": "Mouse drag/click · Touch swipe",
   "added": "2026-11-08",
+  "keywords": "match 3 match-3 gems rpg battle monsters fantasy",
   "file": "games/rune-match.html",
   "thumb": "thumbs/rune-match.jpg"
  },
@@ -333,6 +353,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Flick perfect arcs, swish trick shots, chase combo streaks",
   "controls": "Mouse drag · Touch drag",
   "added": "2026-11-08",
+  "keywords": "basketball sports shooting hoops ball",
   "file": "games/hoop-shot.html",
   "thumb": "thumbs/hoop-shot.jpg"
  },
@@ -349,6 +370,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Blast craters, bury rivals, climb the ranks to Marshal",
   "controls": "Arrows · A/D · Space · Q/E · Mouse/Touch aim",
   "added": "2026-11-08",
+  "keywords": "tanks artillery war army explosions turn based worms 2 player multiplayer",
   "file": "games/tank-duel.html",
   "thumb": "thumbs/tank-duel.jpg"
  },
@@ -365,6 +387,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Wall-run, dash-slash and outrun four deadly boss lords",
   "controls": "Space/Up jump · Shift/Right dash · Tap/Swipe",
   "added": "2026-11-08",
+  "keywords": "ninja runner endless run sword samurai action",
   "file": "games/dash-ninja.html",
   "thumb": "thumbs/dash-ninja.jpg"
  },
@@ -380,6 +403,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Hop like a knight, grab every gem, dodge guarding rooks.",
   "controls": "Mouse/Touch · Arrows + Enter · Z undo · R restart · H hint",
   "added": "2026-11-08",
+  "keywords": "chess knight board puzzle brain logic",
   "file": "games/knight-quest.html",
   "thumb": "thumbs/knight-quest.jpg"
  },
@@ -395,6 +419,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Place buildings, chain neighbour combos, grow a thriving island.",
   "controls": "Mouse/Touch · 1-4 / Q E pick tile · Enter place",
   "added": "2026-11-08",
+  "keywords": "city builder town building island kingdom village strategy relaxing",
   "file": "games/tile-kingdom.html",
   "thumb": "thumbs/tile-kingdom.jpg"
  },
@@ -410,6 +435,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Tap neon notes to 15 live-synthesized tracks. Chase the S.",
   "controls": "D F J K (or arrows) · Touch lanes",
   "added": "2026-11-08",
+  "keywords": "music rhythm dance beat songs piano notes",
   "file": "games/beat-tapper.html",
   "thumb": "thumbs/beat-tapper.jpg"
  },
@@ -425,6 +451,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Drag through letters, blast bombs, chase giant long-word scores.",
   "controls": "Mouse/Touch drag · Type letters + Enter",
   "added": "2026-11-08",
+  "keywords": "word words boggle spelling vocabulary letters brain",
   "file": "games/letter-lattice.html",
   "thumb": "thumbs/letter-lattice.jpg"
  },
@@ -440,6 +467,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Slide hexagon tiles six ways and merge your way to 2048.",
   "controls": "Q W E A S D · Swipe/Drag · Z undo",
   "added": "2026-11-08",
+  "keywords": "2048 numbers merge math puzzle hexagon",
   "file": "games/hex-merge.html",
   "thumb": "thumbs/hex-merge.jpg"
  },
@@ -455,6 +483,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Drop deep, dodge jellies, hook legends on the way up",
   "controls": "Mouse/Drag · Arrows/WASD · Hold to reel",
   "added": "2026-11-08",
+  "keywords": "fishing fish ocean sea water boat collection relaxing",
   "file": "games/deep-cast.html",
   "thumb": "thumbs/deep-cast.jpg"
  },
@@ -471,6 +500,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Flip, wheelie and fuel-hunt across six wild worlds",
   "controls": "Arrows/WASD · Touch pedals",
   "added": "2026-11-08",
+  "keywords": "motorbike motorcycle bike dirt hill climb physics driving vehicle stunts",
   "file": "games/moto-hill.html",
   "thumb": "thumbs/moto-hill.jpg"
  },
@@ -487,6 +517,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Out-type your own ghost and rivals up to 140 WPM",
   "controls": "Keyboard",
   "added": "2026-11-08",
+  "keywords": "typing race racing keyboard wpm hard words",
   "file": "games/ghost-typer.html",
   "thumb": "thumbs/ghost-typer.jpg"
  },
@@ -502,6 +533,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Build by day, blast cartoon zombies by night",
   "controls": "WASD + Mouse · Touch twin sticks",
   "added": "2026-11-08",
+  "keywords": "zombies zombie survival shooter base building defense horror",
   "file": "games/zombie-fort.html",
   "thumb": "thumbs/zombie-fort.jpg"
  },
@@ -517,6 +549,7 @@ window.GAMEBOP_GAMES = [
   "blurb": "Slide, push and melt your way through 60 frosty puzzles",
   "controls": "Arrows/WASD · Swipe",
   "added": "2026-11-08",
+  "keywords": "ice penguin sliding snow winter puzzle brain",
   "file": "games/ice-slide.html",
   "thumb": "thumbs/ice-slide.jpg"
  }
