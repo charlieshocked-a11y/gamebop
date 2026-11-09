@@ -47,6 +47,16 @@ Card games / deckbuilders, ant colony builders (dig tunnels, manage castes, raid
 ## Metadata
 Add a "keywords" string to each game's JSON: 8-15 plain topic words people might search for (e.g. "fishing fish ocean boat relaxing collection"), so topic search ("fishing game", "cars", "word game") finds it.
 
+## Tutorial (required in every game)
+- First time someone plays, run a short **interactive tutorial**: teach by doing (highlight the control, let the player try it, move on), with arrows, ghost hands, key icons and ≤ 8-word captions. No text walls.
+- A clear **Skip** button is always visible during the tutorial.
+- The main menu has a **How to play** button that replays the tutorial any time.
+- Remember that it was completed (localStorage) so it doesn't auto-run again.
+
+## Support link (required in every game)
+- On the title / main menu screen only, put a tiny, low-key link in the **bottom-right corner** that says "Support ♥" and opens https://cash.app/$CharlieShocked in a new tab (`<a target="_blank" rel="noopener">`).
+- Very small and unnoticeable: ~11-12px text, ~55% opacity (full on hover), no box or a very subtle one, respects safe-area insets, never overlaps buttons, and hidden during gameplay.
+
 ## Hard rules
 - Single file, vanilla JS + CSS + canvas/DOM. NO external requests of any kind: no CDNs, no web fonts, no images by URL. Draw everything in code (canvas, SVG, CSS). Sounds are synthesized with WebAudio.
 - Original game: no names, characters, logos or signature look of existing branded games.
