@@ -5,8 +5,10 @@
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#10142e;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 canvas{display:block;width:100vw;height:100vh}
+#sup{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));font:600 12px "Segoe UI","Helvetica Neue",Arial,system-ui,sans-serif;color:#8d96c8;opacity:.55;text-decoration:none;padding:4px 6px;border-radius:8px;z-index:5;transition:opacity .15s,text-shadow .15s}
+#sup:hover,#sup:focus{opacity:1;color:#e8ecff;text-shadow:0 0 8px #e04dff}
 </style></head>
-<body><canvas id="c"></canvas>
+<body><canvas id="c"></canvas><a id="sup" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
 <script>
 'use strict';
 const SLUG='laser-lab',KP='gamebop.'+SLUG+'.';
@@ -144,16 +146,22 @@ function drawPiece(g,p,x,y,s,state){g.save();g.translate(x,y);const u=s/100;g.sc
  g.restore()}
 // ---------- state ----------
 let scene='title',paused=false,T=0,G=null,btns=[],parts=[],shake=0,drag=null,downBtn=null,flash=0;
+let TU=null; // interactive tutorial
+function tutDone(){return !!store.get('tut',0)}
+const TUT_LV=(()=>{const line='5|5|2|E,0,1,0,1,0,0,1,0;M,3,1,0,0,1,3,1,1;M,-1,-1,0,0,2,3,4,0;R,1,4,0,1,0,1,4,0;W,4,3,0,0,0,4,3,0;W,0,3,0,0,0,0,3,0';const [w,h,par,ps]=line.split('|');return{w:+w,h:+h,par:+par,p:ps.split(';').map(s=>{const a=s.split(',');return{t:a[0],x:+a[1],y:+a[2],o:+a[3],c:+a[4],f:+a[5],sx:+a[6],sy:+a[7],so:+a[8]}})}})();
+function startTutorial(replay){const lv=TUT_LV;G={i:0,tut:true,lv,pieces:lv.p.map(p=>Object.assign({},p,{anim:0})),moves:0,hist:[],sim:null,solvedT:-1,litPrev:new Set(),hint:null};G.trayList=[];layout();resim(true);scene='play';paused=false;TU={step:0,t:0,replay:!!replay,doneT:-1}}
+function endTutorial(){const rp=TU&&TU.replay;TU=null;store.set('tut',1);if(G&&G.tut){if(rp)scene='levels';else startLevel(0)}}
+function playFromTitle(){if(!tutDone()&&!hadSave)startTutorial();else scene='levels'}
 function startLevel(i){const lv=LEVELS[i];G={i,lv,pieces:lv.p.map(p=>Object.assign({},p,{anim:0})),moves:0,hist:[],sim:null,solvedT:-1,litPrev:new Set(),hint:null};G.trayList=[];layout();resim(true);scene='play';paused=false;S.lab=Math.floor(i/9);save()}
 function resim(silent){G.sim=simulate(G.lv,G.pieces);const now=new Set();let k=0;G.pieces.forEach(p=>{if(p.t==='R'&&(G.sim.recv.get(p)||0)===p.c){now.add(p);if(!G.litPrev.has(p)&&!silent){SFX.lit(k++);burstAt(p,COL[p.c],14)}}});G.litPrev=now;
  if(G.sim.solved&&G.solvedT<0&&!silent){G.solvedT=0;onSolve()}}
 function starsFor(m,par){return m<=par?3:m<=par+Math.ceil(par*0.5)+1?2:1}
-function onSolve(){const st=starsFor(G.moves,G.lv.par);G.stars=st;const i=G.i;G.newBest=S.stars[i]<st;if(st>S.stars[i])S.stars[i]=st;if(!S.best[i]||G.moves<S.best[i])S.best[i]=G.moves;save();
+function onSolve(){if(G.tut){setTimeout(()=>SFX.win(),250);flash=1;shake=6;G.pieces.forEach(p=>{if(p.t==='R')burstAt(p,COL[p.c],40)});return}const st=starsFor(G.moves,G.lv.par);G.stars=st;const i=G.i;G.newBest=S.stars[i]<st;if(st>S.stars[i])S.stars[i]=st;if(!S.best[i]||G.moves<S.best[i])S.best[i]=G.moves;save();
  setTimeout(()=>SFX.win(),250);flash=1;shake=6;G.pieces.forEach(p=>{if(p.t==='R'){burstAt(p,COL[p.c],40)}})}
 function snapshot(){return G.pieces.map(p=>[p.x,p.y,p.o])}
 function pushHist(){G.hist.push({s:snapshot(),m:G.moves});if(G.hist.length>200)G.hist.shift()}
 function undo(){if(!G||G.solvedT>=0||!G.hist.length)return;const h=G.hist.pop();h.s.forEach((q,i)=>{G.pieces[i].x=q[0];G.pieces[i].y=q[1];G.pieces[i].o=q[2]});G.moves=h.m;SFX.rot();resim(true)}
-function reset(){if(!G)return;startLevel(G.i)}
+function reset(){if(!G)return;if(G.tut){const rp=TU&&TU.replay;startTutorial(rp);return}startLevel(G.i)}
 function pieceAt(x,y){return G.pieces.find(p=>p.x===x&&p.y===y)}
 function cellAt(px,py){const c=Math.floor((px-L.bx)/L.cs),r=Math.floor((py-L.by)/L.cs);if(c<0||r<0||c>=G.lv.w||r>=G.lv.h)return null;return[c,r]}
 function trayPos(i){const t=L.tray;if(t.vert){return[t.x+t.w/2,t.y+20+t.slot/2+i*(t.slot+10)]}const n=G.trayList.length;const tot=n*t.slot+(n-1)*10;return[t.x+t.w/2-tot/2+t.slot/2+i*(t.slot+10),t.y+t.h/2]}
@@ -190,11 +198,11 @@ addEventListener('keydown',e=>{ensureAudio();const k=e.key;
  else if(k==='z'||k==='Z'||k==='Backspace'){if(scene==='play'&&!paused)undo()}
  else if(k==='r'||k==='R'){if(scene==='play'&&!paused)reset()}
  else if(k==='m'||k==='M'){toggleMute()}
- else if(k==='Enter'||k===' '){e.preventDefault();if(scene==='title')scene='levels';else if(scene==='play'&&G&&G.solvedT>0.8)nextLevel()}});
+ else if(k==='Enter'||k===' '){e.preventDefault();if(scene==='title')playFromTitle();else if(scene==='play'&&G&&G.solvedT>0.8)nextLevel()}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&scene==='play'&&G&&G.solvedT<0)paused=true});
 addEventListener('resize',resize);
 function toggleMute(){muted=!muted;store.set('muted',muted)}
-function nextLevel(){if(!G)return;if(G.i<44&&unlocked(G.i+1))startLevel(G.i+1);else scene='levels'}
+function nextLevel(){if(!G)return;if(G.tut){endTutorial();return}if(G.i<44&&unlocked(G.i+1))startLevel(G.i+1);else scene='levels'}
 function unlocked(i){return i===0||S.stars[i-1]>0}
 // ---------- UI ----------
 function button(x,y,w,h,label,col,cb,draw,fs){const b={x,y,w,h,cb};btns.push(b);const g=cx;const pr=downBtn&&sameBtn(downBtn,b);const dy=pr?2:0;
@@ -234,9 +242,9 @@ function drawTitle(){drawBg();const g=cx;
  words.forEach((wd,wi)=>{const y=cy+(wi-0.5)*s*1.0;g.font='900 '+s+'px '+FONT;const letters=wd[0].split('');const ws=letters.map(l=>g.measureText(l).width+s*0.06);const tot=ws.reduce((a,b)=>a+b,0);let x=W/2-tot/2;
   letters.forEach((l,i)=>{const c=COL[wd[1][i]];const flick=(Math.sin(T*17+i*5+wi*3)>0.985)?0.4:1;g.save();g.translate(x+ws[i]/2,y);g.font='900 '+s+'px '+FONT;g.textAlign='center';g.textBaseline='middle';
    g.globalAlpha=flick;g.shadowColor=c;g.shadowBlur=s*0.35;g.lineWidth=s*0.07;g.strokeStyle=c;g.strokeText(l,0,0);g.shadowBlur=s*0.15;g.strokeText(l,0,0);g.shadowBlur=0;g.lineWidth=s*0.025;g.strokeStyle='#fff';g.strokeText(l,0,0);g.restore();x+=ws[i]})});
- const bw=Math.min(260,W*0.62),bh=Math.min(64,H*0.1);const by=Math.min(H-bh-44,cy+s*1.15);
- button(W/2-bw/2,by,bw,bh,hadSave?'Continue':'Play','#e0306a',()=>{scene='levels'},null,bh*0.42);
- txt('Tap to rotate · Drag to place',W/2,by+bh+26,Math.max(12,Math.min(16,W/28)),UI.dim,'center','600');
+ const bw=Math.min(260,W*0.62),bh=Math.min(64,H*0.1),hb=Math.min(44,H*0.07),hw=Math.min(190,W*0.46);const by=Math.min(H-bh-hb-30,cy+s*1.15);
+ button(W/2-bw/2,by,bw,bh,hadSave?'Continue':'Play','#e0306a',playFromTitle,null,bh*0.42);
+ button(W/2-hw/2,by+bh+12,hw,hb,'How to play','#3a4796',()=>startTutorial(true),null,Math.min(hb*0.42,18));
  iconBtn(W-54,10,44,'mute',toggleMute);}
 function drawLevels(){drawBg();if(!unlocked(S.lab*9)){S.lab=0;for(let i=4;i>=0;i--)if(unlocked(i*9)){S.lab=i;break}}const g=cx;iconBtn(10,8,42,'back',()=>{scene='title'});iconBtn(W-52,8,42,'mute',toggleMute);
  const tot=S.stars.reduce((a,b)=>a+b,0);drawStar(76,29,13,true);txt(tot+' / 135',96,30,20,UI.ink,'left');
@@ -283,7 +291,7 @@ function drawPlay(dt){const g=cx;drawBg();const lv=G.lv,cs=L.cs;
  const st=starsFor(G.moves,G.lv.par);for(let s=0;s<3;s++)drawStar(mx+pw*0.08+s*18,29,7.5,s<st);
  iconBtn(W-150,8,42,'undo',undo);iconBtn(W-102,8,42,'reset',reset);iconBtn(W-54,8,42,'mute',toggleMute);
  // tutorial hint for lvl 1-3
- if(G.solvedT<0&&!drag){let target=null;if(G.i<=2&&G.moves<4){const wrong=G.pieces.find(p=>p.f===1&&p.o!==p.so);const trayP=G.pieces.find(p=>p.f===2&&p.x<0&&p.sx>=0);
+ if(G.solvedT<0&&!drag&&!TU){let target=null;if(G.i<=2&&G.moves<4){const wrong=G.pieces.find(p=>p.f===1&&p.o!==p.so);const trayP=G.pieces.find(p=>p.f===2&&p.x<0&&p.sx>=0);
    if(trayP&&G.i===2){const i=G.trayList.indexOf(trayP);const [x1,y1]=trayPos(i);const [x2,y2]=cellCenter(trayP.sx,trayP.sy);const k=(T%1.8)/1.4;if(k<1){const e=k<0.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;hand(x1+(x2-x1)*e,y1+(y2-y1)*e)}}
    else if(wrong){const [x,y]=cellCenter(wrong.x,wrong.y);hand(x,y+Math.abs(Math.sin(T*5))*-8)}}}
  if(flash>0){g.fillStyle='rgba(255,255,255,'+flash*0.35+')';g.fillRect(0,0,W,H);flash=Math.max(0,flash-dt*2)}}
@@ -298,11 +306,39 @@ function drawSolved(){const g=cx;const k=Math.min(1,Math.max(0,(G.solvedT-0.7)/0
 function drawPause(){const g=cx;g.fillStyle='rgba(10,12,30,.7)';g.fillRect(0,0,W,H);txt('Paused',W/2,H/2-100,36,'#fff');const bw=Math.min(240,W*0.7),bh=56;let y=H/2-60;
  button(W/2-bw/2,y,bw,bh,'Resume','#e0306a',()=>{paused=false});y+=bh+14;button(W/2-bw/2,y,bw,bh,'Restart','#3a4796',()=>{paused=false;reset()});y+=bh+14;button(W/2-bw/2,y,bw,bh,'Levels','#3a4796',()=>{paused=false;scene='levels'})}
 function drawParts(dt){const g=cx;g.save();g.globalCompositeOperation='lighter';parts.forEach(p=>{p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=0.96;p.vy*=0.96;g.globalAlpha=Math.max(0,Math.min(1,p.life*2));g.fillStyle=p.col;g.beginPath();g.arc(p.x,p.y,p.s,0,7);g.fill()});g.restore();parts=parts.filter(p=>p.life>0)}
-let last=performance.now();
+// ---------- tutorial ----------
+function tutState(){const m=G.pieces.find(p=>p.f===1);const tp=G.pieces.find(p=>p.f===2);return{m,tp,mOK:m.o===m.so,tOK:tp.x===tp.sx&&tp.y===tp.sy&&tp.o===tp.so}}
+function updateTut(dt){if(!TU)return;if(!G||scene!=='play'||!G.tut){TU=null;return}TU.t+=dt;
+ const q=tutState();const st=G.solvedT>=0?2:!q.mOK?0:1;if(st!==TU.step){if(st>TU.step)SFX.lit(4+st);TU.step=st;TU.t=0}
+ if(G.solvedT>=0&&G.solvedT>2.2)endTutorial()}
+function hole(g,h){const r=12;g.moveTo(h.x+r,h.y);g.arcTo(h.x+h.w,h.y,h.x+h.w,h.y+h.h,r);g.arcTo(h.x+h.w,h.y+h.h,h.x,h.y+h.h,r);g.arcTo(h.x,h.y+h.h,h.x,h.y,r);g.arcTo(h.x,h.y,h.x+h.w,h.y,r);g.closePath()}
+function drawTut(){if(!TU||!G||!G.tut||paused)return;const g=cx,cs=L.cs,st=TU.step;const holes=[];let hd=null,ghost=null,arrow=null,tgt=null,cap;
+ const q=tutState();
+ if(st===0){const [x,y]=cellCenter(q.m.x,q.m.y);holes.push({x:x-cs/2,y:y-cs/2,w:cs,h:cs});hd={x,y:y-Math.abs(Math.sin(TU.t*5))*8};tgt=holes[0];cap='Tap the mirror to turn it'}
+ else if(st===1){const [x2,y2]=cellCenter(q.tp.sx,q.tp.sy);holes.push({x:x2-cs/2,y:y2-cs/2,w:cs,h:cs});
+  let x1,y1;if(q.tp.x<0){const i=G.trayList.indexOf(q.tp);[x1,y1]=trayPos(i);const t=L.tray;holes.push({x:x1-t.slot/2-4,y:y1-t.slot/2-4,w:t.slot+8,h:t.slot+8});cap='Drag the mirror to the glow'}else{[x1,y1]=cellCenter(q.tp.x,q.tp.y);holes.push({x:x1-cs/2,y:y1-cs/2,w:cs,h:cs});cap=(q.tp.x===q.tp.sx&&q.tp.y===q.tp.sy)?'Tap it to turn it':'Drag it to the glow'}
+  if(q.tp.x===q.tp.sx&&q.tp.y===q.tp.sy){hd={x:x2,y:y2-Math.abs(Math.sin(TU.t*5))*8}}
+  else if(!drag){const k=(TU.t%1.9)/1.4;if(k<1){const e=k<0.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;hd={x:x1+(x2-x1)*e,y:y1+(y2-y1)*e};ghost={x:hd.x,y:hd.y}}}
+  tgt=holes[0]}
+ else{const rc=G.pieces.find(p=>p.t==='R');const [x,y]=cellCenter(rc.x,rc.y);arrow={x,y:y-cs*0.5-Math.abs(Math.sin(T*4))*10};tgt={x:x-cs/2,y:y-cs/2-46,w:cs,h:cs+46};cap='Core lit! Fewer moves, more stars'}
+ if(holes.length){g.save();g.beginPath();g.rect(0,0,W,H);holes.forEach(h=>hole(g,h));g.fillStyle='rgba(10,12,30,.5)';g.fill('evenodd');
+  g.strokeStyle='#3df0ff';g.shadowColor='#3df0ff';g.shadowBlur=14;g.lineWidth=2.5+Math.sin(T*6)*1;g.setLineDash([9,6]);g.lineDashOffset=-T*30;holes.forEach(h=>{rr(g,h.x+2,h.y+2,h.w-4,h.h-4,12);g.stroke()});g.restore()}
+ if(ghost){g.save();g.globalAlpha=0.45;drawPiece(g,q.tp,ghost.x,ghost.y-cs*0.15,cs);g.restore()}
+ if(arrow){g.save();g.translate(arrow.x,arrow.y);g.fillStyle='#ffcc3d';g.shadowColor='#ffcc3d';g.shadowBlur=12;g.beginPath();g.moveTo(0,0);g.lineTo(-13,-16);g.lineTo(-5,-16);g.lineTo(-5,-32);g.lineTo(5,-32);g.lineTo(5,-16);g.lineTo(13,-16);g.closePath();g.fill();g.restore()}
+ if(hd)hand(hd.x,hd.y);
+ const fs=Math.max(15,Math.min(20,W/22));g.font='700 '+fs+'px '+FONT;const tw=g.measureText(cap).width+34,th=fs*2.1;
+ let cy=tgt.y-th-16;if(cy<100)cy=tgt.y+tgt.h+22;cy=Math.min(cy,H-th-8);const cxp=Math.max(8,Math.min(W-tw-8,tgt.x+tgt.w/2-tw/2));
+ const pop=1+Math.max(0,0.25-TU.t)*0.6;g.save();g.translate(cxp+tw/2,cy+th/2);g.scale(pop,pop);g.translate(-(cxp+tw/2),-(cy+th/2));
+ g.fillStyle='rgba(27,33,80,.95)';rr(g,cxp,cy,tw,th,th/2);g.fill();g.save();g.strokeStyle='#e04dff';g.shadowColor='#e04dff';g.shadowBlur=12;g.lineWidth=2.5;g.stroke();g.restore();
+ txt(cap,cxp+tw/2,cy+th/2+1,fs,'#fff','center','700');g.restore();
+ for(let i=0;i<3;i++){g.fillStyle=i<=st?'#3df0ff':'rgba(141,150,200,.3)';g.beginPath();g.arc(cxp+tw/2+(i-1)*14,cy>tgt.y?cy+th+11:cy-10,4,0,7);g.fill()}
+ if(st<2)button(12,60,80,36,'Skip','#e0306a',()=>{endTutorial()},null,16);}
+let last=performance.now();const supEl=document.getElementById('sup');
 function frame(now){const dt=Math.min(0.05,(now-last)/1000);last=now;T+=dt;btns=[];cx.setTransform(DPR,0,0,DPR,0,0);
- if(scene==='play'&&G){if(!paused&&G.solvedT>=0)G.solvedT+=dt;drawPlay(paused?0:dt);drawParts(dt);if(G.solvedT>=0)drawSolved();if(paused)drawPause()}
- else if(scene==='levels'){drawLevels();drawParts(dt)}else drawTitle();
+ if(scene==='play'&&G){if(!paused&&G.solvedT>=0)G.solvedT+=dt;if(!paused)updateTut(dt);drawPlay(paused?0:dt);drawParts(dt);drawTut();if(G.solvedT>=0&&!G.tut)drawSolved();if(paused)drawPause()}
+ else{TU=null;if(scene==='levels'){drawLevels();drawParts(dt)}else drawTitle();}
+ {const show=scene==='title';if(supEl.__s!==show){supEl.__s=show;supEl.style.display=show?'':'none'}}
  if(shake>0)shake=Math.max(0,shake-dt*25);requestAnimationFrame(frame)}
 resize();requestAnimationFrame(frame);
-window.__ll={get G(){return G},get S(){return S},start:startLevel,LEVELS,layout:()=>L};
+window.__ll={get G(){return G},get S(){return S},get TU(){return TU},get scene(){return scene},start:startLevel,LEVELS,layout:()=>L};
 </script></body></html>

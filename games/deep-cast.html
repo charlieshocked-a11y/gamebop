@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Deep Cast</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#04121f;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent}
@@ -64,10 +64,50 @@ canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 #upBtn{position:fixed;right:14px;bottom:60px;width:64px;height:64px;border-radius:50%;padding:12px}
 #pause{position:fixed;inset:0;background:rgba(2,10,22,.65);display:flex;flex-direction:column;gap:16px;align-items:center;justify-content:center;z-index:40}
 #pause .t{font-size:48px;font-weight:900}
+:root{--tutA:#ffd23f;--tutBg:rgba(4,26,48,.86)}
+#tut{position:fixed;inset:0;pointer-events:none;z-index:35}
+#tutCap{position:absolute;left:50%;top:calc(62px + env(safe-area-inset-top));transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:var(--tutBg,rgba(0,20,40,.84));border:3px solid var(--tutA,#ffd23f);border-radius:18px;padding:8px 16px;font-weight:900;font-size:min(5vw,22px);letter-spacing:.5px;white-space:nowrap;box-shadow:0 6px 0 rgba(0,0,0,.3),0 10px 26px rgba(0,0,0,.35);text-shadow:0 2px 0 rgba(0,0,0,.3);color:#fff}
+#tutCap.in{animation:tutIn .42s cubic-bezier(.2,1.5,.4,1)}
+#tutCap.ok{border-color:#7cf08a;animation:tutOk .4s cubic-bezier(.2,1.6,.4,1)}
+#tutN{font-size:12px;opacity:.6}
+#tutCk{display:none;width:24px;height:24px;border-radius:50%;background:#3ccf5a;box-shadow:0 2px 0 #127030;align-items:center;justify-content:center}
+#tutCap.ok #tutCk{display:flex}
+@keyframes tutIn{0%{transform:translate(-50%,-30px) scale(.6);opacity:0}100%{transform:translateX(-50%);opacity:1}}
+@keyframes tutOk{0%,100%{transform:translateX(-50%) scale(1)}40%{transform:translateX(-50%) scale(1.14)}}
+#tutKeys{position:absolute;left:50%;transform:translateX(-50%);top:calc(118px + env(safe-area-inset-top));display:flex;gap:6px}
+.tk{min-width:34px;height:34px;padding:0 7px;box-sizing:border-box;border-radius:9px;background:linear-gradient(#fff,#d6e2ee);color:#1a2a3a;font-weight:900;font-size:17px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 #6a7a8c,0 6px 10px rgba(0,0,0,.3);animation:tkP 1.1s ease-in-out infinite;text-shadow:none}
+.tk:nth-child(2){animation-delay:.55s}.tk:nth-child(3){animation-delay:.3s}.tk:nth-child(4){animation-delay:.8s}
+.tk.w{font-size:13px;padding:0 12px}
+@keyframes tkP{0%,55%,100%{transform:none}20%,35%{transform:translateY(3px);box-shadow:0 1px 0 #6a7a8c,0 2px 4px rgba(0,0,0,.3);background:linear-gradient(#fff6b0,#ffd23f)}}
+#tutRing{position:absolute;border-radius:50%;border:4px solid var(--tutA,#ffd23f);box-shadow:0 0 0 4px rgba(0,0,0,.25),0 0 22px var(--tutA,#ffd23f);animation:tutRing 1.2s ease-in-out infinite;display:none;box-sizing:border-box}
+@keyframes tutRing{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.12);opacity:.6}}
+#tutHand{position:absolute;width:56px;height:56px;margin:-2px 0 0 -22px;display:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.45))}
+#tutHand svg{width:100%;height:100%;transform-origin:40% 0}
+#tutHand.tap svg{animation:hTap 1s cubic-bezier(.5,0,.5,1) infinite}
+#tutHand.hold svg{animation:hHold 1.6s cubic-bezier(.5,0,.5,1) infinite}
+#tutHand.dragx{animation:hDx 1.8s cubic-bezier(.45,0,.55,1) infinite}
+#tutHand.dragy{animation:hDy 1.4s cubic-bezier(.45,0,.55,1) infinite}
+#tutHand.swipe{animation:hSw 1.4s cubic-bezier(.3,0,.3,1) infinite}
+@keyframes hTap{0%,100%{transform:translateY(10px)}40%,55%{transform:scale(.84)}}
+@keyframes hHold{0%,100%{transform:translateY(12px)}22%,80%{transform:scale(.84)}}
+@keyframes hDx{0%,100%{transform:translateX(-70px)}50%{transform:translateX(70px)}}
+@keyframes hDy{0%,100%{transform:translateY(40px)}50%{transform:translateY(-40px)}}
+@keyframes hSw{0%{transform:translate(0,0);opacity:0}15%{opacity:1}70%{transform:translate(var(--sx,0),var(--sy,-80px));opacity:1}100%{transform:translate(var(--sx,0),var(--sy,-80px));opacity:0}}
+#tutArrow{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;display:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.45))}
+#tutArrow svg{width:100%;height:100%;animation:aBob .8s ease-in-out infinite}
+@keyframes aBob{0%,100%{transform:translateY(-6px)}50%{transform:translateY(4px)}}
+#tutSkip{position:absolute;left:calc(10px + env(safe-area-inset-left));bottom:calc(10px + env(safe-area-inset-bottom));pointer-events:auto;font:inherit;font-weight:900;font-size:14px;letter-spacing:1px;color:#fff;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.6);border-radius:20px;padding:7px 16px;cursor:pointer;transition:transform .1s cubic-bezier(.2,1.6,.4,1)}
+#tutSkip:hover{background:rgba(0,0,0,.75)}
+#tutSkip:active{transform:scale(.9)}
+#support{position:absolute;right:calc(9px + env(safe-area-inset-right));bottom:calc(7px + env(safe-area-inset-bottom));font-size:11.5px;font-weight:700;letter-spacing:.3px;color:#fff;opacity:.55;text-decoration:none;padding:3px 6px;text-shadow:0 1px 2px rgba(0,0,0,.8);transition:opacity .15s;pointer-events:auto;z-index:5}
+#support:hover,#support:focus-visible{opacity:1}
+.howBtn{font-size:min(4vw,3.4vh,17px)!important;padding:.5em 1.3em!important}
 </style></head><body>
+<div id="tut" class="hidden"><div id="tutRing"></div><div id="tutArrow"><svg viewBox="0 0 40 40"><path d="M14 3h12v17h8L20 37 6 20h8z" style="fill:var(--tutA)" stroke="#1a1a1a" stroke-width="2.5" stroke-linejoin="round"/></svg></div><div id="tutHand"><svg viewBox="0 0 48 48"><path d="M16 5a4 4 0 018 0v15l2.2-.5a4 4 0 014.6 2.6l1.6-.3a4 4 0 014.5 2.7l1.3-.2a4 4 0 014.5 4V36c0 6-5 10.5-11 10.5h-6c-4 0-7-2-9-5l-7-10a3.6 3.6 0 015.6-4.6L16 30z" fill="#fff" stroke="#1a2230" stroke-width="2.6" stroke-linejoin="round"/><path d="M24 30v-6M30.5 30v-5M36.5 30.5v-4" stroke="#1a2230" stroke-width="2" stroke-linecap="round" opacity=".45"/></svg></div><div id="tutCap"><span id="tutTxt"></span><span id="tutCk"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span id="tutN"></span></div><div id="tutKeys"></div><button id="tutSkip">SKIP ›</button></div>
+
 <canvas id="c"></canvas>
 <div id="hud"><div class="pill"><i class="coin"></i><span id="coins">0</span></div><div class="pill hidden" id="depthPill"><span id="depth">0m</span></div><div class="pill hidden" id="catchPill"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M3 12c3-5 9-6 13-3l5-3v12l-5-3c-4 3-10 2-13-3z" fill="#5fe0ff"/></svg><span id="catchN">0</span></div></div>
-<div id="title" class="layer"><div class="logo"><span>DEEP</span><span>CAST</span></div><button class="btn" id="playBtn">PLAY</button><div class="hint">Drag / ← → to steer · catch fish on the way up</div></div>
+<div id="title" class="layer"><div class="logo"><span>DEEP</span><span>CAST</span></div><button class="btn" id="playBtn">PLAY</button><button class="btn blue howBtn" id="howBtn">HOW TO PLAY</button><div class="hint">Drag / ← → to steer · catch fish on the way up</div><a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a></div>
 <div id="hub" class="hidden">
  <div class="row" style="align-items:flex-end">
   <button class="btn blue ibtn" id="bShop" title="Upgrades"><svg viewBox="0 0 24 24"><path d="M12 3l8 8h-5v9H9v-9H4z" fill="#fff"/></svg><span class="badge hidden" id="shopBadge">!</span></button>
@@ -303,7 +343,7 @@ function drawBoat(g,x,y,lvl,t,rodTip){
 function rodTipWorld(x,y,lvl,t){const w=[90,110,135,160][lvl];const a=Math.sin(t*1.3)*.04;const lx=-w*.32+70,ly=-14-62;return[x+lx*Math.cos(a)-ly*Math.sin(a),y+lx*Math.sin(a)+ly*Math.cos(a)]}
 // ---------- world ----------
 const PPM=3;
-let state='title',T=0,camY=-300,shake=0,paused=false;
+let state='title',T=0,camY=-300,shake=0,paused=false,TUTSLOW=1;
 let hook={x:0,y:0,vx:0},ents=[],hooked=[],parts=[],floats=[],snow=[],castInfo=null,reel=null,landing=null;
 for(let i=0;i<70;i++)snow.push({x:Math.random(),y:Math.random(),z:rnd(.3,1),r:rnd(.6,2)});
 let titleFish=[];function makeTitleFish(){titleFish=[];for(let i=0;i<14;i++){const sp=SP[(i*7+3)%SP.length];titleFish.push({sp:SP.filter(s=>s.z<3)[(i*5+2)%32],x:Math.random(),y:.52+Math.random()*.45,d:Math.random()<.5?1:-1,v:rnd(.03,.08),ph:Math.random()*9})}}makeTitleFish();
@@ -351,7 +391,7 @@ function updateCast(dt){
  if(!keys.left&&!keys.right&&ptr.active)tx=ptr.x;
  if(tx!==null)hook.x+=(tx-hook.x)*Math.min(1,dt*9);
  hook.x=clamp(hook.x,14,W-14);
- const base=170+G.line*28;
+ const base=(170+G.line*28)*TUTSLOW;
  if(ci.phase==='drop'){hook.y+=dt*420;if(hook.y>=0){hook.y=0;ci.phase='down';SFX.splash();burst(hook.x,0,24,'#e8fbff',200,.7);shake=4}}
  else if(ci.phase==='down'){hook.y+=base*(keys.down?1.75:1)*dt;if(Math.random()<dt*3)bubbles(hook.x,hook.y-10,1);
   if(keys.up)beginAscent();
@@ -423,8 +463,8 @@ $('quitBtn').onclick=()=>{paused=false;$('pause').classList.add('hidden');hooked
 document.addEventListener('visibilitychange',()=>{if(document.hidden)togglePause(true)});
 // ---------- UI ----------
 let shownCoins=G.coins,resultsOpen=false;
-function go(){audioInit();SFX.click();$('title').classList.add('hidden');state='hub';showHub(true)}
-$('playBtn').onclick=go;if(hadSave)$('playBtn').textContent='CONTINUE';
+function go(tut){if(state!=='title')return;audioInit();SFX.click();$('title').classList.add('hidden');state='hub';showHub(true);if(tut===true||(!hadSave&&!ST.get('tut',0)))runTut()}
+$('playBtn').onclick=()=>go();$('howBtn').onclick=()=>go(true);if(hadSave)$('playBtn').textContent='CONTINUE';
 function showHub(on){$('hub').classList.toggle('hidden',!on);$('hud').classList.remove('hidden');if(on){updateBadge()}}
 $('castBtn').onclick=()=>{if(state==='hub')startCast()};
 function updateBadge(){let can=false;for(const k in UP){const i=G[k]+1;if(i<UP[k].vals.length&&G.coins>=UP[k].cost(i))can=true}$('shopBadge').classList.toggle('hidden',!can)}
@@ -572,4 +612,48 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
  }
  render();requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
+// ---------- tutorial (teach by doing; steps = {cap, el|pt, hand, keys, arrow, when, min, wait, enter}) ----------
+const TUT={on:false,i:0,t:0,ok:0,okT:0,steps:[],cb:null,raf:0,last:0,ding:null,paused:null,abort:null,
+ start(steps,cb){this.steps=steps;this.cb=cb;this.i=-1;this.on=true;$('tut').classList.remove('hidden');this.next();cancelAnimationFrame(this.raf);this.last=performance.now();this.raf=requestAnimationFrame(n=>this.tick(n))},
+ cur(){return this.steps[this.i]},
+ next(){this.i++;this.t=0;this.ok=0;this.okT=0;const s=this.cur();if(!s){this.end(false);return}
+  if(s.enter)try{s.enter()}catch(e){}
+  const c=$('tutCap');c.className='';void c.offsetWidth;c.className='in';
+  $('tutTxt').textContent=s.cap;$('tutN').textContent=(this.i+1)+'/'+this.steps.length;
+  $('tutKeys').innerHTML=(s.keys||[]).map(k=>'<span class="tk'+(k.length>2?' w':'')+'">'+k+'</span>').join('');
+  const h=$('tutHand');h.className=s.hand||'';h.style.display=s.hand?'block':'none';
+  if(s.sw){h.style.setProperty('--sx',s.sw[0]+'px');h.style.setProperty('--sy',s.sw[1]+'px')}
+  this.place()},
+ target(){const s=this.cur();if(!s)return null;
+  if(s.el){const e=typeof s.el==='function'?s.el():$(s.el);if(!e||!e.offsetParent&&getComputedStyle(e).position!=='fixed')return null;const r=e.getBoundingClientRect();if(!r.width)return null;return{x:r.left+r.width/2,y:r.top+r.height/2,r:Math.max(r.width,r.height)/2+8,w:r.width+16,h:r.height+16}}
+  if(s.pt)return s.pt();return null},
+ place(){const s=this.cur();if(!s)return;const p=this.target();const ring=$('tutRing'),hand=$('tutHand'),ar=$('tutArrow');
+  if(p&&p.r&&s.ring!==false){const w=p.w||p.r*2,h=p.h||p.r*2;ring.style.display='block';ring.style.left=(p.x-w/2)+'px';ring.style.top=(p.y-h/2)+'px';ring.style.width=w+'px';ring.style.height=h+'px';ring.style.borderRadius=p.w?Math.min(w,h)/2+'px':'50%'}else ring.style.display='none';
+  const hp=s.hp?s.hp():p;if(s.hand&&hp){hand.style.display='block';hand.style.left=(hp.x+(s.hand==='tap'||s.hand==='hold'?6:0))+'px';hand.style.top=(hp.y+(s.hand==='tap'||s.hand==='hold'?6:0))+'px'}else hand.style.display='none';
+  if(s.arrow&&p){ar.style.display='block';ar.style.left=p.x+'px';ar.style.top=(p.y-(p.h?p.h/2:p.r||20)-26)+'px'}else ar.style.display='none'},
+ tick(now){if(!this.on)return;if(this.abort){let ab=false;try{ab=this.abort()}catch(e){}if(ab){this.end(false);return}}const dt=Math.min(.05,(now-this.last)/1000);this.last=now;const s=this.cur();
+  if(s){const pz=this.paused&&this.paused();$('tut').style.visibility=pz?'hidden':'';
+   if(!pz){this.t+=dt;this.place();
+    if(!this.ok){let done=false;try{done=this.t>(s.min||.35)&&s.when&&s.when()}catch(e){}if(s.wait&&this.t>s.wait)done=true;
+     if(done){this.ok=1;this.okT=0;$('tutCap').className='ok';if(this.ding)try{this.ding()}catch(e){}}}
+    else{this.okT+=dt;if(this.okT>(s.hold||.75))this.next()}}}
+  if(this.on)this.raf=requestAnimationFrame(n=>this.tick(n))},
+ end(skipped){if(!this.on)return;this.on=false;cancelAnimationFrame(this.raf);$('tut').classList.add('hidden');ST.set('tut',1);const cb=this.cb;this.cb=null;if(cb)cb(skipped)}
+};
+$('tutSkip').addEventListener('pointerdown',e=>e.stopPropagation());
+$('tutSkip').addEventListener('click',e=>{e.stopPropagation();e.preventDefault();TUT.end(true)});
+$('support').addEventListener('pointerdown',e=>e.stopPropagation());
+// tutorial steps
+let tutX0=0;
+function runTut(){if(TUT.on)return;
+ TUT.ding=()=>{tone(880,.08,'triangle',.16);tone(1320,.16,'triangle',.16,null,.07)};
+ TUT.paused=()=>paused||!$('modal').classList.contains('hidden');
+ TUT.abort=()=>TUT.i>0&&state==='hub';
+ TUT.start([
+  {cap:'Tap CAST to drop your line',el:'castBtn',hand:'tap',arrow:1,keys:['Space'],when:()=>state!=='hub'},
+  {cap:'Steer: drag or ← →',hand:'dragx',hp:()=>({x:W/2,y:H*.74}),keys:['←','→'],enter:()=>{TUTSLOW=.3;tutX0=hook.x},when:()=>Math.abs(hook.x-tutX0)>60||state!=='cast'},
+  {cap:'Tap ⬆ to reel up',el:'upBtn',hand:'tap',keys:['↑'],when:()=>state!=='cast'||castInfo.phase==='up'},
+  {cap:'Hook fish on the way up!',hand:'dragx',hp:()=>({x:W/2,y:H*.74}),enter:()=>{TUTSLOW=1},when:()=>hooked.length>0||state==='landing'||state==='hub',hold:1.1}
+ ],()=>{TUTSLOW=1});
+}
 </script></body></html>

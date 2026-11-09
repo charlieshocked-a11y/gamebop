@@ -56,6 +56,16 @@ canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 .dim{position:fixed;inset:0;background:rgba(15,10,30,.55)}
 .sub{font-size:16px;opacity:.75;margin-bottom:10px}
 #muteT{position:fixed;top:12px;right:12px;z-index:5}
+.gb-sup{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));font-size:11.5px;font-weight:700;color:#fff6d8;opacity:.55;text-decoration:none;z-index:6;display:none;padding:4px 6px;text-shadow:0 1px 2px rgba(0,0,0,.5);transition:opacity .2s}
+.gb-sup:hover,.gb-sup:focus{opacity:1}.gb-sup.on{display:block}
+#tut{position:fixed;inset:0;pointer-events:none;z-index:4;display:none}#tut.on{display:block}
+#tCap{position:absolute;left:50%;bottom:calc(34px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:linear-gradient(#fffaf0,#f3e3c0);color:#3a2a10;font-weight:900;font-size:19px;padding:9px 18px;border-radius:18px;box-shadow:0 5px 0 #b08b48,0 10px 24px rgba(0,0,0,.4);white-space:nowrap;display:flex;align-items:center;gap:8px;animation:tcap .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes tcap{from{transform:translateX(-50%) scale(.5);opacity:0}}
+.tk{display:inline-flex;min-width:26px;height:26px;padding:0 6px;align-items:center;justify-content:center;border-radius:7px;background:#fff;color:#33285a;box-shadow:0 3px 0 #8a80b5;font-size:13px}
+#tHand{position:absolute;width:44px;height:52px;margin:-3px 0 0 -21px;filter:drop-shadow(0 4px 4px rgba(0,0,0,.4));animation:ttap 1s cubic-bezier(.45,0,.25,1) infinite;display:none}
+@keyframes ttap{0%,100%{transform:translate(14px,30px) rotate(-8deg);opacity:.8}45%{transform:translate(4px,8px)}60%{transform:translate(0,0) scale(.88);opacity:1}75%{transform:translate(2px,6px) scale(.95)}}
+#tSkip{position:absolute;right:calc(12px + env(safe-area-inset-right,0px));top:calc(66px + env(safe-area-inset-top,0px));pointer-events:auto;margin:0}
+#tut.shake #tCap{animation:tsh .3s}@keyframes tsh{25%{margin-left:-8px}75%{margin-left:8px}}
 @media (max-width:760px){.cards{grid-template-columns:repeat(3,minmax(0,120px));gap:10px}.card .ico{height:54px}.card .nm{font-size:14px}.card{padding:10px 6px}.lgrid{grid-template-columns:repeat(5,56px);gap:9px}.lb{width:56px;height:64px;font-size:20px}}
 @media (max-height:520px){.title{font-size:min(12vw,80px)}.card .ico{height:48px}}
 </style>
@@ -66,7 +76,7 @@ canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 <div id="sTitle" class="scr on">
   <div class="title">KNIGHT<span>QUEST</span></div>
   <div style="height:5vh"></div>
-  <div class="row"><button class="btn" id="bPlay">▶ Play</button></div>
+  <div class="row" style="align-items:center"><button class="btn" id="bPlay">▶ Play</button><button class="btn alt sm" id="bHow">? How to play</button></div>
   <div style="margin-top:14px;font-size:14px;background:rgba(40,10,50,.55);padding:6px 14px;border-radius:20px">Hop in L-shapes · grab every gem · reach the gate</div>
 </div>
 
@@ -94,6 +104,8 @@ canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 <button class="ib" id="muteT" title="Sound (M)"><svg viewBox="0 0 24 24" id="muteIco"></svg></button>
 <div id="tip">Click a glowing square · Z undo · R restart · H hint</div>
 
+<div id="tut"><svg id="tHand" viewBox="0 0 48 56"><path d="M18 30V8a5 5 0 0 1 10 0v14l11 2.5a6 6 0 0 1 4.6 6.8L41 46a8 8 0 0 1-8 7H22a8 8 0 0 1-6.4-3.2L6 37a4.5 4.5 0 0 1 7-5.6z" fill="#fff" stroke="#3a2a20" stroke-width="3" stroke-linejoin="round"/></svg><div id="tCap"></div><button class="btn alt sm" id="tSkip">Skip ▸</button></div>
+<a class="gb-sup" id="gbSup" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
 <div id="sOver" class="scr"><div class="dim"></div><div class="panel" id="panel" style="position:relative"></div></div>
 
 <script>
@@ -261,7 +273,7 @@ var $=function(id){return document.getElementById(id)};
 var scene="title",cur=-1,L=null,S=null,hist=[],movesN=0,anim=null,parts=[],shake=0,hintTo=-1,dead=null,won=false,hover=-1,sel=0,crumbFx=[],t0=0,pausedOv=false;
 var tileFx={};// per-tile pop
 
-function showScr(id){["sTitle","sMap","sLevels","sOver"].forEach(function(s){$(s).classList.toggle("on",s===id)});$("hud").classList.toggle("on",id==="play"||id==="sOver"&&scene==="play");$("tip").style.display=scene==="play"?"block":"none"}
+function showScr(id){["sTitle","sMap","sLevels","sOver"].forEach(function(s){$(s).classList.toggle("on",s===id)});$("hud").classList.toggle("on",id==="play"||id==="sOver"&&scene==="play");$("tip").style.display=scene==="play"&&!tut?"block":"none";$("gbSup").classList.toggle("on",id==="sTitle");$("tut").classList.toggle("on",scene==="play"&&!!tut)}
 function setMuteIco(){$("muteIco").innerHTML=muted?'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/>':'<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 8a5 5 0 0 1 0 8M19.5 5.5a9 9 0 0 1 0 13"/>'}
 setMuteIco();
 function toggleMute(){muted=!muted;sv("mute",muted);if(master)master.gain.value=muted?0:.5;setMuteIco()}
@@ -275,10 +287,23 @@ function castleSVG(i){var c=CASTLES[i];return '<svg viewBox="0 0 64 64" width="6
 
 $("cards").addEventListener("click",function(e){var el=e.target.closest(".card");if(!el||el.classList.contains("lock"))return;SFX.click();goLevels(+el.dataset.c)});
 $("lgrid").addEventListener("click",function(e){var el=e.target.closest(".lb");if(!el||el.classList.contains("lock"))return;SFX.click();startLevel(+el.dataset.l)});
-$("bPlay").onclick=function(){audio();SFX.click();if(save.unl>0||Object.keys(save.stars).length){goMap()}else startLevel(0)};
+$("bPlay").onclick=function(){audio();SFX.click();if(save.unl>0||Object.keys(save.stars).length){goMap()}else if(!tutDone)startTut(false);else startLevel(0)};
+$("bHow").onclick=function(){audio();SFX.click();startTut(true)};$("tSkip").onclick=function(){SFX.click();endTut()};
+// ---------- tutorial: learn by hopping ----------
+var tut=null,tutDone=!!ld("tut",false);if(!tutDone&&(save.unl>0||Object.keys(save.stars).length)){tutDone=true;sv("tut",1)}
+var TSTEPS=[{cap:"Knights hop in an L!",to:[1,1]},{cap:"Grab every gem!",to:[3,0]},{cap:"Red squares are guarded. Avoid!",to:[4,2]}];
+function startTut(replay){tut={replay:replay,step:0};cur=0;L=KQ.parse(["...G.",".....","....E","K....","..R.."]);L.par=3;
+ S=KQ.init(L);hist=[];movesN=0;anim=null;parts=[];dead=null;won=false;hintTo=-1;crumbFx=[];tileFx={};sel=0;capFx=[];
+ scene="play";$("lvlName").textContent="Training";updHud();showScr("play");tutCap()}
+function tutTarget(){var st=TSTEPS[tut.step];return st.to[1]*L.W+st.to[0]}
+function tutCap(){var st=TSTEPS[tut.step],c=$("tCap");c.innerHTML=st.cap+(tut.step===0?' <span class="tk">←→</span><span class="tk">⏎</span>':'');c.style.animation="none";void c.offsetWidth;c.style.animation=""}
+function tutNudge(){var e=$("tut");e.classList.remove("shake");void e.offsetWidth;e.classList.add("shake")}
+function tutAfter(m){if(!tut)return;if(m.win){var my=tut;setTimeout(function(){if(tut===my)endTut()},1500);$("tCap").textContent="You did it! ★";return}tut.step++;if(tut.step>=TSTEPS.length){endTut();return}tutCap()}
+function tutHand(){var h=$("tHand");if(!tut||anim||won||dead||scene!=="play"||pausedOv){h.style.display="none";return}var xy=cellXY(tutTarget());h.style.display="block";h.style.left=(xy[0]+TS/2)+"px";h.style.top=(xy[1]+TS/2)+"px"}
+function endTut(){if(!tut)return;var rp=tut.replay;tut=null;tutDone=true;sv("tut",1);$("tHand").style.display="none";$("sOver").classList.remove("on");pausedOv=false;anim=null;if(rp)goTitle();else startLevel(0)}
 $("bMapBack").onclick=function(){SFX.click();goTitle()};
 $("bLvBack").onclick=function(){SFX.click();goMap()};
-$("bBack").onclick=function(){SFX.click();goLevels(Math.floor(cur/10))};
+$("bBack").onclick=function(){SFX.click();if(tut){endTut();return}goLevels(Math.floor(cur/10))};
 $("bUndo").onclick=function(){undo()};
 $("bReset").onclick=function(){restart()};
 $("bHint").onclick=function(){hint()};
@@ -306,6 +331,7 @@ function cellAt(x,y){var gx=Math.floor((x-BX)/TS),gy=Math.floor((y-BY)/TS);if(gx
 function curMoves(){return KQ.moves(L,S)}
 function tryMove(i){
  if(anim||dead||won||scene!=="play")return;
+ if(tut&&i!==tutTarget()){SFX.bad();tileFx[i]={t:0,bad:1};tutNudge();return}
  var ms=curMoves(),m=null;for(var k=0;k<ms.length;k++)if(ms[k].land===i)m=ms[k];
  if(!m){SFX.bad();var xy=cellXY(i);tileFx[i]={t:0,bad:1};return}
  audio();hist.push({s:S,crumbFx:crumbFx.slice()});movesN++;hintTo=-1;
@@ -322,13 +348,14 @@ function finishMove(){
  if(m.keyGot>=0){SFX.key();SFX.door();burst(lxy[0]+TS/2,lxy[1]+TS/2,20,keyCol(L.keys[m.keyGot].c),4,.8);shake=4}
  if(m.tele>=0){SFX.tele();var t1=cellXY(m.land),t2=cellXY(m.tele);burst(t1[0]+TS/2,t1[1]+TS/2,20,"#b6f",4,.6);burst(t2[0]+TS/2,t2[1]+TS/2,20,"#b6f",4,.6);teleFx={t:0}}
  if(m.dead){dead={by:m.by,t:0,at:m.to};SFX.dead();return}
+ if(tut){updHud();if(m.win){won=true;SFX.win();for(var z2=0;z2<3;z2++)burst(W/2,H*.4,30,["#ffd04a","#7ff","#f7a"][z2],6,1.2)}tutAfter(m);return}
  if(m.win){won=true;winT=0;SFX.win();var ex2=cellXY(L.exit);for(var z=0;z<4;z++)setTimeout(function(){burst(Math.random()*W,Math.random()*H*.6,30,["#ffd04a","#7ff","#f7a","#9f7"][Math.random()*4|0],6,1.2)},z*150);setTimeout(winPanel,700)}
  updHud();
 }
 var capFx=[],teleFx=null,winT=0;
-function undo(){if(anim||won)return;if(!hist.length){SFX.bad();return}SFX.click();var h=hist.pop();S=h.s;crumbFx=h.crumbFx;movesN=Math.max(0,movesN-1);dead=null;hintTo=-1;hideOver();updHud()}
-function restart(){if(anim)return;SFX.click();hideOver();startLevel(cur)}
-function hint(){if(won||anim)return;audio();if(dead){undo();}if(save.hints<=0){SFX.bad();shakeEl("bHint");return}var r=KQ.solve(L,S,200000);if(!r||r.len<0){SFX.bad();shakeEl("bUndo");return}save.hints--;persist();hintTo=r.path[0];SFX.key();updHud()}
+function undo(){if(anim||won||tut)return;if(!hist.length){SFX.bad();return}SFX.click();var h=hist.pop();S=h.s;crumbFx=h.crumbFx;movesN=Math.max(0,movesN-1);dead=null;hintTo=-1;hideOver();updHud()}
+function restart(){if(anim||tut)return;SFX.click();hideOver();startLevel(cur)}
+function hint(){if(won||anim||tut)return;audio();if(dead){undo();}if(save.hints<=0){SFX.bad();shakeEl("bHint");return}var r=KQ.solve(L,S,200000);if(!r||r.len<0){SFX.bad();shakeEl("bUndo");return}save.hints--;persist();hintTo=r.path[0];SFX.key();updHud()}
 function shakeEl(id){var e=$(id);e.animate([{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}],{duration:250})}
 function hideOver(){$("sOver").classList.remove("on")}
 function deadPanel(){$("panel").innerHTML='<h3>Caught!</h3><div class="sub">That square was guarded</div><div class="row"><button class="btn" id="pU">↶ Undo</button><button class="btn alt" id="pR">⟳ Retry</button></div>';$("sOver").classList.add("on");$("pU").onclick=undo;$("pR").onclick=restart}
@@ -376,7 +403,7 @@ addEventListener("keydown",function(e){
  if(k==="Enter"||k===" "){if(dead)return;tryMove(ms[sel%ms.length].land);e.preventDefault()}
  hover=ms[sel%ms.length].land;
 });
-function togglePause(){if(won)return;if(pausedOv){pausedOv=false;hideOver();return}if($("sOver").classList.contains("on"))return;pausedOv=true;$("panel").innerHTML='<h3>Paused</h3><div class="row"><button class="btn" id="pC">▶</button><button class="btn alt" id="pQ">☰</button></div>';$("sOver").classList.add("on");$("pC").onclick=togglePause;$("pQ").onclick=function(){pausedOv=false;hideOver();goLevels(Math.floor(cur/10))}}
+function togglePause(){if(won)return;if(pausedOv){pausedOv=false;hideOver();return}if($("sOver").classList.contains("on"))return;pausedOv=true;$("panel").innerHTML='<h3>Paused</h3><div class="row"><button class="btn" id="pC">▶</button><button class="btn alt" id="pQ">☰</button></div>';$("sOver").classList.add("on");$("pC").onclick=togglePause;$("pQ").onclick=function(){pausedOv=false;hideOver();if(tut){endTut();return}goLevels(Math.floor(cur/10))}}
 document.addEventListener("visibilitychange",function(){if(document.hidden&&scene==="play"&&!pausedOv&&!won&&!dead)togglePause()});
 
 // ---------- drawing helpers ----------
@@ -518,6 +545,7 @@ function frame(now){
   capFx.forEach(function(c){c.vy+=900*dt;c.x+=c.vx*dt;c.y+=c.vy*dt;c.r+=dt*8;cx.save();cx.translate(c.x,c.y);cx.rotate(c.r);drawEnemy(c.t,0,TS*.4,TS*.9);cx.restore()});capFx=capFx.filter(function(c){return c.y<H+100});
   cx.restore();
  }
+ tutHand();
  parts.forEach(function(p){p.l-=dt;p.vy+=300*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;cx.globalAlpha=Math.max(0,p.l/p.ml);cx.fillStyle=p.c;cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fill()});cx.globalAlpha=1;parts=parts.filter(function(p){return p.l>0});
  requestAnimationFrame(frame);
 }
