@@ -173,7 +173,7 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
   const cats = [...new Set(GAMES.map(g => g.category))].sort();
   function renderRail(active) {
     const item = (id, label, color, n) => `<button data-nav="${id}" aria-current="${active === id}">${color ? `<span class="dot" style="background:${color}"></span>` : ''}${label}${n != null ? `<span class="n">${n}</span>` : ''}</button>`;
-    rail.innerHTML = item('', 'Home', '#f4f0ff') + item('new', 'New', '#ff5d8f', GAMES.filter(isNew).length) + item('favs', 'Favorites', '#ff5d8f', favs.length) + item('recent', 'Recently played', '#a69dcc', recent.length) + '<hr>' +
+    rail.innerHTML = item('', 'Home', '#f4f0ff') + (GAMES.some(g => g.deep) ? item('deep', '★ Deep Games', '#ffb23e', GAMES.filter(g => g.deep).length) : '') + item('new', 'New', '#ff5d8f', GAMES.filter(isNew).length) + item('favs', 'Favorites', '#ff5d8f', favs.length) + item('recent', 'Recently played', '#a69dcc', recent.length) + '<hr>' +
       cats.map(c => item('cat-' + c.toLowerCase(), c, CAT_COLORS[c] || '#a69dcc', GAMES.filter(g => g.category === c).length)).join('');
   }
   rail.addEventListener('click', e => { const b = e.target.closest('[data-nav]'); if (b) go(b.dataset.nav); });
@@ -196,7 +196,9 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
     const f = (star ? [star, pickN(0), pickN(1), pickN(2)] : [pickN(0), pickN(1), pickN(2)]).filter((g, i, a) => a.indexOf(g) === i).slice(0, 3);
     const rec = recent.map(s => bySlug[s]).filter(Boolean);
     const fav = favs.map(s => bySlug[s]).filter(Boolean);
+    const deep = GAMES.filter(g => g.deep);
     let html = `<div class="drop"><b>30 new games every week</b><span>Fresh games land every Sunday. Check back to see what's new.</span></div><div class="hero">${feat(f[0])}<div class="side">${f.slice(1).map(feat).join('')}</div></div>`;
+    html += deep.length ? shelf('★ Deep Games', deep, { sub: 'big adventures you can sink hours into' }) : '';
     html += shelf('Continue playing', rec, { row: true });
     html += shelf('Favorites', fav, { row: true });
     html += shelf('New this week', fresh, { sub: fresh.length + ' fresh games' });
@@ -287,6 +289,7 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
       return list('Results for “' + esc(term) + '”', hits, '', hits.length + ' found');
     }
     if (h.startsWith('play-')) return play(h.slice(5));
+    if (h === 'deep') return list('★ Deep Games', GAMES.filter(g => g.deep), 'deep', 'big adventures you can sink hours into');
     if (h === 'new') return list('New this week', GAMES.filter(isNew), 'new');
     if (h === 'favs') return list('Favorites', favs.map(s => bySlug[s]).filter(Boolean), 'favs');
     if (h === 'recent') return list('Recently played', recent.map(s => bySlug[s]).filter(Boolean), 'recent');

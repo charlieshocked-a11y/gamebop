@@ -17,6 +17,15 @@ Charlie's feedback: games must be deeper, more interactive and much more fun, wi
 - **Builders must playtest for fun:** after building, play your own game for a while (by bot and by reasoning through the first 10 minutes) and ask "would a kid keep playing this?" If the answer is "it gets samey", add variety before reporting.
 - Bigger is fine: prefer one rich, deep game (up to ~400 KB) over a thin one.
 
+## Simon Willison style (Charlie's reference)
+Charlie wants games in the spirit of Simon Willison's Claude-built browser games (simonwillison.net): one self-contained page, made from one detailed prompt, playable instantly on desktop and phone, with procedural WebAudio sound and Playwright-tested at desktop and mobile sizes. Simon's own lesson is that fun comes from **playtesting and iterating**: his first versions were "playable but not fun" until he played them and fixed what was boring. So every builder must do at least one full playtest-then-improve pass, and Deep Games must do three.
+
+## NO walls of text
+Never make a game that is mostly reading: no long dialogue boxes, no text-only cutscenes, no "talk to people and read" gameplay without animation. Tell the story through animation, level design, character expressions, icons, short barks (≤ 8 words) and sound. If a character speaks, it's a short, skippable speech bubble over an animated character.
+
+## DEEP GAMES (the ★ Deep Games section)
+Some games are flagged `"deep": true` in metadata. These are big adventures you spend hours in, like a monster-collecting RPG you don't beat in 10 minutes: a world to explore, many areas, lots of creatures/items/characters to collect and level, side goals, bosses, and a long main goal (aim for 2+ hours of play). Rules: still minimal reading (see above), constant animation and juice, autosave everywhere, a clear next goal always on screen. Build each Deep Game with one dedicated agent, and do **three rounds of build → play it for real → improve**. Size can go up to ~1 MB if needed.
+
 ## LOOKS LIKE A REAL, QUALITY GAME (not "AI-made")
 - Graphics must look like a polished commercial indie game: a deliberate art style (e.g. hand-drawn, cozy pixel art, clean vector, painterly, low-poly 2.5D), a cohesive palette, real lighting/shading, layered parallax backgrounds, animated characters with personality (idle/walk/hit/celebrate frames or procedural squash-and-stretch).
 - Avoid the generic "AI look": no plain flat rectangles on a black screen, no default system fonts for titles, no random neon gradients on everything, no emoji as art, no walls of centered text, no identical rounded buttons everywhere. Draw custom UI that matches the game's world (wooden signs for a farm, holo panels for sci-fi…).
@@ -52,4 +61,4 @@ Then Read the screenshots it made (`/home/claude/gamebop-site/thumbs/<slug>.jpg`
 Re-run check.js after the final edit so the thumbnail is current.
 
 ## Report back (exactly this JSON per game, in a ```json block)
-{"slug":"...","title":"...","keywords":"8-15 topic words","category":"one of: Action, Arcade, Puzzle, Strategy, Racing, Sports, Typing, Idle, Casual, Adventure, Music, Word","tags":["2-4 short tags"],"blurb":"max 12 words, punchy","controls":"short, e.g. Mouse · Arrows/WASD · Touch","prompt":"the prompt you built it from"}
+{"slug":"...","title":"...","keywords":"8-15 topic words","deep":false,"category":"one of: Action, Arcade, Puzzle, Strategy, Racing, Sports, Typing, Idle, Casual, Adventure, Music, Word","tags":["2-4 short tags"],"blurb":"max 12 words, punchy","controls":"short, e.g. Mouse · Arrows/WASD · Touch","prompt":"the prompt you built it from"}
