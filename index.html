@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gamebop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Figtree:wght@400;600;800&display=swap">
+<style>
+/* Layout: arcade portal — sticky top bar, category rail on the left (chips on phones), shelves of 16:10 game tiles; play view swaps in a framed game stage. */
+:root {
+  color-scheme: dark;
+  --ground: #17132b;      /* deep grape night */
+  --panel: #221c3d;
+  --panel-2: #2d2650;
+  --line: #3b3366;
+  --ink: #f4f0ff;
+  --muted: #a69dcc;
+  --pop: #ffb23e;          /* tangerine — primary action */
+  --pop-ink: #2a1600;
+  --berry: #ff5d8f;        /* NEW badge, favourites */
+  --mint: #4be3b4;
+  --display: "Bungee", "Arial Black", Impact, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --r: 14px;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font: 15px/1.45 var(--body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--pop); outline-offset: 2px; }
+
+/* top bar */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 16px; padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.logo { font: 26px/1 var(--display); letter-spacing: .5px; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.logo b { color: var(--pop); font-weight: 400; }
+.logo i { font-style: normal; color: var(--berry); }
+.search { flex: 1; max-width: 520px; margin-left: auto; position: relative; }
+.search input { width: 100%; background: var(--ground); border: 1px solid var(--line); color: var(--ink); border-radius: 999px; padding: 10px 16px 10px 40px; font: inherit; }
+.search input::placeholder { color: var(--muted); }
+.search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; stroke: var(--muted); }
+.count { color: var(--muted); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* shell */
+.shell { display: grid; grid-template-columns: 210px minmax(0, 1fr); min-height: calc(100% - 60px); }
+.rail { border-right: 1px solid var(--line); padding: 16px 10px; position: sticky; top: 60px; align-self: start; height: calc(100vh - 60px); overflow-y: auto; }
+.rail button { display: flex; width: 100%; align-items: center; gap: 10px; background: none; border: 0; padding: 9px 12px; border-radius: 10px; cursor: pointer; text-align: left; font-weight: 600; color: var(--muted); }
+.rail button:hover { background: var(--panel); color: var(--ink); }
+.rail button[aria-current="true"] { background: var(--panel-2); color: var(--ink); }
+.rail button .dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.rail button .n { margin-left: auto; font-size: 12px; font-variant-numeric: tabular-nums; opacity: .7; }
+.rail hr { border: 0; border-top: 1px solid var(--line); margin: 10px 4px; }
+main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 30px; }
+
+/* hero */
+.hero { align-items: start; display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 14px; }
+.hero .side { display: grid; gap: 14px; }
+.feat { position: relative; border-radius: var(--r); overflow: hidden; display: block; background: var(--panel); aspect-ratio: 16/10; max-width: 100%; cursor: pointer; border: 0; padding: 0; text-align: left; }
+.feat img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+.feat:hover img { transform: scale(1.04); }
+.feat .cap { position: absolute; inset: auto 0 0 0; padding: 40px 18px 16px; background: linear-gradient(transparent, rgba(12,9,26,.92)); color: #fff; }
+.feat .cap h3 { margin: 0; font: 22px/1.1 var(--display); }
+.feat .cap p { margin: 4px 0 0; color: #d9d2f5; font-size: 14px; }
+.hero .side .feat .cap h3 { font-size: 16px; }
+.hero .side .feat .cap p { display: none; }
+.playpill { display: inline-block; margin-top: 10px; background: var(--pop); color: var(--pop-ink); font-weight: 800; padding: 7px 16px; border-radius: 999px; font-size: 14px; }
+
+/* shelves */
+.shelf, .play > *, main > * { min-width: 0; max-width: 100%; }
+.shelf h2 { font: 18px/1 var(--display); margin: 0 0 12px; display: flex; align-items: baseline; gap: 10px; letter-spacing: .3px; }
+.shelf h2 small { font: 600 13px var(--body); color: var(--muted); letter-spacing: 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+.row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(190px, 220px); gap: 14px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+.tile { position: relative; display: block; border-radius: var(--r); background: var(--panel); border: 0; padding: 0; cursor: pointer; text-align: left; overflow: hidden; transition: transform .18s ease, box-shadow .18s ease; }
+.tile:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,.45), 0 0 0 2px var(--pop); }
+.tile .th { aspect-ratio: 16/10; max-width: 100%; overflow: hidden; background: var(--panel-2); }
+.tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tile .meta { padding: 9px 11px 11px; display: grid; gap: 2px; }
+.tile .t { font-weight: 800; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile .c { font-size: 12.5px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.tile .c .dot { width: 8px; height: 8px; border-radius: 2px; }
+.badge { position: absolute; top: 8px; left: 8px; background: var(--berry); color: #fff; font: 11px/1 var(--display); padding: 5px 7px; border-radius: 6px; letter-spacing: .5px; }
+.badge.ext { left: auto; right: 8px; background: var(--mint); color: #062a20; }
+.fav-on { position: absolute; top: 8px; right: 8px; color: var(--berry); font-size: 18px; text-shadow: 0 1px 4px #000; }
+.empty { color: var(--muted); padding: 30px 0; }
+
+/* play view */
+.play { display: grid; gap: 14px; }
+.stage { position: relative; background: #000; border-radius: var(--r); overflow: hidden; aspect-ratio: 16/9; max-width: 100%; max-height: calc(100vh - 220px); width: 100%; }
+.stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #000; }
+.stage:fullscreen { border-radius: 0; max-height: none; aspect-ratio: auto; }
+.bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--panel); border-radius: var(--r); padding: 12px 14px; }
+.bar img { width: 64px; aspect-ratio: 16/10; object-fit: cover; border-radius: 8px; max-width: 100%; }
+.bar h1 { font: 20px/1.1 var(--display); margin: 0; }
+.bar .sub { color: var(--muted); font-size: 13px; }
+.bar .grow { flex: 1 1 180px; min-width: 0; }
+.btn { background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-weight: 700; font-size: 14px; display: inline-flex; gap: 6px; align-items: center; }
+.btn:hover { border-color: var(--pop); }
+.btn.on { color: var(--berry); border-color: var(--berry); }
+.btn.primary { background: var(--pop); color: var(--pop-ink); border-color: var(--pop); }
+.about { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.about > div { background: var(--panel); border-radius: var(--r); padding: 14px 16px; }
+.about h4 { margin: 0 0 6px; font: 13px var(--display); color: var(--muted); letter-spacing: .5px; }
+.about p { margin: 0; max-width: 65ch; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.tags span { background: var(--panel-2); border-radius: 999px; padding: 3px 10px; font-size: 12.5px; color: var(--muted); }
+.ext-card { background: var(--panel); border-radius: var(--r); padding: 26px; display: grid; gap: 12px; justify-items: start; }
+
+/* phones */
+@media (max-width: 760px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); display: flex; gap: 6px; overflow-x: auto; padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); }
+  .rail button { width: auto; white-space: nowrap; flex: none; padding: 7px 12px; background: var(--panel); }
+  .rail button .n, .rail hr { display: none; }
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .hero .side { grid-template-columns: 1fr 1fr; }
+  .about { grid-template-columns: minmax(0, 1fr); }
+  .count { display: none; }
+  .logo { font-size: 21px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .stage { aspect-ratio: 9/14; max-height: calc(100vh - 160px); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head><body>
+
+<header class="top">
+  <a class="logo" href="#" aria-label="Gamebop home"><span><b>GAME</b><i>BOP</i></span></a>
+  <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+    <input id="q" type="search" placeholder="Search games" autocomplete="off"></label>
+  <span class="count" id="count"></span>
+</header>
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Categories"></nav>
+  <main id="main"></main>
+</div>
+
+<script src="catalog.js"></script>
+<script>
+(() => {
+  const GAMES = (window.GAMEBOP_GAMES || []).slice();
+  const CAT_COLORS = { Action: '#ff6b5b', Arcade: '#ffb23e', Puzzle: '#7c8cff', Strategy: '#4be3b4', Racing: '#ff8a3d', Sports: '#56c7ff', Typing: '#e8e15a', Idle: '#b88cff', Casual: '#ff8fc8', Adventure: '#8fd36b', Music: '#ff5d8f', Word: '#5fe0e0', Platformer: '#ffa35b' };
+  const $ = s => document.querySelector(s);
+  const main = $('#main'), rail = $('#rail'), q = $('#q');
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('gamebop.portal.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('gamebop.portal.' + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  let favs = store.get('favs', []), recent = store.get('recent', []), plays = store.get('plays', {});
+  const bySlug = Object.fromEntries(GAMES.map(g => [g.slug, g]));
+  const DAY = 864e5;
+  const newest = GAMES.reduce((m, g) => Math.max(m, Date.parse(g.added) || 0), 0);
+  const isNew = g => (Date.parse(g.added) || 0) >= newest - 6 * DAY;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // newest first, stable by title
+  GAMES.sort((a, b) => (Date.parse(b.added) || 0) - (Date.parse(a.added) || 0) || a.title.localeCompare(b.title));
+  $('#count').textContent = GAMES.length + ' games';
+
+  const cats = [...new Set(GAMES.map(g => g.category))].sort();
+  function renderRail(active) {
+    const item = (id, label, color, n) => `<button data-nav="${id}" aria-current="${active === id}">${color ? `<span class="dot" style="background:${color}"></span>` : ''}${label}${n != null ? `<span class="n">${n}</span>` : ''}</button>`;
+    rail.innerHTML = item('', 'Home', '#f4f0ff') + item('new', 'New', '#ff5d8f', GAMES.filter(isNew).length) + item('favs', 'Favorites', '#ff5d8f', favs.length) + item('recent', 'Recently played', '#a69dcc', recent.length) + '<hr>' +
+      cats.map(c => item('cat-' + c.toLowerCase(), c, CAT_COLORS[c] || '#a69dcc', GAMES.filter(g => g.category === c).length)).join('');
+  }
+  rail.addEventListener('click', e => { const b = e.target.closest('[data-nav]'); if (b) go(b.dataset.nav); });
+
+  const tile = g => `<button class="tile" data-play="${g.slug}" aria-label="Play ${esc(g.title)}">
+      <div class="th"><img src="${g.thumb}" alt="" loading="lazy"></div>
+      ${isNew(g) ? '<span class="badge">NEW</span>' : ''}${g.mine ? '<span class="badge ext">YOURS</span>' : ''}
+      ${favs.includes(g.slug) && !g.external ? '<span class="fav-on" aria-hidden="true">♥</span>' : ''}
+      <div class="meta"><span class="t">${esc(g.title)}</span><span class="c"><span class="dot" style="background:${CAT_COLORS[g.category] || '#a69dcc'}"></span>${esc(g.category)}</span></div></button>`;
+  const shelf = (title, list, opts = {}) => list.length ? `<section class="shelf"><h2>${title}${opts.sub ? `<small>${opts.sub}</small>` : ''}</h2><div class="${opts.row ? 'row' : 'grid'}">${list.map(tile).join('')}</div></section>` : '';
+  const feat = g => `<button class="feat" data-play="${g.slug}" aria-label="Play ${esc(g.title)}"><img src="${g.thumb}" alt=""><div class="cap"><h3>${esc(g.title)}</h3><p>${esc(g.blurb)}</p><span class="playpill">Play</span></div></button>`;
+
+  function home() {
+    renderRail('');
+    const fresh = GAMES.filter(isNew);
+    const pool = fresh.length >= 3 ? fresh : GAMES;
+    // featured: rotate daily
+    const d = Math.floor(Date.now() / DAY), pickN = i => pool[(d * 7 + i * 5) % pool.length];
+    const f = [pickN(0), pickN(1), pickN(2)].filter((g, i, a) => a.indexOf(g) === i);
+    const rec = recent.map(s => bySlug[s]).filter(Boolean);
+    const fav = favs.map(s => bySlug[s]).filter(Boolean);
+    let html = `<div class="hero">${feat(f[0])}<div class="side">${f.slice(1).map(feat).join('')}</div></div>`;
+    html += shelf('Your games', GAMES.filter(g => g.mine), { row: true, sub: 'made by you' });
+    html += shelf('Continue playing', rec, { row: true });
+    html += shelf('Favorites', fav, { row: true });
+    html += shelf('New this week', fresh, { sub: fresh.length + ' fresh games' });
+    for (const c of cats) { const list = GAMES.filter(g => g.category === c && !fresh.includes(g)); html += shelf(c, list, { row: true }); }
+    main.innerHTML = html;
+  }
+  function list(title, games, active, sub) {
+    renderRail(active);
+    main.innerHTML = games.length ? shelf(title, games, { sub }) : `<section class="shelf"><h2>${title}</h2><p class="empty">${active === 'favs' ? 'Tap the heart on any game to keep it here.' : active === 'recent' ? 'Games you play show up here.' : 'No games match that search.'}</p></section>`;
+  }
+  function play(slug) {
+    const g = bySlug[slug];
+    if (!g) return home();
+    renderRail('cat-' + g.category.toLowerCase());
+    recent = [slug, ...recent.filter(s => s !== slug)].slice(0, 12); store.set('recent', recent);
+    plays[slug] = (plays[slug] || 0) + 1; store.set('plays', plays);
+    const more = GAMES.filter(x => x.slug !== slug && x.category === g.category).concat(GAMES.filter(x => x.category !== g.category)).slice(0, 12);
+    const fav = favs.includes(slug);
+    const stage = g.external
+      ? `<div class="ext-card"><img src="${g.thumb}" alt="" style="width:min(420px,100%);border-radius:12px"><h2 style="margin:0;font-family:var(--display)">${esc(g.title)}</h2><p style="margin:0;color:var(--muted)">This one lives on its own page.</p><a class="btn primary" href="${g.external}" target="_blank" rel="noopener">Open ${esc(g.title)} ↗</a></div>`
+      : `<div class="stage" id="stage"><iframe id="frame" src="${g.file}" title="${esc(g.title)}" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe></div>`;
+    main.innerHTML = `<div class="play">${stage}
+      <div class="bar"><img src="${g.thumb}" alt=""><div class="grow"><h1>${esc(g.title)}</h1><div class="sub">${esc(g.category)} · ${esc(g.controls || '')}</div></div>
+        <button class="btn ${fav ? 'on' : ''}" id="fav">${fav ? '♥ Saved' : '♡ Favorite'}</button>
+        ${g.external ? '' : '<button class="btn" id="reload">↻ Restart</button><button class="btn primary" id="fs">⛶ Full screen</button>'}</div>
+      <div class="about"><div><h4>ABOUT</h4><p>${esc(g.blurb)}</p><div class="tags">${(g.tags || []).map(t => `<span>${esc(t)}</span>`).join('')}</div></div>
+        <div><h4>CONTROLS</h4><p>${esc(g.controls || 'Mouse / touch')}</p><p style="color:var(--muted);font-size:13px;margin-top:8px">Progress saves automatically in this browser.</p></div></div>
+      ${shelf('More games', more, { row: true })}</div>`;
+    $('#fav').onclick = () => { favs = favs.includes(slug) ? favs.filter(s => s !== slug) : [slug, ...favs]; store.set('favs', favs); const on = favs.includes(slug); $('#fav').classList.toggle('on', on); $('#fav').textContent = on ? '♥ Saved' : '♡ Favorite'; renderRail('cat-' + g.category.toLowerCase()); };
+    if (!g.external) {
+      $('#reload').onclick = () => { $('#frame').src = g.file; };
+      $('#fs').onclick = () => { const s = $('#stage'); try { (s.requestFullscreen || s.webkitRequestFullscreen).call(s).catch?.(() => {}); } catch (e) {} };
+      setTimeout(() => { try { $('#frame').focus(); } catch (e) {} }, 300);
+    }
+    window.scrollTo(0, 0);
+  }
+
+  main.addEventListener('click', e => { const b = e.target.closest('[data-play]'); if (b) go('play-' + b.dataset.play); });
+  function go(h) { if (location.hash.slice(1) === h) route(); else location.hash = h; }
+  function route() {
+    const h = location.hash.slice(1);
+    const term = q.value.trim().toLowerCase();
+    if (term && !h.startsWith('play-')) {
+      const hits = GAMES.filter(g => (g.title + ' ' + g.category + ' ' + (g.tags || []).join(' ') + ' ' + g.blurb).toLowerCase().includes(term));
+      return list('Results for “' + esc(term) + '”', hits, '', hits.length + ' found');
+    }
+    if (h.startsWith('play-')) return play(h.slice(5));
+    if (h === 'new') return list('New this week', GAMES.filter(isNew), 'new');
+    if (h === 'favs') return list('Favorites', favs.map(s => bySlug[s]).filter(Boolean), 'favs');
+    if (h === 'recent') return list('Recently played', recent.map(s => bySlug[s]).filter(Boolean), 'recent');
+    if (h.startsWith('cat-')) { const c = cats.find(c => c.toLowerCase() === h.slice(4)); if (c) return list(c, GAMES.filter(g => g.category === c), h, GAMES.filter(g => g.category === c).length + ' games'); }
+    home();
+  }
+  q.addEventListener('input', () => { if (location.hash.startsWith('#play-')) { history.replaceState(null, '', location.pathname); } route(); });
+  window.addEventListener('hashchange', () => { if (!location.hash.startsWith('#play-')) q.value = ''; route(); });
+  route();
+})();
+</script>
+
+</body></html>

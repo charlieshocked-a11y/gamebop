@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Terminal Rush</title>
+<style>
+:root{--g:#39ff7a;--gd:#1c9c48;--gdd:#0d4a24;--bg:#020a05;--amber:#ffb000;--red:#ff3b3b;--mono:"DejaVu Sans Mono","Cascadia Mono",Consolas,Menlo,"Liberation Mono","Courier New",monospace}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--g);font-family:var(--mono);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(ellipse at 50% 45%,#08260f 0%,#031008 55%,#010402 100%)}
+#bg{position:fixed;inset:0;width:100vw;height:100vh;opacity:.55}
+#crt{position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.28) 3px,rgba(0,0,0,0) 4px);animation:flick 4s infinite steps(1)}
+#vig{position:fixed;inset:0;pointer-events:none;z-index:51;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(0,0,0,.75) 100%)}
+#alarm{position:fixed;inset:0;pointer-events:none;z-index:49;box-shadow:inset 0 0 120px rgba(255,40,40,.0);transition:box-shadow .2s}
+@keyframes flick{0%{opacity:.9}50%{opacity:1}52%{opacity:.85}54%{opacity:1}}
+.glow{text-shadow:0 0 4px rgba(57,255,122,.8),0 0 14px rgba(57,255,122,.35)}
+.scr{position:fixed;inset:0;display:none;flex-direction:column;z-index:10;padding:14px 16px}
+.scr.on{display:flex}
+button{font-family:var(--mono);background:transparent;color:var(--g);border:2px solid var(--g);padding:10px 18px;font-size:18px;font-weight:700;cursor:pointer;text-shadow:0 0 6px rgba(57,255,122,.7);box-shadow:0 0 12px rgba(57,255,122,.25),inset 0 0 12px rgba(57,255,122,.12);letter-spacing:1px}
+button:hover,button:focus-visible{background:rgba(57,255,122,.14);outline:none}
+button:active{transform:translateY(1px)}
+button.big{font-size:24px;padding:14px 34px}
+button.dim{border-color:var(--gd);color:var(--gd);box-shadow:none}
+button.ico{width:42px;height:42px;padding:0;font-size:18px;display:flex;align-items:center;justify-content:center}
+/* title */
+#title{align-items:center;justify-content:center;text-align:center}
+.logo{font-weight:900;line-height:.92;font-size:min(15vw,17vh,128px);letter-spacing:-.02em;position:relative;color:var(--g)}
+.logo span{display:block;position:relative;isolation:isolate}
+.logo span::before,.logo span::after{content:attr(data-t);position:absolute;left:0;right:0;top:0;opacity:.7;z-index:-1;text-shadow:none}
+.logo span::before{color:#ff2e6e;transform:translate(-3px,0);clip-path:inset(0 0 55% 0);animation:gl1 2.6s infinite}
+.logo span::after{color:#29e6ff;transform:translate(3px,0);clip-path:inset(50% 0 0 0);animation:gl2 3.1s infinite}
+.logo span.r{color:var(--amber);text-shadow:0 0 6px rgba(255,176,0,.8),0 0 22px rgba(255,176,0,.35)}
+@keyframes gl1{0%,90%,100%{transform:translate(-3px,0)}92%{transform:translate(-9px,2px)}94%{transform:translate(4px,-1px)}}
+@keyframes gl2{0%,85%,100%{transform:translate(3px,0)}87%{transform:translate(10px,-2px)}89%{transform:translate(-5px,1px)}}
+.prompt{margin:18px 0 26px;font-size:min(4vw,18px);color:var(--gd)}
+.cur{display:inline-block;width:.6em;height:1.05em;background:var(--g);vertical-align:-2px;animation:blink 1s steps(1) infinite;box-shadow:0 0 8px var(--g)}
+@keyframes blink{50%{opacity:0}}
+.hint{margin-top:16px;font-size:13px;color:var(--gd)}
+/* top bar */
+.bar{display:flex;align-items:center;gap:10px;min-height:46px;flex-wrap:nowrap}
+.bar .sp{flex:1}
+.cred{color:var(--amber);font-weight:700;font-size:18px;text-shadow:0 0 6px rgba(255,176,0,.6);white-space:nowrap}
+/* map */
+#map .corps{flex:1;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:6px 2px 10px;scrollbar-width:thin}
+.corp{border:1px solid var(--gdd);padding:10px 12px;background:rgba(10,40,20,.35)}
+.corp h3{margin:0 0 8px;font-size:16px;display:flex;justify-content:space-between;gap:8px}
+.corp h3 small{color:var(--gd);font-weight:400}
+.nodes{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.node{border:1px solid var(--gd);padding:8px 4px;text-align:center;cursor:pointer;font-size:13px;min-height:52px;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.node b{font-size:20px}
+.node.lock{opacity:.3;cursor:default}
+.node.done{background:rgba(57,255,122,.12);border-color:var(--g)}
+.node.next{border-color:var(--amber);color:var(--amber);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 14px rgba(255,176,0,.5)}}
+.corp.locked{opacity:.35}
+.foot{display:flex;gap:10px;justify-content:center;padding-top:8px;flex-wrap:wrap}
+/* shop */
+#shop .list{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;align-content:start;padding:8px 2px}
+.up{border:1px solid var(--gdd);padding:12px;display:flex;gap:12px;align-items:center;background:rgba(10,40,20,.35)}
+.up .ic{width:48px;height:48px;border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;flex:none}
+.up .mid{flex:1;min-width:0}
+.up .nm{font-weight:700}
+.pips{display:flex;gap:4px;margin-top:6px}.pips i{width:14px;height:6px;background:var(--gdd)}.pips i.on{background:var(--g);box-shadow:0 0 6px var(--g)}
+.up button{font-size:15px;padding:8px 10px;white-space:nowrap}
+.up button.no{border-color:var(--gdd);color:var(--gdd);box-shadow:none}
+/* game */
+#game{padding:10px 14px}
+.trace{position:relative;height:22px;border:2px solid var(--g);margin:6px 0;box-shadow:0 0 10px rgba(57,255,122,.25)}
+.trace i{position:absolute;left:0;top:0;bottom:0;width:0;background:repeating-linear-gradient(90deg,var(--g) 0 8px,rgba(57,255,122,.6) 8px 10px);box-shadow:0 0 12px var(--g)}
+.trace span{position:absolute;right:6px;top:0;line-height:18px;font-size:13px;font-weight:700;mix-blend-mode:difference;color:#fff}
+.trace.warn{border-color:var(--amber)}.trace.warn i{background:repeating-linear-gradient(90deg,var(--amber) 0 8px,rgba(255,176,0,.6) 8px 10px);box-shadow:0 0 12px var(--amber)}
+.trace.crit{border-color:var(--red);animation:shk .15s infinite}.trace.crit i{background:repeating-linear-gradient(90deg,var(--red) 0 8px,rgba(255,59,59,.6) 8px 10px);box-shadow:0 0 16px var(--red)}
+@keyframes shk{50%{transform:translateX(2px)}}
+.stats{display:flex;gap:16px;font-size:14px;flex-wrap:wrap;color:var(--gd)}.stats b{color:var(--g)}
+.stats .tab{color:var(--amber)}
+.term{flex:1;overflow:hidden;position:relative;margin-top:8px;border-top:1px dashed var(--gdd);padding-top:8px;display:flex;flex-direction:column;justify-content:center}
+.hist{color:var(--gd);opacity:.6;font-size:min(3.6vw,16px);white-space:pre-wrap;word-break:break-all;max-height:30%;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.hist div::before{content:"$ ";color:var(--gdd)}
+.line{font-size:min(5.6vw,clamp(18px,3vw,30px));line-height:1.45;white-space:pre-wrap;word-break:break-all;padding:10px 0;position:relative}
+.line .ok{color:var(--g);text-shadow:0 0 6px rgba(57,255,122,.8)}
+.line .c{background:var(--g);color:var(--bg);box-shadow:0 0 10px var(--g)}
+.line .c.bad{background:var(--red);box-shadow:0 0 14px var(--red)}
+.line .rest{color:#7fae8f}
+.line .pre{color:var(--amber)}
+.line.fw .rest{color:#e58f8f}
+.line.glitch{animation:glt .3s}
+@keyframes glt{0%{transform:translate(0)}20%{transform:translate(-6px,1px);filter:hue-rotate(90deg)}40%{transform:translate(5px,-1px)}60%{transform:translate(-3px,0);filter:none}100%{transform:none}}
+.fwbar{height:4px;background:var(--gdd);margin-top:2px}.fwbar i{display:block;height:100%;width:0;background:var(--red);box-shadow:0 0 8px var(--red)}
+.next{color:var(--gdd);font-size:min(3.8vw,17px);white-space:pre-wrap;word-break:break-all;margin-top:6px}
+.next div{opacity:.9}.next div+div{opacity:.55}
+.banner{position:absolute;left:0;right:0;top:40%;text-align:center;font-size:min(8vw,44px);font-weight:900;pointer-events:none;opacity:0}
+.banner.show{animation:ban 1s forwards}
+@keyframes ban{0%{opacity:0;transform:scale(1.4)}15%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0}}
+.shake{animation:sh .18s}
+@keyframes sh{25%{transform:translate(-4px,2px)}50%{transform:translate(4px,-2px)}75%{transform:translate(-2px,1px)}}
+/* overlays */
+.ov{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;background:rgba(1,6,3,.86)}
+.ov.on{display:flex}
+.box{border:2px solid var(--g);padding:22px 26px;min-width:min(380px,92vw);max-width:94vw;text-align:center;background:rgba(2,14,6,.95);box-shadow:0 0 30px rgba(57,255,122,.25)}
+.box h2{margin:0 0 10px;font-size:min(8vw,38px)}
+.box.bad{border-color:var(--red)}.box.bad h2{color:var(--red);text-shadow:0 0 10px var(--red)}
+.rank{font-size:64px;font-weight:900;line-height:1;margin:6px 0;color:var(--amber);text-shadow:0 0 16px rgba(255,176,0,.7)}
+.kv{display:grid;grid-template-columns:auto auto;gap:4px 18px;justify-content:center;margin:10px 0 16px;font-size:16px;text-align:left}
+.kv b{text-align:right}
+.btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+#kb{position:fixed;left:-9999px;top:0;opacity:0;width:10px;height:10px}
+.tapkb{display:none;margin-top:8px;font-size:13px;color:var(--amber);text-align:center}
+@media (hover:none) and (pointer:coarse){.tapkb{display:block}}
+@media (max-width:520px){.nodes{gap:5px}.node{font-size:11px;padding:6px 2px}.node b{font-size:17px}button{font-size:16px;padding:9px 12px}button.big{font-size:20px}.stats{gap:10px;font-size:12px}}
+</style></head>
+<body>
+<canvas id="bg"></canvas>
+<div id="alarm"></div>
+<!-- TITLE -->
+<div id="title" class="scr on">
+ <div class="logo glow"><span data-t="TERMINAL">TERMINAL</span><span class="r" data-t="RUSH">RUSH</span></div>
+ <div class="prompt">root@ghost:~$ ./breach --all <span class="cur"></span></div>
+ <button class="big" id="bPlay">&gt; PLAY</button>
+ <div class="hint">Type exactly · Enter to start</div>
+</div>
+<!-- MAP -->
+<div id="map" class="scr">
+ <div class="bar"><button class="ico" id="mBack">&lt;</button><div class="glow" style="font-weight:700">TARGETS</div><div class="sp"></div><div class="cred" id="mCred">0 cr</div><button class="ico mute">♪</button></div>
+ <div class="corps" id="corps"></div>
+ <div class="foot"><button id="bShop">UPGRADES</button><button id="bEndless">OVERFLOW ∞</button></div>
+</div>
+<!-- SHOP -->
+<div id="shop" class="scr">
+ <div class="bar"><button class="ico" id="sBack">&lt;</button><div class="glow" style="font-weight:700">UPGRADES</div><div class="sp"></div><div class="cred" id="sCred">0 cr</div><button class="ico mute">♪</button></div>
+ <div class="list" id="ups"></div>
+</div>
+<!-- GAME -->
+<div id="game" class="scr">
+ <div class="bar"><button class="ico" id="gPause">II</button><div id="gName" class="glow" style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div class="sp"></div><button class="ico mute">♪</button></div>
+ <div class="trace" id="trace"><i></i><span>TRACE 0%</span></div>
+ <div class="stats"><span>WPM <b id="sW">0</b></span><span>ACC <b id="sA">100</b>%</span><span>LINE <b id="sL">0/0</b></span><span class="tab" id="sT"></span><span id="sF" style="color:#7fae8f"></span></div>
+ <div class="term" id="term">
+  <div class="hist" id="hist"></div>
+  <div class="line" id="line"></div>
+  <div class="fwbar" id="fwbar" style="visibility:hidden"><i></i></div>
+  <div class="next" id="next"></div>
+  <div class="banner glow" id="banner"></div>
+ </div>
+ <div class="tapkb" id="tapkb">Tap here for keyboard</div>
+</div>
+<!-- OVERLAYS -->
+<div class="ov" id="ovPause"><div class="box"><h2 class="glow">PAUSED</h2><div class="btns"><button id="pRes">RESUME</button><button id="pQuit" class="dim">ABORT</button></div></div></div>
+<div class="ov" id="ovRes"><div class="box" id="resBox"><h2 id="rT"></h2><div class="rank" id="rRank"></div><div class="kv" id="rKV"></div><div class="btns" id="rBtns"></div></div></div>
+<input id="kb" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+<script type="text/plain" id="corpus">
+## Nimbus Media
+ls -la /var/www/html
+cd ~/deploy && git pull origin main
+sudo systemctl restart nginx
+cat /etc/hosts | grep -i nimbus
+chmod 755 ./scripts/build.sh
+npm install --save-dev webpack
+export NODE_ENV="production"
+const app = express();
+app.get("/api/v1/users", auth);
+let token = req.headers["x-auth"];
+if (!user) return res.status(401);
+curl -s http://10.0.4.12:8080/health
+ps aux | grep node | head -n 5
+echo $PATH > ~/path_backup.txt
+tail -f /var/log/nginx/access.log
+docker ps -a --filter "status=exited"
+ssh -p 2222 admin@cdn-03.nimbus.io
+grep -rn "API_KEY" ./src/config/
+document.cookie = "sid=" + sid;
+fetch(url).then(r => r.json());
+const { id, role } = session.user;
+scp backup.tar.gz root@10.0.4.7:~/
+kill -9 $(pgrep -f "watchdog")
+rm -rf ./node_modules && npm ci
+find / -name "*.pem" 2>/dev/null
+alias ll='ls -alF --color=auto'
+whoami; id; uname -a
+git log --oneline -n 10 --graph
+location / { try_files $uri =404; }
+<link rel="preload" href="/js/app.min.js" as="script">
+res.json({ ok: true, count: n });
+for f in *.log; do gzip "$f"; done
+sed -i 's/debug=1/debug=0/' app.ini
+const PORT = process.env.PORT || 3000;
+Math.floor(Date.now() / 1000);
+tar -xzvf payload_v2.tgz -C /opt/
+mv .env .env.bak && touch .env
+el.innerHTML = `<b>${name}</b>`;
+## Ferro Logistics
+SELECT * FROM shipments WHERE id = 4471;
+UPDATE users SET role='admin' WHERE uid=7;
+import os, sys, hashlib, base64
+def route(src, dst, weight=1.0):
+return [p for p in paths if p.cost < 50]
+with open("/etc/ferro/keys.json") as f:
+data = json.loads(resp.text)["manifest"]
+for i, row in enumerate(cursor.fetchall()):
+except (KeyError, ValueError) as err:
+h = hashlib.sha256(b"ferro" + salt).hexdigest()
+DROP TABLE IF EXISTS audit_log_2024;
+INSERT INTO access (uid, ts) VALUES (0, NOW());
+print(f"[+] {len(rows)} rows dumped to {out}")
+if __name__ == "__main__": main(sys.argv[1:])
+python3 -m http.server 8000 --bind 0.0.0.0
+pip install requests==2.31.0 --user -q
+SELECT name, pass_hash FROM staff LIMIT 50;
+os.environ["FERRO_DB"] = "pg://10.2.0.5/core"
+cur.execute("SELECT * FROM t WHERE k=%s", (k,))
+key = base64.b64decode(cfg["secret"]).decode()
+GRANT ALL PRIVILEGES ON *.* TO 'ghost'@'%';
+lambda x: {k: v for k, v in x.items() if v}
+nc -lvnp 4444 -e /bin/bash
+@app.route("/track/<int:pid>", methods=["GET"])
+assert len(token) == 32, "bad token length"
+while queue: node = queue.pop(0); seen.add(node)
+ALTER USER postgres WITH PASSWORD 'x0!Ferro#9';
+self.cache[(src, dst)] = min(costs, key=len)
+mysqldump -u root -p'R00t!' --all-databases > d.sql
+re.findall(r"[A-Z]{3}-\d{4,6}", manifest)
+DELETE FROM sessions WHERE expires < NOW() - 3600;
+return sorted(items, key=lambda i: (-i.prio, i.eta))
+yield from (chunk for chunk in stream if chunk)
+class Manifest(BaseModel): sku: str; qty: int = 0
+df = pd.read_csv("routes.csv", sep=";", dtype=str)
+raise PermissionError(f"uid {uid} not in {acl!r}")
+## Halcyon Bank
+#include <stdio.h>
+int main(int argc, char **argv) {
+char buf[256]; strncpy(buf, argv[1], 255);
+if (argc < 2 && !getenv("HB_DEBUG")) exit(-1);
+for (size_t i = 0; i < len; i++) sum ^= p[i];
+uint32_t crc = crc32(0L, Z_NULL, 0) & 0xFFFF;
+public static void main(String[] args) throws Exception {
+private final Map<String, Account> ledger = new HashMap<>();
+BigDecimal amt = new BigDecimal("1049.99").setScale(2);
+if (acct.getBalance().compareTo(BigDecimal.ZERO) < 0) {
+try (Connection c = DriverManager.getConnection(url)) {
+System.out.printf("%s -> %08X%n", acct.id(), hash);
+memcpy(&hdr, packet + 4, sizeof(struct hb_hdr));
+ptr->next = (node_t *)malloc(sizeof(node_t) * 2);
+*(volatile uint8_t *)(base + 0x1F) |= (1 << 3);
+@Override public boolean equals(Object o) { return o == this; }
+List<Txn> flagged = txns.stream().filter(t -> t.amt > 9999).toList();
+gcc -O2 -Wall -fno-stack-protector -o vault vault.c
+openssl enc -aes-256-cbc -d -in ledger.enc -out l.txt -k "$K"
+static const char *KEYS[] = { "HB-ALPHA", "HB-OMEGA", NULL };
+while ((n = read(fd, buf, sizeof buf)) > 0) write(1, buf, n);
+assert(sizeof(long) == 8 && "64-bit build required");
+#define SWAP(a, b) do { int _t = (a); (a) = (b); (b) = _t; } while (0)
+String sql = "SELECT * FROM ACCT WHERE IBAN = '" + iban + "'";
+if ((fd = open("/dev/hb_hsm0", O_RDWR | O_SYNC)) == -1) {
+synchronized (lock) { pending.add(txn); lock.notifyAll(); }
+keytool -list -v -keystore halcyon.jks -storepass changeit
+return (x >> 16) ^ (x & 0xFFFF) ^ 0xDEADBEEF;
+Optional.ofNullable(user).map(User::getId).orElse(-1L);
+printf("[%d] balance=%.2f flags=0x%02x\n", id, bal, f);
+char *p = strtok(line, ",;"); while (p) { p = strtok(NULL, ",;"); }
+throw new SecurityException("HSM seal broken @ " + Instant.now());
+fprintf(stderr, "E%03d: %s (errno=%d)\n", code, msg, errno);
+volatile sig_atomic_t g_stop = 0; signal(SIGINT, on_int);
+## Orbital Defense
+fn decode(buf: &[u8]) -> Result<Frame, Error> {
+let sat = Satellite::new("OD-7", Orbit::Geo { lon: -71.5 });
+match cmd { Cmd::Arm(id) => arm(id)?, _ => return Err(e) }
+impl<T: Clone + Send> Queue<T> for RingBuf<T> {}
+let key: [u8; 32] = hex::decode(&env::var("OD_KEY")?)?.try_into().unwrap();
+func (s *Server) Handle(w http.ResponseWriter, r *http.Request) {
+ch := make(chan []byte, 64); go relay(ctx, ch); defer close(ch)
+if err != nil { log.Fatalf("uplink %q failed: %v", addr, err) }
+for i, b := range payload[4:] { payload[i] ^= key[i%len(key)] ^ b }
+^(?:[A-Z]{2}-\d{3,5})\s*=>\s*(0x[0-9a-fA-F]+)$
+cargo build --release --target thumbv7em-none-eabihf
+unsafe { core::ptr::write_volatile(0x4000_1000 as *mut u32, 0b1011); }
+type Packet struct { Seq uint16 `json:"seq"`; Body []byte `json:"b,omitempty"` }
+let angle = (theta.sin() * r).atan2(phi.cos()).to_degrees() % 360.0;
+select { case m := <-in: out <- m; case <-time.After(3 * time.Second): }
+#[derive(Debug, Clone, PartialEq)] pub enum Mode { Idle, Track(u32), Fire }
+GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o od_uplink .
+grep -Po '(?<=token=)[\w\-]{40}' /var/od/telemetry_*.log | sort -u
+atomic.AddInt64(&s.hits, 1); s.mu.Lock(); s.last = time.Now(); s.mu.Unlock()
+let v: Vec<_> = frames.iter().filter_map(|f| f.ok()).collect::<Vec<Frame>>();
+ip route add 10.77.0.0/16 via 172.16.9.1 dev tun0 metric 5
+assert_eq!(crc16(&buf[..n - 2]), u16::from_le_bytes([buf[n-2], buf[n-1]]));
+iptables -A INPUT -p tcp --dport 7781 -s 10.77.0.0/16 -j ACCEPT
+fmt.Sprintf("%s:%d/%08b", host, port, flags&0x7F)
+pub(crate) const MAX_ORBITS: usize = 1 << 12; // 4096 tracked objects
+nmap -sS -p 7000-7999 -T4 --open 10.77.4.0/24 -oG od_scan.txt
+while let Some(Ok(msg)) = stream.next().await { tx.send(msg).await?; }
+openssl s_client -connect sat-gw.od.net:443 -servername od-core </dev/null
+let [lo, hi] = [(x & 0x0F) as u8, ((x >> 4) & 0x0F) as u8];
+if let Some(&(ref n, v)) = map.iter().find(|(k, _)| k.starts_with("T-")) {
+## Kesler-Vaunt Mainframe
+awk -F: '$3 >= 1000 && $7 !~ /nologin/ { print $1 ":" $6 }' /etc/passwd
+perl -ne 'print "$1\n" if /^(\d{1,3}(?:\.\d{1,3}){3})\s+KV-[A-Z]{4}/' hosts.db
+find /kv -type f -mtime -2 -name '*.[ch]' -exec grep -l 'VAULT_SEED' {} + | xargs wc -l
+for ((i=0; i<${#KEYS[@]}; i++)); do echo "${KEYS[$i]}" | sha512sum >> h.txt; done
+//KVJOB01 JOB (ACCT#9944),'KV ROOT',CLASS=A,MSGCLASS=X,NOTIFY=&SYSUID
+const sum = (xs) => xs.reduce((a, b) => a + (b?.amt ?? 0), 0) | 0;
+template<typename T> auto clamp(T v, T lo, T hi) -> T { return v < lo ? lo : (v > hi ? hi : v); }
+SELECT u.id, COUNT(*) AS n FROM logins l JOIN users u ON u.id = l.uid GROUP BY 1 HAVING n > 9;
+export KV_TOKEN=$(curl -s -X POST -H "Content-Type: application/json" -d '{"u":"root"}' $KV/auth | jq -r .t)
+if [[ -z "${KV_HOME:-}" || ! -d "$KV_HOME/.vault" ]]; then exec 3>&-; exit 77; fi
+ssh -o StrictHostKeyChecking=no -i ~/.ssh/kv_ed25519 -L 9922:127.0.0.1:22 op@jump.kv.int
+let re = /^(?<user>[a-z_][a-z0-9_-]{2,31})@(?<host>[\w.-]+):(?<port>\d{2,5})$/i;
+std::unique_ptr<Node> root = std::make_unique<Node>(Node{0, nullptr, {"KV", 0x7F}});
+dd if=/dev/kvhsm bs=4096 skip=$((0x1F00)) count=8 2>/dev/null | xxd -g 1 | head -n 32
+python3 -c 'import sys,zlib;print(zlib.decompress(sys.stdin.buffer.read()).decode()[::-1])'
+[[ "$(stat -c %a /kv/core)" == "700" ]] && chattr -i /kv/core/lock || echo "!perm" >&2
+location ~* ^/kv/(?:admin|core)/(.+\.(?:php|cgi))$ { deny all; return 444; }
+sudo -u kvsys bash -c 'umask 077; gpg --batch --decrypt --passphrase-fd 0 vault.gpg' <<< "$PW"
+UPDATE kv.ledger SET bal = bal * 1.0001 WHERE acct LIKE 'KV-%' AND flag & 4 <> 0;
+printf '%s\n' "${HOSTS[@]}" | parallel -j 16 'ping -c1 -W1 {} >/dev/null && echo {} UP'
+#!/usr/bin/env -S perl -w -Mstrict -MData::Dumper=Dumper
+git -c core.sshCommand='ssh -i ~/.k/kv' push --force-with-lease origin HEAD:refs/heads/core
+const hex = [...buf].map(b => b.toString(16).padStart(2, "0")).join("").toUpperCase();
+while IFS=, read -r id name ip; do [[ $ip =~ ^10\.9\. ]] && echo "$id;$name"; done < nodes.csv
+#define KV_MASK(x) ((((x) & 0xF0F0F0F0u) >> 4) | (((x) & 0x0F0F0F0Fu) << 4))
+kubectl -n kv-core get secrets -o jsonpath='{.items[*].data.token}' | base64 -d
+</script>
+<script>
+'use strict';
+const SLUG='terminal-rush',KP='gamebop.'+SLUG+'.';
+const store={get(k,d){try{const v=localStorage.getItem(KP+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(KP+k,JSON.stringify(v))}catch(e){}}};
+const $=id=>document.getElementById(id);
+// ---------- corpus ----------
+const CORPS=[];(()=>{let cur=null;$('corpus').textContent.split('\n').forEach(l=>{l=l.replace(/\s+$/,'');if(!l)return;if(l.startsWith('## ')){cur={name:l.slice(3),lines:[]};CORPS.push(cur)}else if(cur)cur.lines.push(l)})})();
+const SERVERS=[['cdn-edge','auth-gw','media-db','ad-stack','root-ctl'],['dock-07','fleet-api','pg-core','customs','hq-vault'],['atm-net','swift-gw','ledger','hsm-01','board-rm'],['uplink','telemetry','sat-ctl','arsenal','command'],['tso-01','racf','cics','ims-db','KV-CORE']];
+// ---------- save ----------
+const UPS=[{k:'damp',n:'Trace Dampener',d:'Trace -7%',ic:'≈',max:5,base:60},{k:'auto',n:'Autocomplete',d:'Tab: finish line',ic:'⇥',max:3,base:150},{k:'forg',n:'Forgiveness',d:'Free mistakes',ic:'✓',max:5,base:80},{k:'buf',n:'FW Buffer',d:'Firewall delay +0.3s',ic:'⌛',max:4,base:100},{k:'cool',n:'Line Cooler',d:'Trace -2% per line',ic:'❄',max:5,base:120}];
+let S={cr:0,up:{damp:0,auto:0,forg:0,buf:0,cool:0},done:Array(25).fill(''),bestWpm:0,endBest:0,muted:false};
+(()=>{const s=store.get('save',null);if(s&&typeof s==='object'){Object.assign(S,s);S.up=Object.assign({damp:0,auto:0,forg:0,buf:0,cool:0},s.up||{});if(!Array.isArray(S.done)||S.done.length!==25)S.done=Array(25).fill('')}})();
+let muted=!!store.get('muted',false);const hadSave=S.done.some(x=>x)||S.cr>0;
+function save(){store.set('save',S)}
+// ---------- audio ----------
+let AC=null,master=null;
+function ensureAudio(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=0.5;master.connect(AC.destination)}catch(e){AC=null}}if(AC&&AC.state==='suspended')AC.resume()}
+function tone(f,d,type,v,slide,delay){if(muted||!AC)return;try{const t=AC.currentTime+(delay||0);const o=AC.createOscillator(),g=AC.createGain();o.type=type||'square';o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,f*slide),t+d);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v||0.05,t+0.004);g.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(g);g.connect(master);o.start(t);o.stop(t+d+0.02)}catch(e){}}
+const SFX={key(){tone(1800+Math.random()*500,0.018,'square',0.025)},bad(){tone(110,0.14,'sawtooth',0.09,0.7)},line(){tone(880,0.05,'square',0.04);tone(1320,0.08,'square',0.04,1,0.05)},
+ fw(){tone(200,0.3,'sawtooth',0.07,3);tone(90,0.3,'square',0.05,0.5,0.05)},win(){[523,659,784,1047,1568].forEach((f,i)=>tone(f,0.16,'square',0.05,1,i*0.08))},lose(){tone(440,1.2,'sawtooth',0.07,0.25)},alarm(){tone(950,0.12,'square',0.03);tone(700,0.12,'square',0.03,1,0.13)},click(){tone(1200,0.03,'square',0.03)},buy(){[660,990,1320].forEach((f,i)=>tone(f,0.08,'square',0.04,1,i*0.05))}};
+function setMute(m){muted=m;store.set('muted',m);document.querySelectorAll('.mute').forEach(b=>{b.textContent=m?'×':'♪';b.style.opacity=m?0.5:1})}
+document.querySelectorAll('.mute').forEach(b=>b.addEventListener('click',()=>{ensureAudio();setMute(!muted)}));setMute(muted);
+// ---------- screens ----------
+let scr='title';
+function show(id){scr=id;document.querySelectorAll('.scr').forEach(e=>e.classList.toggle('on',e.id===id));if(id==='map')renderMap();if(id==='shop')renderShop()}
+$('bPlay').textContent=hadSave?'> CONTINUE':'> PLAY';
+$('bPlay').onclick=()=>{ensureAudio();SFX.click();show('map')};
+$('mBack').onclick=()=>show('title');$('sBack').onclick=()=>show('map');$('bShop').onclick=()=>{SFX.click();show('shop')};
+$('bEndless').onclick=()=>{if(!S.done[4]){SFX.bad();return}startServer(-1)};
+function unlockedIdx(i){return i===0||!!S.done[i-1]}
+function renderMap(){$('mCred').textContent=S.cr+' cr';const c=$('corps');c.innerHTML='';let nextSet=false;
+ CORPS.forEach((corp,ci)=>{const d=document.createElement('div');const open=unlockedIdx(ci*5);d.className='corp'+(open?'':' locked');const cnt=S.done.slice(ci*5,ci*5+5).filter(x=>x).length;
+  d.innerHTML='<h3><span>'+(open?corp.name:'▒▒▒▒▒▒▒▒▒')+'</span><small>'+cnt+'/5</small></h3><div class="nodes"></div>';const n=d.querySelector('.nodes');
+  for(let s=0;s<5;s++){const i=ci*5+s;const e=document.createElement('div');const op=unlockedIdx(i);const isNext=op&&!S.done[i]&&!nextSet;if(isNext)nextSet=true;
+   e.className='node'+(op?'':' lock')+(S.done[i]?' done':'')+(isNext?' next':'');e.innerHTML='<b>'+(S.done[i]||(op?'›':'■'))+'</b><span>'+SERVERS[ci][s]+'</span>';
+   if(op)e.onclick=()=>{SFX.click();startServer(i)};n.appendChild(e)}
+  c.appendChild(d);if(isNextCorp(ci))setTimeout(()=>d.scrollIntoView({block:'nearest'}),0)});
+ $('bEndless').classList.toggle('dim',!S.done[4]);$('bEndless').textContent=S.done[4]?('OVERFLOW ∞ '+(S.endBest?'· '+S.endBest:'')):'OVERFLOW ∞ ■';}
+function isNextCorp(ci){const i=S.done.findIndex(x=>!x);return i>=0&&Math.floor(i/5)===ci}
+function upCost(u){return Math.round(u.base*Math.pow(1.85,S.up[u.k]))}
+function renderShop(){$('sCred').textContent=S.cr+' cr';const l=$('ups');l.innerHTML='';
+ UPS.forEach(u=>{const lv=S.up[u.k];const d=document.createElement('div');d.className='up';const max=lv>=u.max;const cost=upCost(u);
+  d.innerHTML='<div class="ic glow">'+u.ic+'</div><div class="mid"><div class="nm">'+u.n+'</div><div style="font-size:12px;color:var(--gd)">'+u.d+'</div><div class="pips">'+Array.from({length:u.max},(_,i)=>'<i class="'+(i<lv?'on':'')+'"></i>').join('')+'</div></div>';
+  const b=document.createElement('button');b.textContent=max?'MAX':cost+' cr';if(max||S.cr<cost)b.className='no';b.onclick=()=>{if(!max&&S.cr>=cost){S.cr-=cost;S.up[u.k]++;save();SFX.buy();renderShop()}else SFX.bad()};d.appendChild(b);l.appendChild(d)})}
+// ---------- game ----------
+let G=null,paused=false;
+function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296}}
+function startServer(i){const endless=i<0;let lines,ci,si,targetWpm,fwFrac,fwTol,pen;
+ if(endless){ci=4;si=4;lines=[];targetWpm=40;fwFrac=0.25;fwTol=1.6;pen=3}
+ else{ci=Math.floor(i/5);si=i%5;const pool=CORPS[ci].lines.slice();const R=rng(i*977+5);const n=5+ci+si;
+  pool.sort((a,b)=>a.length-b.length);// bias toward longer lines in later servers
+  const start=Math.floor(pool.length*si*0.12);const sub=pool.slice(start);for(let k=sub.length-1;k>0;k--){const j=Math.floor(R()*(k+1));[sub[k],sub[j]]=[sub[j],sub[k]]}lines=sub.slice(0,n);
+  targetWpm=34+ci*9+si*3;fwFrac=ci===0?(si>=3?0.15:0):0.18+ci*0.07;fwTol=Math.max(0.85,1.7-ci*0.17-si*0.03);pen=2.2+ci*0.6}
+ const R=rng(Date.now());
+ G={i,endless,ci,si,lines,li:0,pos:0,trace:0,started:false,t0:0,elapsed:0,keys:0,correct:0,miss:0,free:S.up.forg*2,auto:S.up.auto,fwTol:fwTol+S.up.buf*0.3,pen,idle:0,targetWpm,fw:[],hist:[],done:false,R,endLines:0,alarmT:0};
+ if(endless){G.lines=[pickEndless(),pickEndless(),pickEndless()]}
+ G.fw=G.lines.map((l,k)=>k>0&&R()<fwFrac);
+ computeRate();
+ $('gName').textContent=endless?'OVERFLOW ∞':(CORPS[ci].name+' › '+SERVERS[ci][si]);$('hist').innerHTML='';
+ show('game');paused=false;$('ovPause').classList.remove('on');$('ovRes').classList.remove('on');render();banner('PRESS ANY KEY',true);focusKb()}
+function computeRate(){const chars=G.endless?60:G.lines.reduce((a,l)=>a+l.length,0);const cps=G.targetWpm*5/60;const time=chars/cps*1.08;G.rate=100/time*(1-S.up.damp*0.07)}
+function pickEndless(){const all=[].concat(...CORPS.map(c=>c.lines));const lvl=G?G.endLines:0;const maxLen=30+lvl*3;const c=all.filter(l=>l.length<=maxLen&&l.length>=Math.min(60,10+lvl*2));const src=c.length?c:all;return src[Math.floor(Math.random()*src.length)]}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function render(){if(!G)return;const L=G.lines[G.li]||'';const fw=G.fw[G.li];const el=$('line');el.classList.toggle('fw',!!fw);
+ const typed=L.slice(0,G.pos),c=L[G.pos]||'',rest=L.slice(G.pos+1);
+ el.innerHTML=(fw?'<span class="pre">[FW] </span>':'<span class="pre">&gt; </span>')+'<span class="ok">'+esc(typed)+'</span><span class="c'+(G.badT>0?' bad':'')+'">'+(c===' '?'&nbsp;':esc(c))+'</span><span class="rest">'+esc(rest)+'</span>';
+ $('fwbar').style.visibility=fw?'visible':'hidden';
+ const nx=[];for(let k=1;k<=2;k++){const l=G.lines[G.li+k];if(l)nx.push('<div>'+(G.fw[G.li+k]?'[FW] ':'  ')+esc(l)+'</div>')}$('next').innerHTML=nx.join('');
+ $('sL').textContent=G.endless?String(G.endLines):(Math.min(G.li+1,G.lines.length)+'/'+G.lines.length);
+ $('sT').textContent=G.auto>0?('TAB ×'+G.auto):'';$('sF').textContent=G.free>0?('✓×'+G.free):'';}
+function banner(t,stay){const b=$('banner');b.textContent=t;b.classList.remove('show');void b.offsetWidth;if(stay){b.style.opacity=1}else{b.style.opacity='';b.classList.add('show')}}
+function typeChar(ch){if(!G||G.done||paused)return;const L=G.lines[G.li];if(!L)return;
+ if(!G.started){G.started=true;G.t0=performance.now();$('banner').style.opacity=0}
+ G.keys++;G.idle=0;
+ if(ch===L[G.pos]){G.correct++;G.pos++;SFX.key();if(G.pos>=L.length)lineDone();else render()}
+ else{G.miss++;G.badT=0.2;SFX.bad();if(G.free>0){G.free--}else{G.trace+=G.pen}$('term').classList.remove('shake');void $('term').offsetWidth;$('term').classList.add('shake');render()}}
+function lineDone(){SFX.line();G.hist.push(G.lines[G.li]);const h=$('hist');const d=document.createElement('div');d.textContent=G.lines[G.li];h.appendChild(d);while(h.children.length>6)h.removeChild(h.firstChild);
+ G.trace=Math.max(0,G.trace-S.up.cool*2-(G.endless?9:0));G.li++;G.pos=0;G.idle=0;
+ if(G.endless){G.endLines++;G.lines.push(pickEndless());G.fw.push(Math.random()<Math.min(0.5,0.15+G.endLines*0.01));G.targetWpm=40+G.endLines*1.2}
+ if(!G.endless&&G.li>=G.lines.length){finish(true);return}render()}
+function autoComplete(){if(!G||G.done||paused||G.auto<=0||!G.started)return;G.auto--;G.correct+=G.lines[G.li].length-G.pos;lineDone();banner('AUTO',false)}
+function scramble(){const L=G.lines[G.li];const pool=G.endless?[].concat(...CORPS.map(c=>c.lines)):CORPS[G.ci].lines;let best=null;for(let k=0;k<30;k++){const c=pool[Math.floor(Math.random()*pool.length)];if(c!==L&&(!best||Math.abs(c.length-L.length)<Math.abs(best.length-L.length)))best=c}
+ G.lines[G.li]=best||L;G.pos=0;G.idle=0;G.trace+=4;SFX.fw();const el=$('line');el.classList.remove('glitch');void el.offsetWidth;el.classList.add('glitch');banner('FIREWALL',false);render()}
+function wpm(){const m=G.elapsed/60;return m>0.02?Math.round(G.correct/5/m):0}
+function acc(){return G.keys?Math.round(G.correct/(G.correct+G.miss)*1000)/10:100}
+function finish(win){G.done=true;const w=wpm(),a=acc();const ov=$('ovRes'),box=$('resBox');box.classList.toggle('bad',!win);
+ let rank='',cr=0;
+ if(G.endless){cr=Math.round(G.endLines*6+w*0.5);const best=G.endLines>S.endBest;if(best)S.endBest=G.endLines;$('rT').textContent=best?'NEW RECORD':'CONNECTION LOST';$('rRank').textContent=String(G.endLines);win=true}
+ else if(win){const t=G.trace;rank=a>=98&&t<60?'S':a>=95?'A':a>=90?'B':'C';const base=Math.round(25*(G.ci+1)*(1+G.si*0.25));const rm={S:1.6,A:1.3,B:1.1,C:1}[rank];const first=!S.done[G.i];cr=Math.round(base*rm*(first?1:0.6));
+  const order='CBAS';if(!S.done[G.i]||order.indexOf(rank)>order.indexOf(S.done[G.i]))S.done[G.i]=rank;$('rT').textContent='ACCESS GRANTED';$('rRank').textContent=rank}
+ else{$('rT').textContent='TRACED';$('rRank').textContent='✕';cr=Math.round(G.li*2*(G.ci+1))}
+ S.cr+=cr;if(w>S.bestWpm&&G.correct>40&&G.elapsed>5)S.bestWpm=w;save();
+ $('rKV').innerHTML='<span>WPM</span><b>'+w+'</b><span>ACC</span><b>'+a+'%</b><span>LINES</span><b>'+(G.endless?G.endLines:G.li+'/'+G.lines.length)+'</b><span>CREDITS</span><b style="color:var(--amber)">+'+cr+'</b><span>BEST WPM</span><b>'+S.bestWpm+'</b>';
+ const bt=$('rBtns');bt.innerHTML='';const mk=(t,f,dim)=>{const b=document.createElement('button');b.textContent=t;if(dim)b.className='dim';b.onclick=()=>{SFX.click();f()};bt.appendChild(b);return b};
+ mk('MAP',()=>{ov.classList.remove('on');show('map')},true);
+ if(!G.endless&&win&&G.i<24)mk('NEXT ›',()=>startServer(G.i+1)).focus();else mk('RETRY',()=>startServer(G.i)).focus();
+ if(win)SFX.win();else SFX.lose();setTimeout(()=>ov.classList.add('on'),win?500:900);if(!win){document.body.classList.remove('shake');void document.body.offsetWidth;document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),300)}
+ $('alarm').style.boxShadow='none'}
+// ---------- input ----------
+function focusKb(){try{$('kb').focus({preventScroll:true})}catch(e){}}
+$('tapkb').onclick=focusKb;$('term').addEventListener('click',focusKb);
+addEventListener('keydown',e=>{ensureAudio();const k=e.key;
+ if(k==='Escape'){if(scr==='game'&&G&&!G.done){togglePause()}else if(scr==='shop')show('map');else if(scr==='map')show('title');e.preventDefault();return}
+ if(scr==='title'&&k==='Enter'){show('map');e.preventDefault();return}
+ if(scr==='game'&&G&&!G.done){if((e.ctrlKey||e.metaKey)&&!(e.ctrlKey&&e.altKey))return;
+  if(paused){if(k==='Enter'||k===' '){togglePause();e.preventDefault()}return}
+  if(k==='Tab'){e.preventDefault();autoComplete();return}
+  if(k.length===1){e.preventDefault();typeChar(k);return}
+  if(k==='Backspace'||k==='Enter'){e.preventDefault();return}}
+ else if(scr==='game'&&G&&G.done&&k==='Enter'&&$('ovRes').classList.contains('on')){e.preventDefault();const b=$('rBtns').lastChild;if(b)b.click()}});
+$('kb').addEventListener('input',e=>{const v=$('kb').value;$('kb').value='';if(scr==='game'){for(const ch of v)typeChar(ch)}});
+function togglePause(){if(!G||G.done)return;paused=!paused;$('ovPause').classList.toggle('on',paused);if(!paused)focusKb()}
+$('gPause').onclick=()=>{SFX.click();togglePause()};$('pRes').onclick=()=>togglePause();$('pQuit').onclick=()=>{paused=false;$('ovPause').classList.remove('on');G.done=true;show('map')};
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&scr==='game'&&G&&!G.done&&!paused)togglePause()});
+// ---------- loop ----------
+const bg=$('bg'),bx=bg.getContext('2d');let BW=0,BH=0;const cols=[];
+function resize(){const d=Math.min(2,devicePixelRatio||1);BW=innerWidth;BH=innerHeight;bg.width=BW*d;bg.height=BH*d;bx.setTransform(d,0,0,d,0,0);cols.length=0;const n=Math.ceil(BW/14);for(let i=0;i<n;i++)cols.push({y:Math.random()*BH,v:40+Math.random()*120,s:''})}
+addEventListener('resize',resize);resize();
+const GLY='{}[]();<>=!&|$#_-"\'/\\*+%@~^:.,0123456789ABCDEFabcdefxX';
+let last=performance.now();
+function frame(now){const dt=Math.min(0.05,(now-last)/1000);last=now;
+ // background code rain (sparser in game)
+ const inGame=scr==='game';bx.fillStyle=inGame?'rgba(2,10,5,.35)':'rgba(2,10,5,.18)';bx.fillRect(0,0,BW,BH);bx.font='13px '+getComputedStyle(document.body).fontFamily;
+ cols.forEach((c,i)=>{if(inGame&&i%3)return;c.y+=c.v*dt;if(c.y>BH+20){c.y=-20;c.v=40+Math.random()*120}const ch=GLY[Math.floor(Math.random()*GLY.length)];bx.fillStyle=Math.random()<0.04?'#d8ffe4':inGame?'rgba(57,255,122,.25)':'rgba(57,255,122,.65)';bx.fillText(ch,i*14,c.y)});
+ if(G&&scr==='game'&&!G.done&&!paused){if(G.badT>0){G.badT-=dt;if(G.badT<=0)render()}
+  if(G.started){G.elapsed+=dt;G.trace+=G.rate*dt*(G.endless?(0.6+G.endLines*0.03):1);G.idle+=dt;
+   if(G.fw[G.li]){const k=Math.min(1,G.idle/G.fwTol);$('fwbar').firstChild.style.width=(k*100)+'%';if(G.idle>=G.fwTol)scramble()}
+   $('sW').textContent=wpm();$('sA').textContent=acc()}
+  const t=Math.min(100,G.trace);const tr=$('trace');tr.firstChild.style.width=t+'%';tr.lastChild.textContent='TRACE '+Math.floor(t)+'%';tr.classList.toggle('warn',t>=50&&t<80);tr.classList.toggle('crit',t>=80);
+  $('alarm').style.boxShadow=t>=80?'inset 0 0 '+(80+Math.sin(now/120)*40)+'px rgba(255,40,40,.45)':'none';if(t>=80){G.alarmT-=dt;if(G.alarmT<=0){G.alarmT=0.6;SFX.alarm()}}
+  if(G.trace>=100)finish(false)}
+ requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+window.__tr={get G(){return G},get S(){return S},startServer,typeChar,CORPS};
+</script></body></html>

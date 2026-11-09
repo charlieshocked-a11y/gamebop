@@ -1,0 +1,504 @@
+window.GAMEBOP_GAMES = [
+ {
+  "slug": "scribble-wizard",
+  "title": "Scribble Wizard",
+  "category": "Action",
+  "tags": [
+   "drawing",
+   "spells",
+   "waves"
+  ],
+  "blurb": "Draw shapes to cast spells against doodle monsters.",
+  "controls": "Mouse / touch: draw shapes",
+  "added": "2026-11-03",
+  "file": "games/scribble-wizard.html",
+  "thumb": "thumbs/scribble-wizard.jpg",
+  "mine": true
+ },
+ {
+  "slug": "skybolt-roadster",
+  "title": "Skybolt Roadster",
+  "category": "Racing",
+  "tags": [
+   "3D",
+   "police chase",
+   "flying car"
+  ],
+  "blurb": "Boost and fly a rocket roadster to outrun the cops.",
+  "controls": "WASD drive · Shift boost · Space fly",
+  "added": "2026-11-08",
+  "file": "games/skybolt-roadster.html",
+  "thumb": "thumbs/skybolt-roadster.jpg",
+  "mine": true
+ },
+ {
+  "slug": "ember-drift",
+  "title": "Ember Drift",
+  "category": "Racing",
+  "tags": [
+   "drift",
+   "time trial",
+   "neon",
+   "ghost racing"
+  ],
+  "blurb": "Drift tiny glowing cars, build embers, unleash blazing boosts.",
+  "controls": "Arrows/WASD · Space drift · Touch",
+  "added": "2026-11-08",
+  "file": "games/ember-drift.html",
+  "thumb": "thumbs/ember-drift.jpg"
+ },
+ {
+  "slug": "hive-mind",
+  "title": "Hive Mind",
+  "category": "Idle",
+  "tags": [
+   "idle",
+   "bees",
+   "prestige",
+   "strategy"
+  ],
+  "blurb": "Grow a buzzing hex hive, survive seasons, repel wasp raids.",
+  "controls": "Mouse · Touch",
+  "added": "2026-11-08",
+  "file": "games/hive-mind.html",
+  "thumb": "thumbs/hive-mind.jpg"
+ },
+ {
+  "slug": "keystorm",
+  "title": "Keystorm",
+  "category": "Typing",
+  "tags": [
+   "typing",
+   "hard",
+   "symbols",
+   "boss fights"
+  ],
+  "blurb": "Type symbols, numbers and code fast or the city burns.",
+  "controls": "Keyboard",
+  "added": "2026-11-08",
+  "file": "games/keystorm.html",
+  "thumb": "thumbs/keystorm.jpg"
+ },
+ {
+  "slug": "gravity-gulp",
+  "title": "Gravity Gulp",
+  "category": "Puzzle",
+  "tags": [
+   "physics",
+   "puzzle",
+   "space",
+   "3 stars"
+  ],
+  "blurb": "Bend a marble's path with gravity wells into a black hole.",
+  "controls": "Mouse · Touch · Space",
+  "added": "2026-11-08",
+  "file": "games/gravity-gulp.html",
+  "thumb": "thumbs/gravity-gulp.jpg"
+ },
+ {
+  "slug": "tiny-tactics",
+  "title": "Tiny Tactics",
+  "category": "Strategy",
+  "tags": [
+   "turn-based",
+   "tactics",
+   "pixel art",
+   "campaign"
+  ],
+  "blurb": "Command a pixel squad through 20 battles of grid tactics.",
+  "controls": "Mouse · Touch",
+  "added": "2026-11-08",
+  "file": "games/tiny-tactics.html",
+  "thumb": "thumbs/tiny-tactics.jpg"
+ },
+ {
+  "slug": "neon-serpent",
+  "title": "Neon Serpent",
+  "category": "Arcade",
+  "tags": [
+   "snake",
+   "neon",
+   "power-ups",
+   "daily"
+  ],
+  "blurb": "Glowing snake with portals, power-ups and a closing arena",
+  "controls": "Arrows/WASD · Swipe",
+  "added": "2026-11-08",
+  "file": "games/neon-serpent.html",
+  "thumb": "thumbs/neon-serpent.jpg"
+ },
+ {
+  "slug": "mine-deep",
+  "title": "Mine Deep",
+  "category": "Adventure",
+  "tags": [
+   "mining",
+   "roguelite",
+   "upgrades",
+   "dig"
+  ],
+  "blurb": "Drill to the 1000m core, sell ore, upgrade your pod",
+  "controls": "Arrows/WASD · E bomb · Touch d-pad",
+  "added": "2026-11-08",
+  "file": "games/mine-deep.html",
+  "thumb": "thumbs/mine-deep.jpg"
+ },
+ {
+  "slug": "sky-hopper",
+  "title": "Sky Hopper",
+  "category": "Platformer",
+  "tags": [
+   "climbing",
+   "endless",
+   "upgrades",
+   "lava"
+  ],
+  "blurb": "Wall-jump up an endless tower ahead of rising lava",
+  "controls": "Arrows/WASD · Space jump · Shift dash · Touch",
+  "added": "2026-11-08",
+  "file": "games/sky-hopper.html",
+  "thumb": "thumbs/sky-hopper.jpg"
+ },
+ {
+  "slug": "orbit-defense",
+  "title": "Orbit Defense",
+  "category": "Strategy",
+  "tags": [
+   "tower defense",
+   "space",
+   "research"
+  ],
+  "blurb": "Rotate orbital rings of turrets to stop spiraling alien swarms",
+  "controls": "Mouse · Touch",
+  "added": "2026-11-08",
+  "file": "games/orbit-defense.html",
+  "thumb": "thumbs/orbit-defense.jpg"
+ },
+ {
+  "slug": "pocket-golf",
+  "title": "Pocket Golf",
+  "category": "Sports",
+  "tags": [
+   "minigolf",
+   "physics",
+   "courses"
+  ],
+  "blurb": "27 tricky minigolf holes with slopes, ice and spinners",
+  "controls": "Mouse drag · Touch · Arrows + Space",
+  "added": "2026-11-08",
+  "file": "games/pocket-golf.html",
+  "thumb": "thumbs/pocket-golf.jpg"
+ },
+ {
+  "slug": "block-bakery",
+  "title": "Block Bakery",
+  "category": "Casual",
+  "tags": [
+   "merge",
+   "puzzle",
+   "cute",
+   "bakery"
+  ],
+  "blurb": "Merge pastries into wedding cakes and serve the hungry line",
+  "controls": "Mouse/Touch drag · Space bake",
+  "added": "2026-11-08",
+  "file": "games/block-bakery.html",
+  "thumb": "thumbs/block-bakery.jpg"
+ },
+ {
+  "slug": "laser-lab",
+  "title": "Laser Lab",
+  "category": "Puzzle",
+  "tags": [
+   "lasers",
+   "logic",
+   "mirrors",
+   "neon"
+  ],
+  "blurb": "Bend glowing beams through mirrors and prisms to power up",
+  "controls": "Mouse/Touch · Tap rotate · Drag place · Z undo",
+  "added": "2026-11-08",
+  "file": "games/laser-lab.html",
+  "thumb": "thumbs/laser-lab.jpg"
+ },
+ {
+  "slug": "asteroid-miner",
+  "title": "Asteroid Miner",
+  "category": "Action",
+  "tags": [
+   "shooter",
+   "roguelite",
+   "space",
+   "upgrades"
+  ],
+  "blurb": "Blast rocks, grab ore, upgrade your ship, beat ten bosses",
+  "controls": "WASD move · Mouse aim & shoot · Touch dual sticks",
+  "added": "2026-11-08",
+  "file": "games/asteroid-miner.html",
+  "thumb": "thumbs/asteroid-miner.jpg"
+ },
+ {
+  "slug": "terminal-rush",
+  "title": "Terminal Rush",
+  "category": "Typing",
+  "tags": [
+   "typing",
+   "hard",
+   "hacker",
+   "code"
+  ],
+  "blurb": "Type real code at speed before the trace catches you",
+  "controls": "Keyboard · Tab autocomplete · Esc pause",
+  "added": "2026-11-08",
+  "file": "games/terminal-rush.html",
+  "thumb": "thumbs/terminal-rush.jpg"
+ },
+ {
+  "slug": "farm-loop",
+  "title": "Farm Loop",
+  "category": "Idle",
+  "tags": [
+   "farming",
+   "idle",
+   "cozy",
+   "crafting"
+  ],
+  "blurb": "Plant, harvest, bake and grow a cozy farm through the seasons",
+  "controls": "Mouse/Touch tap & drag · 1-9 pick seed",
+  "added": "2026-11-08",
+  "file": "games/farm-loop.html",
+  "thumb": "thumbs/farm-loop.jpg"
+ },
+ {
+  "slug": "bounce-brigade",
+  "title": "Bounce Brigade",
+  "category": "Arcade",
+  "tags": [
+   "brick breaker",
+   "roguelite",
+   "upgrades",
+   "bosses"
+  ],
+  "blurb": "Smash bricks, stack wild upgrades, topple five boss worlds",
+  "controls": "Mouse · Arrows/A D · Space · Touch drag",
+  "added": "2026-11-08",
+  "file": "games/bounce-brigade.html",
+  "thumb": "thumbs/bounce-brigade.jpg"
+ },
+ {
+  "slug": "rune-match",
+  "title": "Rune Match",
+  "category": "Puzzle",
+  "tags": [
+   "match-3",
+   "rpg",
+   "battler",
+   "relics"
+  ],
+  "blurb": "Match runes to slash, burn and freeze monsters",
+  "controls": "Mouse drag/click · Touch swipe",
+  "added": "2026-11-08",
+  "file": "games/rune-match.html",
+  "thumb": "thumbs/rune-match.jpg"
+ },
+ {
+  "slug": "hoop-shot",
+  "title": "Hoop Shot",
+  "category": "Sports",
+  "tags": [
+   "basketball",
+   "physics",
+   "trick shots",
+   "arcade"
+  ],
+  "blurb": "Flick perfect arcs, swish trick shots, chase combo streaks",
+  "controls": "Mouse drag · Touch drag",
+  "added": "2026-11-08",
+  "file": "games/hoop-shot.html",
+  "thumb": "thumbs/hoop-shot.jpg"
+ },
+ {
+  "slug": "tank-duel",
+  "title": "Tank Duel",
+  "category": "Strategy",
+  "tags": [
+   "artillery",
+   "destructible terrain",
+   "turn-based",
+   "2 player"
+  ],
+  "blurb": "Blast craters, bury rivals, climb the ranks to Marshal",
+  "controls": "Arrows · A/D · Space · Q/E · Mouse/Touch aim",
+  "added": "2026-11-08",
+  "file": "games/tank-duel.html",
+  "thumb": "thumbs/tank-duel.jpg"
+ },
+ {
+  "slug": "dash-ninja",
+  "title": "Dash Ninja",
+  "category": "Action",
+  "tags": [
+   "runner",
+   "ninja",
+   "platformer",
+   "bosses"
+  ],
+  "blurb": "Wall-run, dash-slash and outrun four deadly boss lords",
+  "controls": "Space/Up jump · Shift/Right dash · Tap/Swipe",
+  "added": "2026-11-08",
+  "file": "games/dash-ninja.html",
+  "thumb": "thumbs/dash-ninja.jpg"
+ },
+ {
+  "slug": "knight-quest",
+  "title": "Knight Quest",
+  "category": "Puzzle",
+  "tags": [
+   "chess",
+   "logic",
+   "levels"
+  ],
+  "blurb": "Hop like a knight, grab every gem, dodge guarding rooks.",
+  "controls": "Mouse/Touch · Arrows + Enter · Z undo · R restart · H hint",
+  "added": "2026-11-08",
+  "file": "games/knight-quest.html",
+  "thumb": "thumbs/knight-quest.jpg"
+ },
+ {
+  "slug": "tile-kingdom",
+  "title": "Tile Kingdom",
+  "category": "Strategy",
+  "tags": [
+   "city builder",
+   "relaxing",
+   "score attack"
+  ],
+  "blurb": "Place buildings, chain neighbour combos, grow a thriving island.",
+  "controls": "Mouse/Touch · 1-4 / Q E pick tile · Enter place",
+  "added": "2026-11-08",
+  "file": "games/tile-kingdom.html",
+  "thumb": "thumbs/tile-kingdom.jpg"
+ },
+ {
+  "slug": "beat-tapper",
+  "title": "Beat Tapper",
+  "category": "Music",
+  "tags": [
+   "rhythm",
+   "synthwave",
+   "4-lane"
+  ],
+  "blurb": "Tap neon notes to 15 live-synthesized tracks. Chase the S.",
+  "controls": "D F J K (or arrows) · Touch lanes",
+  "added": "2026-11-08",
+  "file": "games/beat-tapper.html",
+  "thumb": "thumbs/beat-tapper.jpg"
+ },
+ {
+  "slug": "letter-lattice",
+  "title": "Letter Lattice",
+  "category": "Word",
+  "tags": [
+   "word search",
+   "timer",
+   "daily"
+  ],
+  "blurb": "Drag through letters, blast bombs, chase giant long-word scores.",
+  "controls": "Mouse/Touch drag · Type letters + Enter",
+  "added": "2026-11-08",
+  "file": "games/letter-lattice.html",
+  "thumb": "thumbs/letter-lattice.jpg"
+ },
+ {
+  "slug": "hex-merge",
+  "title": "Hex Merge",
+  "category": "Puzzle",
+  "tags": [
+   "2048",
+   "merge",
+   "hexagon"
+  ],
+  "blurb": "Slide hexagon tiles six ways and merge your way to 2048.",
+  "controls": "Q W E A S D · Swipe/Drag · Z undo",
+  "added": "2026-11-08",
+  "file": "games/hex-merge.html",
+  "thumb": "thumbs/hex-merge.jpg"
+ },
+ {
+  "slug": "deep-cast",
+  "title": "Deep Cast",
+  "category": "Casual",
+  "tags": [
+   "fishing",
+   "collection",
+   "upgrades"
+  ],
+  "blurb": "Drop deep, dodge jellies, hook legends on the way up",
+  "controls": "Mouse/Drag · Arrows/WASD · Hold to reel",
+  "added": "2026-11-08",
+  "file": "games/deep-cast.html",
+  "thumb": "thumbs/deep-cast.jpg"
+ },
+ {
+  "slug": "moto-hill",
+  "title": "Moto Hill",
+  "category": "Racing",
+  "tags": [
+   "physics",
+   "bike",
+   "flips",
+   "upgrades"
+  ],
+  "blurb": "Flip, wheelie and fuel-hunt across six wild worlds",
+  "controls": "Arrows/WASD · Touch pedals",
+  "added": "2026-11-08",
+  "file": "games/moto-hill.html",
+  "thumb": "thumbs/moto-hill.jpg"
+ },
+ {
+  "slug": "ghost-typer",
+  "title": "Ghost Typer",
+  "category": "Typing",
+  "tags": [
+   "typing",
+   "racing",
+   "hard",
+   "ghosts"
+  ],
+  "blurb": "Out-type your own ghost and rivals up to 140 WPM",
+  "controls": "Keyboard",
+  "added": "2026-11-08",
+  "file": "games/ghost-typer.html",
+  "thumb": "thumbs/ghost-typer.jpg"
+ },
+ {
+  "slug": "zombie-fort",
+  "title": "Zombie Fort",
+  "category": "Action",
+  "tags": [
+   "survival",
+   "tower defense",
+   "shooter"
+  ],
+  "blurb": "Build by day, blast cartoon zombies by night",
+  "controls": "WASD + Mouse · Touch twin sticks",
+  "added": "2026-11-08",
+  "file": "games/zombie-fort.html",
+  "thumb": "thumbs/zombie-fort.jpg"
+ },
+ {
+  "slug": "ice-slide",
+  "title": "Ice Slide",
+  "category": "Puzzle",
+  "tags": [
+   "sliding",
+   "logic",
+   "penguins"
+  ],
+  "blurb": "Slide, push and melt your way through 60 frosty puzzles",
+  "controls": "Arrows/WASD · Swipe",
+  "added": "2026-11-08",
+  "file": "games/ice-slide.html",
+  "thumb": "thumbs/ice-slide.jpg"
+ }
+];

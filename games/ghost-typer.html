@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Ghost Typer</title>
+<style>
+:root{--cy:#3ff0ff;--mg:#ff3fd2;--yl:#ffe14a;--bg:#120a24}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+.hidden{display:none!important}
+.btn{font:inherit;font-weight:900;border:0;border-radius:14px;padding:12px 22px;color:#1a0830;cursor:pointer;background:linear-gradient(#fff07a,#ffb21a);box-shadow:0 5px 0 #b2620a,0 0 22px rgba(255,200,60,.45);letter-spacing:1px;transition:transform .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #b2620a}
+.btn.cy{background:linear-gradient(#9ffaff,#2ac8e8);box-shadow:0 5px 0 #13708a,0 0 18px rgba(63,240,255,.4)}
+.btn.mg{background:linear-gradient(#ff9aea,#e03ac0);box-shadow:0 5px 0 #8a1a72,0 0 18px rgba(255,63,210,.4);color:#fff}
+.btn:disabled{filter:grayscale(.8);opacity:.5}
+#title{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.4vh;padding-bottom:8vh;box-sizing:border-box}
+.logo{font-weight:900;font-size:min(15vw,20vh);line-height:.9;text-align:center;font-style:italic;letter-spacing:-.01em}
+.logo .a{display:block;color:#fff;text-shadow:0 0 .08em var(--cy),0 0 .25em var(--cy),0 .06em 0 #0a5a7a}
+.logo .b{display:block;background:linear-gradient(#fff 10%,#ff9aea 45%,#c020ff 90%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 .12em rgba(255,63,210,.8)) drop-shadow(0 .05em 0 #5a0a5a);margin-left:.4em}
+#title .btn{font-size:min(6vw,5vh,30px);padding:.45em 1.6em}
+.hint{font-size:13px;background:rgba(0,0,0,.45);padding:4px 12px;border-radius:20px;color:#cfe}
+#mute,#pauseBtn{position:fixed;top:10px;width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(0,0,0,.45);cursor:pointer;padding:7px;z-index:20}
+#mute{right:10px}#pauseBtn{right:56px}
+#lobby{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:56px 12px 12px;box-sizing:border-box}
+.panel{width:min(560px,100%);background:rgba(20,10,40,.82);border:2px solid rgba(63,240,255,.5);border-radius:22px;padding:16px;box-shadow:0 0 30px rgba(63,240,255,.2);backdrop-filter:blur(4px);max-height:100%;overflow:auto;box-sizing:border-box}
+.lg{display:flex;align-items:center;gap:14px}
+.lg canvas{width:84px;height:84px;flex:none}
+.lg .nm{font-size:26px;font-weight:900;line-height:1.05}
+.lg .w{font-size:15px;color:var(--cy);font-weight:900;margin-top:4px}
+.arrow{width:38px;height:38px;border-radius:12px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;font-size:20px;font-weight:900;cursor:pointer;flex:none}
+.arrow:disabled{opacity:.25}
+.pipz{display:flex;gap:6px;margin-top:6px}
+.pipz i{width:26px;height:9px;border-radius:5px;background:rgba(255,255,255,.15)}
+.pipz i.on{background:var(--yl);box-shadow:0 0 8px var(--yl)}
+.rv{display:flex;align-items:center;gap:10px;padding:7px 10px;margin-top:8px;border-radius:12px;background:rgba(255,255,255,.06);font-weight:900}
+.rv canvas{width:54px;height:26px;flex:none}
+.rv .n{flex:1}.rv .s{color:var(--cy)}
+.rv.me{background:rgba(255,225,74,.12)}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+#raceBtn{font-size:26px;padding:12px 44px}
+#trackWrap{position:fixed;left:0;right:0;top:0}
+#psg{position:fixed;left:50%;transform:translateX(-50%);width:min(940px,calc(100vw - 24px));box-sizing:border-box;background:rgba(14,6,30,.88);border:2px solid rgba(63,240,255,.45);border-radius:16px;padding:14px 16px;font-family:Consolas,Menlo,"DejaVu Sans Mono","Courier New",monospace;font-size:clamp(17px,2.6vw,25px);line-height:1.55;overflow:hidden;cursor:text}
+#psgIn{position:relative;transition:transform .15s}
+#psg .w{display:inline-block;white-space:pre}
+#psg span.d{color:#4fdcaa;opacity:.55}
+#psg span.c{background:var(--yl);color:#1a0830;border-radius:3px;box-shadow:0 0 10px var(--yl)}
+#psg span.c.e{background:#ff3b5c;color:#fff;box-shadow:0 0 14px #ff3b5c}
+#psg span.x{color:#ff8aa0}
+#psg.shake{animation:sh .18s}
+@keyframes sh{25%{transform:translateX(calc(-50% - 6px))}75%{transform:translateX(calc(-50% + 6px))}}
+#live{position:fixed;left:50%;transform:translateX(-50%);display:flex;gap:10px;font-weight:900}
+.chip{background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.18);border-radius:12px;padding:4px 12px;text-align:center;min-width:64px}
+.chip b{display:block;font-size:22px;line-height:1.1}
+.chip small{font-size:10px;opacity:.7;letter-spacing:1px}
+#kb{position:fixed;left:-1000px;top:0;width:10px;height:10px;opacity:0}
+#modal{position:fixed;inset:0;background:rgba(8,2,20,.7);display:flex;align-items:center;justify-content:center;z-index:30;padding:10px;box-sizing:border-box}
+.card{width:min(640px,100%);max-height:100%;display:flex;flex-direction:column;background:linear-gradient(#24124a,#120a28);border:2px solid var(--mg);border-radius:20px;box-shadow:0 0 40px rgba(255,63,210,.3);overflow:hidden;animation:pop .25s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.75);opacity:0}to{transform:none;opacity:1}}
+.card h2{margin:0;padding:12px 16px;font-size:22px;display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.25)}
+.card .x{width:38px;height:38px;border-radius:12px;border:0;background:#ff5a7a;color:#fff;font-weight:900;font-size:20px;cursor:pointer}
+.body{overflow:auto;padding:12px 14px 16px}
+.place{font-size:64px;font-weight:900;font-style:italic;text-align:center;line-height:1}
+.stats{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:10px 0}
+.sub{font-weight:900;font-size:13px;letter-spacing:2px;opacity:.7;margin:12px 0 6px}
+canvas.hm,canvas.gr{width:100%;display:block;border-radius:12px;background:rgba(0,0,0,.3)}
+.cars{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.carc{background:rgba(255,255,255,.06);border-radius:12px;padding:6px;text-align:center;cursor:pointer;border:2px solid transparent;font-size:12px;font-weight:900}
+.carc.sel{border-color:var(--yl)}.carc.lock{opacity:.35;cursor:default}
+.carc canvas{width:100%;height:44px}
+#pause{position:fixed;inset:0;background:rgba(8,2,20,.75);display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;z-index:40}
+#pause .t{font-size:46px;font-weight:900;font-style:italic}
+#banner{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);font-size:min(12vw,70px);font-weight:900;font-style:italic;pointer-events:none;text-shadow:0 0 20px var(--mg),0 4px 0 #3a0a4a;opacity:0;transition:opacity .3s;white-space:nowrap;z-index:35}
+</style></head><body>
+<canvas id="c"></canvas>
+<input id="kb" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+<div id="title"><div class="logo"><span class="a">GHOST</span><span class="b">TYPER</span></div><button class="btn" id="playBtn">PLAY</button><div class="hint">Type to drive · race your ghosts · top 2 advance</div></div>
+<div id="lobby" class="hidden"><div class="panel">
+ <div class="lg"><button class="arrow" id="lPrev">‹</button><canvas id="badge" width="168" height="168"></canvas><div style="flex:1;min-width:0"><div class="nm" id="lName"></div><div class="w" id="lW"></div><div class="pipz" id="lPips"></div></div><button class="arrow" id="lNext">›</button></div>
+ <div id="rivals"></div>
+ <div class="row"><button class="btn cy" id="statsBtn">STATS</button><button class="btn" id="raceBtn">RACE</button><button class="btn mg" id="garageBtn">CARS</button></div>
+ <div style="text-align:center;margin-top:10px" class="hint" id="lHint">Enter to race</div>
+</div></div>
+<div id="race" class="hidden"><div id="psg"><div id="psgIn"></div></div><div id="live"><div class="chip"><b id="lvW">0</b><small>WPM</small></div><div class="chip"><b id="lvA">100%</b><small>ACC</small></div><div class="chip"><b id="lvP">-</b><small>PLACE</small></div></div></div>
+<div id="banner"></div>
+<div id="modal" class="hidden"><div class="card"><h2><span id="mTitle"></span><button class="x" id="mClose">✕</button></h2><div class="body" id="mBody"></div></div></div>
+<div id="pause" class="hidden"><div class="t">PAUSED</div><button class="btn" id="resumeBtn">RESUME</button><button class="btn cy" id="quitBtn">QUIT RACE</button></div>
+<button id="pauseBtn" class="hidden" title="Pause"><svg viewBox="0 0 24 24"><path d="M7 5h3v14H7zM14 5h3v14h-3z" fill="#fff"/></svg></button>
+<button id="mute" title="Sound"><svg viewBox="0 0 24 24" id="muteIc"></svg></button>
+<script type="text/plain" id="passages">
+Captain Odalys Brenner logged 47 knots at 03:15; the gale, she wrote, "was merely clearing its throat." By dawn the Skerry Wren had lost two sails -- and one very opinionated parrot.
+"Measure twice, cut once," muttered Ezekiel Hartwell, squinting at plank #12. His apprentice, Juno, had already cut it -- twice -- and both pieces were 3/8" too short.
+The Quorvex-7 probe transmitted 1,024 images before its battery sagged to 9%; engineers in Tallinn cheered, then groaned. Image #1,023 showed a crater shaped exactly like a rubber duck.
+Professor Ingrid Malaspina's syllabus listed 14 readings, 6 quizzes, and one warning: "Late essays will be graded by my cat." Nobody tested the policy; the cat, Bismuth, looked ready.
+At 6:42 a.m. the bakery on Fenwick Street sold its first croissant; by 7:05 the queue reached the laundromat. Mrs. Okonkwo-Reyes, owner since 1998, shrugged: "Butter is a love language."
+Lighthouse keeper Tobiah Vance counted 312 steps, 9 landings, and exactly one ghost -- a draft, he insisted, from a cracked pane on level 7. The ghost, for the record, disagreed.
+"Rule 1: never trust a map drawn on a napkin," said Marisol Quint. "Rule 2: see Rule 1." Their expedition, funded with $4,750 and optimism, departed Thursday at noon.
+The orchestra's second oboist, Felix Aranda-Moss, arrived 11 minutes late, holding a sandwich and a broken reed; the conductor sighed. Somehow, Movement III was flawless.
+Grandma Wilhelmina kept 23 jars of pickles, labeled A through W; jar "Q" was never opened. When asked why, she tapped her nose and said, "Some questions answer themselves."
+Station K-19 recorded -41.6 degrees on the night of February 2nd; the thermometer, poor thing, cracked at -42. Dr. Petrosyan wrote in the log: "Coffee frozen. Morale: surprisingly fine."
+Every Tuesday, the Pemberton Chess Club met at 7:30 p.m. sharp -- except when Ludmila brought her famous plum cake. On those nights, strategy was abandoned; diplomacy was not.
+The museum's new exhibit, "Clocks That Lie," featured 58 timepieces, each set to a different wrong hour. Curator Abelard Finch called it "honest about dishonesty"; visitors just missed their buses.
+"Do you have the blueprints?" whispered Agent Vashti Kerr. Her partner patted his coat: left pocket, right pocket, inner pocket. "Define 'have,'" he replied, smiling weakly.
+On page 214 of her journal, botanist Henrietta Lusk noted a fern that "curled, uncurled, and curled again -- as if reconsidering." She named it Pteris hesitans; colleagues were unconvinced.
+The ferry from Port Ellery leaves at 8:10, 12:40, and 17:25; latecomers may swim (not recommended). Tickets cost $14.50 for adults, $7.25 for children, and nothing for well-behaved dogs.
+Wren Castellano rebuilt the 1967 roadster bolt by bolt: 2,311 parts, 4 manuals, and one stubborn carburetor. "It runs," she announced on day 403. "Mostly downhill, but it runs."
+"I'm not lost," insisted Bartholomew, rotating the map 90 degrees -- then 90 more. "I'm exploring alternative routes." His sister, Opal, quietly opened the GPS and said nothing.
+In 1882, a balloonist named Corwin Hale drifted 37 miles off course and landed in a duck pond near Ashby-under-Wold. The ducks, unimpressed, filed no complaint; the farmer filed three.
+The recipe demanded 2 1/4 cups of flour, 3 eggs (room temperature!), and "a generous pinch of patience." Theo had flour, eggs, and a timer; the patience, sadly, was out of stock.
+Server rack 4B overheated at 02:13 UTC; the on-call engineer, Priya Ndlovu, rebooted it with one hand while eating noodles with the other. Uptime: 99.97%. Noodles: 100% consumed.
+"Silence in the library!" hissed Mr. Quillfeather, whose own shoes squeaked on every third step. The students -- all 41 of them -- pretended not to notice; the shoes kept squeaking anyway.
+Kestrel Bay's annual kite festival drew 6,500 visitors, 812 kites, and one confused pelican. Judges awarded "Best in Show" to a dragon 40 feet long; the pelican received an honorable mention.
+Inspector Dorothea Vane examined the vase: Ming? No -- a 1974 replica, $19.99, sticker still attached. "Our thief," she said dryly, "has expensive taste and a cheap supplier."
+The marathon's 26.2 miles wound through Halvorsen Park, over the Brightwater Bridge, and up the infamous Mile 19 hill; runners called it "The Negotiator." Few won the argument.
+"Pack light," the instructions said; Augustin packed 3 sweaters, 2 umbrellas, a kettle, and a hammock. On day four, everyone borrowed his kettle -- and nobody mentioned "light" again.
+At precisely 4:44 p.m., the vending machine on floor 12 dispensed two sodas for the price of one; word spread fast. By 4:51, Accounting, Legal, and Marketing had formed an orderly line.
+Dr. Aurelio Banks studied 7 species of tree frog; species #5, the "grumpy" frog, croaked only when observed. His grant proposal described this as "a measurable reluctance to cooperate."
+"You call that a sandcastle?" scoffed Imogen, age 8, surveying her brother's lopsided tower. Then she added a moat, three turrets, and a drawbridge -- and declared it "acceptable, barely."
+The Ravelstone Tunnel, 3.4 km long, was dug between 1907 and 1913; its two crews met within 11 centimeters. Foreman Ignatius Doyle reportedly said, "Close enough," then bought everyone lunch.
+A note taped to the fridge read: "Whoever ate my yogurt -- I know. I KNOW." Below, in different handwriting: "It was delicious; thank you." Below that, in a third hand: "Leave me out of this."
+On Saturday, the Moreau twins sold 140 cups of lemonade at $0.75 each; on Sunday, rain. They pivoted to hot cocoa at $1.25, raising $96 -- and a small fortune in marshmallows.
+"Theory says the bridge holds 20 tonnes," said engineer Saoirse Hagan. "Practice says don't test theory on a Friday." The convoy, wisely, waited until Monday; the bridge held beautifully.
+Quentin's alarm rang at 5:00, 5:09, 5:18, and 5:27; on the fifth snooze, the cat sat on his face. He was awake by 5:28 -- punctual, if not entirely voluntary.
+The Duchess of Pellingham owned 19 hats, each with a name: Gerald, Pomegranate, Thursday, and so on. When Thursday blew into the Thames, she held a memorial; attendance was mandatory.
+Flight 227 to Reykjavik departed 2 hours late, then landed 14 minutes early; Captain Ingunn Sorvik credited "a tailwind with a sense of humor." Passengers applauded; one baby did not.
+"How many moons does Jupiter have?" asked the quizmaster. "Ninety-five, give or take," said Delphine, "depending on who's counting -- and what counts as a moon." Partial credit was debated hotly.
+After 3 weeks of silence, the radio crackled: "Base, this is Tern-2; supplies low, spirits high, penguins nosy." Commander Haruki Bell grinned, then whispered, "Define nosy."
+The jazz trio -- piano, bass, and an alarmingly enthusiastic triangle -- played 4 sets at the Blue Lantern. The triangle player, Morwenna, received a standing ovation; nobody could explain why.
+Ezra's tomato plants produced 37 tomatoes, 2 zucchini (somehow), and a single, perfect strawberry. "Cross-pollination," he declared; his neighbor, who had planted the strawberry, said nothing.
+"Tickets, please!" called conductor Abernathy, moving down carriage C. Seat 14 held a suitcase; seat 15 held a goose. The goose, remarkably, had a valid ticket -- first class, no less.
+The clock tower of St. Aldric's chimed 13 times at midnight on March 3rd; the town council convened an emergency session. Their verdict: "Mechanical enthusiasm." The bell was not consulted.
+Nadia Ferreira-Lindqvist sprinted the final 400 meters in 58.3 seconds, overtaking 3 rivals on the bend. "I wasn't fast," she said afterward; "they were just politely slow."
+"Is it art?" asked the critic, staring at a single blue dot on a 9-foot canvas. "Is it anything?" countered the artist, Lazlo Pryce. The painting sold for $212,000 on Tuesday.
+The submarine Calypso Deep descended 1,180 meters before the lights flickered; a lanternfish tapped the porthole twice. Pilot Rosalind Achebe tapped back -- once -- and the fish swam away, offended.
+Grocery list (urgent!): eggs x12, oat milk, "the good cheese," batteries (AA, not AAA!), and something for dessert -- "surprise me." Ambrose returned with 4 pineapples and no regrets.
+The hiking trail climbed 1,450 feet in 2.8 miles; signs warned of "steep switchbacks; loose scree; opinionated goats." Halfway up, a goat confirmed all three, especially the last.
+"Who moved my stapler?" demanded Horace from cubicle 31-B. The office fell silent; the stapler, meanwhile, sat in a Jell-O mold on Marguerite's desk, perfectly preserved and quietly wobbling.
+In the 1951 regatta, the sloop Halcyon finished 1st by 6 seconds -- after its skipper, Ottoline Graves, threw her lunch overboard to save weight. The sandwich, she said, "died a champion."
+At the observatory, Dr. Kwame Asante tracked comet C/2031 R4 for 72 nights; on night 73, clouds. "Comets are punctual," he grumbled; "weather is a freelancer with no contract."
+Seventeen candles, one cake, zero fire extinguishers: Leopold's birthday got exciting fast. The smoke alarm sang its single note; the guests, undeterred, sang the rest of the song.
+The town of Marrowby (population 2,048) elected a dog as honorary mayor in 2019; her name is Biscuit. Her platform: more parks, fewer baths, and -- reportedly -- "squirrel accountability."
+"Okay, team: Plan A failed, Plan B exploded, and Plan C is 'improvise,'" said Coach Yolanda Pike. "Questions?" A hand rose. "Is there a Plan D?" She sighed. "You're looking at it."
+The antique map showed 5 islands; the satellite showed 4. Cartographer Silas Okafor spent 6 months on the puzzle -- and finally found island #5 beneath a coffee stain from 1789.
+Professor Albrecht's lecture on semicolons lasted 90 minutes; it was riveting, apparently. "A semicolon is a promise," he concluded; "the sentence isn't over -- but it is taking a breath."
+The bakery's 3-tier wedding cake weighed 31 pounds and traveled 14 miles in a hatchback; the driver, Cosima, took every turn at 9 mph. Upon arrival, she lay down in the grass for an hour.
+Index card #88 read: "If found, return to Agnes Toller, 12 Larkspur Lane -- reward: one (1) pie." It was found in 2004, 30 years later; Agnes, then 91, baked the pie anyway.
+"The password is case-sensitive," warned the IT memo: "Tr0mbone!Velvet_42" -- not "tr0mbone!velvet_42," and certainly not "trombone velvet." Fifteen employees were locked out by Wednesday.
+On the night shift at Gate 9, Officer Benedikt Rahn found a lost passport, two left shoes, and a violin case containing 43 oranges. He filed the report under "Miscellaneous (citrus)."
+The eclipse lasted 4 minutes and 27 seconds; birds went quiet, dogs howled, and Aunt Philippa narrated everything loudly. "It's dark now!" she announced; "Now it's less dark!" Nobody hushed her.
+Cartwright & Daughters Hardware has sold nails since 1923: 6d, 8d, 16d -- "never 7d; we have standards." Ellen Cartwright, 4th generation, still weighs every order by hand on Grandpa's scale.
+"We'll split the bill evenly," said Rupert, who'd ordered soup. "Evenly?" asked Fenella, who'd ordered lobster, steak, and 2 desserts. Diplomatic relations at table 6 have not yet recovered.
+Mission log, day 212: hydroponic lettuce thriving; tomatoes sulking; Commander Oyelaran's sourdough "achieving sentience." Crew vote (3-1): keep feeding it. The dissenting vote belonged to the bread.
+The puzzle had 5,000 pieces; after 41 days, the Hollister family placed the final one -- except it was missing. They found it on day 42, inside the dog. Nobody asked how; everybody washed it.
+Mount Kelvath's summit sits at 6,812 meters; the last 200 took climber Anouk Brandt 9 hours. At the top she unfurled a tiny flag reading "Hi Mum!" -- then began the long walk down.
+</script>
+<script>
+'use strict';
+const SLUG='ghost-typer',TAU=Math.PI*2;
+const ST={get(k,d){try{const v=localStorage.getItem('gamebop.'+SLUG+'.'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('gamebop.'+SLUG+'.'+k,JSON.stringify(v))}catch(e){}}};
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>v<a?a:v>b?b:v,lerp=(a,b,t)=>a+(b-a)*t,rnd=(a,b)=>a+Math.random()*(b-a);
+// ---------- audio ----------
+let AC=null,master=null,muted=!!ST.get('muted',false);
+function audioInit(){if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=muted?0:.4;master.connect(AC.destination)}catch(e){AC=null}}
+function tone(f,d,type,v,f2,delay){if(!AC||muted)return;const t=AC.currentTime+(delay||0);const o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v||.2,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(master);o.start(t);o.stop(t+d+.05)}
+let nbuf=null;function noise(d,v,freq,q){if(!AC||muted)return;if(!nbuf){nbuf=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);const a=nbuf.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1}const t=AC.currentTime;const s=AC.createBufferSource();s.buffer=nbuf;const f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=freq||1000;f.Q.value=q||1;const g=AC.createGain();g.gain.setValueAtTime(v||.2,t);g.gain.exponentialRampToValueAtTime(.001,t+d);s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+d+.05)}
+const SFX={key(){noise(.03,.12,3000+Math.random()*2000,2)},err(){tone(140,.12,'square',.12,90)},beep(h){tone(h?880:440,h?.4:.15,'square',.12)},
+ fin(p){(p<=2?[523,659,784,1046,1318]:[392,349,330,262]).forEach((f,i)=>tone(f,.22,'triangle',.18,null,i*.1))},click(){tone(800,.04,'square',.07)},
+ promo(){[523,659,784,1046,784,1046,1318,1568].forEach((f,i)=>tone(f,.25,'square',.1,null,i*.09))},ghost(){tone(600,.5,'sine',.1,1200)}};
+function setMuteIcon(){$('muteIc').innerHTML=muted?'<path d="M4 9h4l5-4v14l-5-4H4z" fill="#fff"/><path d="M16 9l5 6M21 9l-5 6" stroke="#ff6b6b" stroke-width="2.5"/>':'<path d="M4 9h4l5-4v14l-5-4H4z" fill="#fff"/><path d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12" stroke="#fff" stroke-width="2" fill="none"/>'}
+$('mute').onclick=e=>{e.stopPropagation();audioInit();muted=!muted;ST.set('muted',muted);if(master)master.gain.value=muted?0:.4;setMuteIcon();refocus()};setMuteIcon();
+// ---------- data ----------
+const PS=$('passages').textContent.split('\n').map(s=>s.trim()).filter(Boolean);
+const PD=PS.map((p,i)=>({i,sc:p.length+(p.match(/[^A-Za-z ]/g)||[]).length*3})).sort((a,b)=>a.sc-b.sc);
+const LEAGUES=[['Rookie Row',40],['Asphalt Alley',50],['Comma Circuit',60],['Semicolon Speedway',70],['Quote Quarry',80],['Dash Derby',90],['Caps Canyon',100],['Symbol Summit',110],['Phantom Freeway',120],['Neon Nightline',130],['Ghost Crown',140]];
+const RIVALS=['Pip Sprocket','Mabel Vroom','Dex Ledger','Tilda Quill','Ozzie Gearhart','Rina Tango','Bram Clutch','Juno Kestrel','Cosmo Pike','Lark Venn','Hugo Spline','Zara Flint','Kip Mercer','Nell Comet','Vito Brask','Ines Halo','Rook Calder','Suki Rho','Felix Arc','Wren Vale','Oskar Byte','Mira Volt','Taj Sable','Echo Lux','Cass Raven','Dmitri Lumen','Yara Blitz','Nox Fable','Quinn Riot','Ada Vector','Sable Prime','Vex Nadir','Omen Ghast'];
+const CARS=[['#ffe14a','#ff3fd2',0],['#3ff0ff','#1a2a6a',1],['#ff5a3a','#fff',0],['#7cf08a','#1a4a2a',2],['#c060ff','#ffe14a',1],['#ff8a1a','#2a1a0a',3],['#ffffff','#ff3b5c',2],['#2a6aff','#3ff0ff',3],['#ff3fd2','#3ff0ff',1],['#1a1a2a','#ffe14a',3],['#f0f0ff','#9a6aff',2]];
+const RCOL=['#ff6a4a','#6affb0','#ffa8ff','#8ab8ff','#ffb84a','#ff4a8a'];
+// ---------- save ----------
+const DEF={league:0,top:0,wins:0,hist:[],keys:{},ghosts:{},last:null,best:0,car:0,races:0,seen:[]};
+let G=ST.get('save',null);const hadSave=!!G;G=Object.assign(JSON.parse(JSON.stringify(DEF)),G||{});
+function save(){if(G.hist.length>100)G.hist=G.hist.slice(-100);ST.set('save',G)}
+// ---------- canvas ----------
+const cv=$('c'),ctx=cv.getContext('2d');let W=0,H=0,DPR=1;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=window.innerWidth;H=window.innerHeight;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);layout()}
+window.addEventListener('resize',resize);
+function trackH(){return Math.round(clamp(H*.4,150,320))}
+function layout(){const th=trackH();$('live').style.top=(th+6)+'px';$('psg').style.top=(th+62)+'px';$('psg').style.maxHeight=Math.max(110,H-th-80)+'px'}
+// ---------- drawing ----------
+function drawCar(g,x,y,L,col,col2,shape,alpha,ghost){g.save();g.translate(x,y);g.globalAlpha=alpha==null?1:alpha;const Wd=L*.46;
+ if(ghost){g.shadowColor='#3ff0ff';g.shadowBlur=14}
+ g.fillStyle='rgba(0,0,0,.35)';if(!ghost){rrp(g,-L/2+3,-Wd/2+4,L,Wd,Wd*.35);g.fill()}
+ g.fillStyle='#111';for(const [wx,wy] of [[-L*.3,-Wd*.52],[L*.28,-Wd*.52],[-L*.3,Wd*.52-L*.08],[L*.28,Wd*.52-L*.08]]){rrp(g,wx-L*.09,wy,L*.18,L*.08,2);g.fill()}
+ g.fillStyle=col;g.beginPath();
+ if(shape===1){g.moveTo(L*.5,0);g.quadraticCurveTo(L*.45,-Wd*.5,L*.1,-Wd*.5);g.lineTo(-L*.45,-Wd*.45);g.quadraticCurveTo(-L*.52,0,-L*.45,Wd*.45);g.lineTo(L*.1,Wd*.5);g.quadraticCurveTo(L*.45,Wd*.5,L*.5,0)}
+ else if(shape===2){rrp(g,-L*.5,-Wd*.5,L,Wd,Wd*.2)}
+ else if(shape===3){g.moveTo(L*.52,-Wd*.15);g.lineTo(L*.52,Wd*.15);g.lineTo(L*.2,Wd*.5);g.lineTo(-L*.5,Wd*.5);g.lineTo(-L*.5,-Wd*.5);g.lineTo(L*.2,-Wd*.5);g.closePath()}
+ else{rrp(g,-L*.5,-Wd*.5,L,Wd,Wd*.45)}
+ g.fill();g.shadowBlur=0;
+ g.fillStyle=col2;g.fillRect(-L*.5,-Wd*.08,L,Wd*.16);
+ g.fillStyle='rgba(20,30,60,.85)';rrp(g,L*.02,-Wd*.36,L*.2,Wd*.72,4);g.fill();rrp(g,-L*.3,-Wd*.32,L*.12,Wd*.64,3);g.fill();
+ g.fillStyle='rgba(255,255,255,.35)';g.fillRect(L*.05,-Wd*.3,L*.04,Wd*.25);
+ g.fillStyle=col2;g.fillRect(-L*.56,-Wd*.5,L*.08,Wd);
+ g.fillStyle='#fff8c0';g.fillRect(L*.46,-Wd*.42,L*.05,Wd*.18);g.fillRect(L*.46,Wd*.24,L*.05,Wd*.18);
+ g.fillStyle='#ff3b3b';g.fillRect(-L*.52,-Wd*.42,L*.03,Wd*.16);g.fillRect(-L*.52,Wd*.26,L*.03,Wd*.16);
+ g.restore()}
+function rrp(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+function drawGhost(g,x,y,s,a){g.save();g.translate(x,y);g.globalAlpha=a;g.shadowColor='#3ff0ff';g.shadowBlur=18;g.fillStyle='rgba(220,255,255,.9)';g.beginPath();g.arc(0,-s*.2,s*.5,Math.PI,0);g.lineTo(s*.5,s*.45);for(let i=0;i<4;i++){g.quadraticCurveTo(s*(.5-i*.25-.125),s*(.25+Math.sin(T*8+i)*.08),s*(.5-(i+1)*.25),s*.45)}g.closePath();g.fill();g.shadowBlur=0;g.fillStyle='#1a0830';g.beginPath();g.ellipse(-s*.17,-s*.22,s*.08,s*.12,0,0,TAU);g.ellipse(s*.17,-s*.22,s*.08,s*.12,0,0,TAU);g.fill();g.restore()}
+let T=0;
+function drawSynth(){const hz=H*.52;let g=ctx.createLinearGradient(0,0,0,hz);g.addColorStop(0,'#0c0420');g.addColorStop(.6,'#3a0a5a');g.addColorStop(1,'#ff3fa0');ctx.fillStyle=g;ctx.fillRect(0,0,W,hz);
+ ctx.fillStyle='#fff';for(let i=0;i<70;i++){ctx.globalAlpha=.3+(i%4)*.15;ctx.fillRect((i*137.7)%W,(i*59.3)%(hz*.7),1.5,1.5)}ctx.globalAlpha=1;
+ const sr=Math.min(W,H)*.22,sx=W/2,sy=hz;g=ctx.createLinearGradient(0,sy-sr,0,sy);g.addColorStop(0,'#ffe14a');g.addColorStop(1,'#ff3fd2');ctx.fillStyle=g;ctx.beginPath();ctx.arc(sx,sy,sr,Math.PI,0);ctx.fill();
+ ctx.fillStyle='#3a0a5a';for(let i=0;i<7;i++){const yy=sy-sr*.08-i*sr*.13;ctx.fillRect(sx-sr,yy,sr*2,2+i*.6)}
+ ctx.fillStyle='#1a0638';ctx.beginPath();ctx.moveTo(0,hz);for(let x=0;x<=W;x+=W/12){ctx.lineTo(x,hz-(Math.abs(Math.sin(x*.013+1))*H*.08+H*.02))}ctx.lineTo(W,hz);ctx.fill();
+ g=ctx.createLinearGradient(0,hz,0,H);g.addColorStop(0,'#2a0848');g.addColorStop(1,'#0a0218');ctx.fillStyle=g;ctx.fillRect(0,hz,W,H-hz);
+ ctx.strokeStyle='rgba(255,63,210,.7)';ctx.lineWidth=1.5;const off=(T*1.2)%1;for(let i=0;i<14;i++){const z=(i+1-off);const y=hz+(H-hz)*Math.pow(1/z,1.0)*1;if(y>H||y<hz)continue;ctx.globalAlpha=clamp((y-hz)/(H-hz)*2,0,1);ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}ctx.globalAlpha=1;
+ for(let i=-12;i<=12;i++){ctx.beginPath();ctx.moveTo(W/2+i*W*.02,hz);ctx.lineTo(W/2+i*W*.25,H);ctx.stroke()}
+}
+let titleCars=[0,1,2].map(i=>({lane:i,x:Math.random()}));
+function drawTitleScene(){drawSynth();const hz=H*.52;
+ // racing cars on the perspective road
+ const ys=[hz+(H-hz)*.42,hz+(H-hz)*.62,hz+(H-hz)*.85];
+ titleCars.forEach((c,i)=>{const y=ys[i];const L=clamp(W*.07,40,110)*(0.7+i*.25);const x=((c.x+T*(.06+i*.025))%1.3-.15)*W;
+  if(i===1){drawCar(ctx,x,y,L,'#dff',  '#3ff0ff',1,.45,true);drawGhost(ctx,x-L*.9,y-L*.15,L*.45,.7)}else drawCar(ctx,x,y,L,CARS[i*2][0],CARS[i*2][1],CARS[i*2][2]);
+  ctx.fillStyle='rgba(63,240,255,.25)';for(let k=1;k<6;k++)ctx.fillRect(x-L*.5-k*L*.35,y-1+((k*7)%5)-2,L*.25,2)});
+ // flying keycaps
+ const keysF='QWERTY;"!?-#';for(let i=0;i<keysF.length;i++){const s=clamp(W*.035,22,44);const x=((i*.137+T*.02*(1+i%3))%1)*W,y=H*.08+((i*.31)%1)*H*.38+Math.sin(T*2+i)*8;ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(T+i)*.3);ctx.globalAlpha=.55;ctx.fillStyle='#2a1450';rrp(ctx,-s/2,-s/2,s,s,6);ctx.fill();ctx.strokeStyle=i%2?'#3ff0ff':'#ff3fd2';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#fff';ctx.font='900 '+(s*.5)+'px Consolas,monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(keysF[i],0,1);ctx.restore()}ctx.globalAlpha=1}
+// ---------- race ----------
+let state='title',paused=false,R=null,viewLeague=0,raceT0=0;
+function rivalsFor(l){const w=LEAGUES[l][1];return[0,1,2].map(k=>({name:RIVALS[(l*3+k)%RIVALS.length],w:Math.round(w*[.9,1,1.08][k]),col:RCOL[(l+k)%RCOL.length],shape:(l+k)%4}))}
+function pickPassage(l){const n=PD.length,span=18;const lo=Math.round(l/(LEAGUES.length-1)*(n-span));let pool=PD.slice(lo,lo+span).map(o=>o.i).filter(i=>G.seen.indexOf(i)<0);if(!pool.length)pool=PD.slice(lo,lo+span).map(o=>o.i);const i=pool[Math.floor(Math.random()*pool.length)];G.seen.push(i);if(G.seen.length>30)G.seen=G.seen.slice(-30);return PS[i]}
+function startRace(){audioInit();SFX.click();const l=viewLeague;const text=pickPassage(l);
+ R={l,text,pos:0,errs:0,t:0,cd:3.2,done:false,keys:{},samples:[0],sT:0,errFlash:0,ai:rivalsFor(l).map(r=>({...r,cps:r.w*5/60*rnd(.97,1.03),prog:0,fin:null,m:1,mt:0,stall:0})),ghosts:[],place:1,lastBeep:4};
+ const gb=G.ghosts[l];if(gb)R.ghosts.push({lbl:'BEST '+gb.w,s:gb.s,w:gb.w});if(G.last&&G.last.l===l&&(!gb||G.last.w!==gb.w))R.ghosts.push({lbl:'LAST '+G.last.w,s:G.last.s,w:G.last.w});
+ state='race';showOnly('race');$('pauseBtn').classList.remove('hidden');renderPassage();layout();refocus()}
+function renderPassage(){const box=$('psgIn');box.innerHTML='';const words=R.text.split(/(?<= )/);let idx=0;R.spans=[];
+ for(const w of words){const ws=document.createElement('span');ws.className='w';for(const ch of w){const s=document.createElement('span');s.textContent=ch;ws.appendChild(s);R.spans.push(s);idx++}box.appendChild(ws)}updatePassage()}
+function updatePassage(){const p=R.pos;for(let i=Math.max(0,p-3);i<Math.min(R.spans.length,p+2);i++){const s=R.spans[i];s.className=i<p?'d':i===p?('c'+(R.errFlash>0?' e':'')):''}
+ const cur=R.spans[p];if(cur){const box=$('psg'),inn=$('psgIn');const top=cur.offsetTop;const lh=cur.offsetHeight||30;const vis=box.clientHeight-28;const want=Math.max(0,top-lh*1.1);const maxS=Math.max(0,inn.scrollHeight-vis);inn.style.transform='translateY('+(-Math.min(want,maxS))+'px)'}}
+function typeChar(c){if(state!=='race'||paused||!R||R.done||R.cd>0)return;const exp=R.text[R.pos];const k=R.keys[exp]||(R.keys[exp]=[0,0]);k[0]++;
+ if(c===exp){R.pos++;SFX.key();R.errFlash=0;if(R.pos>=R.text.length){finish();return}}
+ else{k[1]++;R.errs++;R.errFlash=.35;SFX.err();const p=$('psg');p.classList.remove('shake');void p.offsetWidth;p.classList.add('shake')}
+ updatePassage()}
+function wpmNow(){return R.t>0.5?Math.round(R.pos/5/(R.t/60)):0}
+function ghostChars(gh,t){const s=gh.s,i=t/.25;if(i<s.length-1){const a=Math.floor(i);return lerp(s[a],s[a+1],i-a)}const end=s[s.length-1],cps=end/((s.length-1)*.25||1);return end+(t-(s.length-1)*.25)*cps}
+function updateRace(dt){if(R.cd>0){R.cd-=dt;const n=Math.ceil(R.cd);if(n<R.lastBeep&&n>=0){R.lastBeep=n;SFX.beep(n===0)}return}
+ if(R.done)return;R.t+=dt;if(R.errFlash>0){R.errFlash-=dt;if(R.errFlash<=0)updatePassage()}
+ R.sT+=dt;while(R.sT>=.25){R.sT-=.25;R.samples.push(R.pos)}
+ const len=R.text.length;
+ for(const a of R.ai){if(a.fin)continue;a.mt-=dt;if(a.mt<=0){a.mt=rnd(.4,1.4);a.m=rnd(.82,1.2)}if(a.stall>0){a.stall-=dt}else{const nc=R.text[Math.floor(a.prog)]||'a';const slow=/[^a-z ]/.test(nc)?.72:1.06;a.prog+=a.cps*a.m*slow*dt;if(Math.random()<dt*.25)a.stall=rnd(.15,.5)}
+  if(a.prog>=len){a.prog=len;a.fin=R.t}}
+ let ahead=0;for(const a of R.ai){if((a.fin&&a.fin<=R.t)||a.prog>R.pos)ahead++}R.place=ahead+1;
+ $('lvW').textContent=wpmNow();$('lvA').textContent=Math.round(100*R.pos/Math.max(1,R.pos+R.errs))+'%';$('lvP').textContent=R.place+(['st','nd','rd','th'][R.place-1]);$('lvP').style.color=R.place<=2?'#7cf08a':'#ff8aa0'}
+function finish(){R.done=true;R.samples.push(R.pos);const t=R.t,len=R.text.length;const wpm=Math.round(len/5/(t/60));const acc=Math.round(1000*len/(len+R.errs))/10;
+ const times=R.ai.map(a=>a.fin||(t+(len-a.prog)/(a.cps)));const place=1+times.filter(x=>x<t).length;
+ // ghost result
+ let gdelta=null;if(R.ghosts.length){const gb=R.ghosts[0];const gt=(()=>{for(let i=1;i<gb.s.length;i++)if(gb.s[i]>=len)return i*.25;const end=gb.s[gb.s.length-1],cps=end/((gb.s.length-1)*.25);return (gb.s.length-1)*.25+(len-end)/cps})();gdelta=gt-t}
+ const rec={w:wpm,a:acc,l:R.l,p:place,d:Date.now()};G.hist.push(rec);G.races++;
+ for(const k in R.keys){const g=G.keys[k]||(G.keys[k]=[0,0]);g[0]+=R.keys[k][0];g[1]+=R.keys[k][1]}
+ const cps=R.samples.map(v=>v);const gh={w:wpm,s:cps,l:R.l};G.last=gh;let newBest=false;if(!G.ghosts[R.l]||wpm>G.ghosts[R.l].w){G.ghosts[R.l]=gh;newBest=true}
+ if(wpm>G.best)G.best=wpm;
+ let promoted=false;if(place<=2&&R.l===G.top){G.wins++;if(G.wins>=2&&G.top<LEAGUES.length-1){G.top++;G.wins=0;promoted=true;viewLeague=G.top}}
+ save();SFX.fin(place);state='results';setTimeout(()=>showResults({wpm,acc,t,place,gdelta,newBest,promoted}),700)}
+// ---------- UI ----------
+function showOnly(id){['title','lobby','race'].forEach(k=>$(k).classList.toggle('hidden',k!==id));$('pauseBtn').classList.toggle('hidden',id!=='race')}
+function goLobby(){audioInit();state='lobby';paused=false;$('pause').classList.add('hidden');$('modal').classList.add('hidden');showOnly('lobby');renderLobby();$('kb').blur()}
+function badge(cvs,l){const g=cvs.getContext('2d');const s=cvs.width;g.clearRect(0,0,s,s);g.save();g.translate(s/2,s/2);const r=s*.42;const cols=[['#cd7f32','#7a4a1a'],['#d8d8e8','#7a7a8a'],['#ffe14a','#b2820a'],['#3ff0ff','#1a6a8a'],['#ff3fd2','#7a1a6a']][Math.min(4,Math.floor(l/2.2))];
+ g.shadowColor=cols[0];g.shadowBlur=s*.12;g.fillStyle=cols[1];g.beginPath();for(let i=0;i<8;i++){const a=i/8*TAU-Math.PI/8;g.lineTo(Math.cos(a)*r,Math.sin(a)*r)}g.closePath();g.fill();g.shadowBlur=0;
+ const gr=g.createLinearGradient(0,-r,0,r);gr.addColorStop(0,'#fff');gr.addColorStop(.4,cols[0]);gr.addColorStop(1,cols[1]);g.fillStyle=gr;g.beginPath();for(let i=0;i<8;i++){const a=i/8*TAU-Math.PI/8;g.lineTo(Math.cos(a)*r*.82,Math.sin(a)*r*.82)}g.closePath();g.fill();
+ g.fillStyle='#1a0830';g.font='900 '+(s*.32)+'px "Trebuchet MS",sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(LEAGUES[l][1],0,-s*.04);g.font='900 '+(s*.11)+'px "Trebuchet MS",sans-serif';g.fillText('WPM',0,s*.2);g.restore()}
+function carCanvas(col,col2,shape,w,h,ghost){const c=document.createElement('canvas');c.width=w*2;c.height=h*2;const g=c.getContext('2d');g.scale(2,2);drawCar(g,w/2,h/2,Math.min(w*.8,h*1.7),col,col2,shape,ghost?.5:1,ghost);return c}
+function renderLobby(){const l=viewLeague;badge($('badge'),l);$('lName').textContent=LEAGUES[l][0];$('lW').textContent='Rivals '+LEAGUES[l][1]+' WPM'+(l<G.top?' · ✔':'');
+ $('lPips').innerHTML=l===G.top?(G.top===LEAGUES.length-1&&G.wins>=2?'<i class="on"></i><i class="on"></i>':'<i class="'+(G.wins>0?'on':'')+'"></i><i class="'+(G.wins>1?'on':'')+'"></i>'):'';
+ $('lPrev').disabled=l<=0;$('lNext').disabled=l>=G.top;
+ const rv=$('rivals');rv.innerHTML='';const list=rivalsFor(l).map(r=>({n:r.name,w:r.w,c:carCanvas(r.col,'#1a0830',r.shape,54,26)}));
+ const gb=G.ghosts[l];if(gb)list.push({n:'Your ghost',w:gb.w,c:carCanvas('#dff','#3ff0ff',CARS[G.car][2],54,26,true),g:1});
+ list.sort((a,b)=>b.w-a.w);list.forEach(o=>{const d=document.createElement('div');d.className='rv'+(o.g?' me':'');d.appendChild(o.c);d.insertAdjacentHTML('beforeend','<span class="n">'+o.n+'</span><span class="s">'+o.w+'</span>');rv.appendChild(d)});
+ $('lHint').textContent=l===G.top?'Place top 2 twice to advance · Enter':'Practice league · Enter'}
+$('lPrev').onclick=()=>{viewLeague=Math.max(0,viewLeague-1);SFX.click();renderLobby()};$('lNext').onclick=()=>{viewLeague=Math.min(G.top,viewLeague+1);SFX.click();renderLobby()};
+$('raceBtn').onclick=startRace;
+$('playBtn').onclick=()=>{viewLeague=G.top;goLobby()};if(hadSave)$('playBtn').textContent='CONTINUE';
+function openModal(t,el){$('mTitle').innerHTML=t;const b=$('mBody');b.innerHTML='';b.appendChild(el);$('modal').classList.remove('hidden')}
+$('mClose').onclick=()=>{SFX.click();goLobby()};
+function chip(v,l){return'<div class="chip"><b>'+v+'</b><small>'+l+'</small></div>'}
+function showResults(r){const d=document.createElement('div');const pc=['#ffe14a','#d8d8e8','#cd7f32','#ff8aa0'][r.place-1];
+ d.innerHTML='<div class="place" style="color:'+pc+';text-shadow:0 0 20px '+pc+'">'+r.place+(['st','nd','rd','th'][r.place-1])+'</div><div style="text-align:center;font-weight:900;margin-top:4px;color:'+(r.place<=2?'#7cf08a':'#ff8aa0')+'">'+(r.place<=2?(R.l===G.top||r.promoted?'QUALIFIED':'TOP 2'):'TOP 2 NEEDED')+'</div>'+
+ '<div class="stats">'+chip(r.wpm,'WPM')+chip(r.acc+'%','ACC')+chip(r.t.toFixed(1)+'s','TIME')+(r.gdelta!==null?chip('<span style="color:'+(r.gdelta>0?'#7cf08a':'#ff8aa0')+'">'+(r.gdelta>0?'-':'+')+Math.abs(r.gdelta).toFixed(1)+'s</span>','VS GHOST'):'')+'</div>'+(r.newBest?'<div style="text-align:center;color:#3ff0ff;font-weight:900">👻 NEW GHOST SAVED</div>'.replace('👻 ',''):'')+'<div class="sub">KEY ERRORS · THIS RACE</div>';
+ const hm=document.createElement('canvas');hm.className='hm';d.appendChild(hm);
+ const row=document.createElement('div');row.className='row';const b1=document.createElement('button');b1.className='btn cy';b1.textContent='LOBBY';b1.onclick=goLobby;const b2=document.createElement('button');b2.className='btn';b2.textContent=r.place<=2?'NEXT RACE':'RETRY';b2.onclick=()=>{$('modal').classList.add('hidden');startRace()};row.appendChild(b1);row.appendChild(b2);d.appendChild(row);
+ openModal('Results',d);requestAnimationFrame(()=>drawHeat(hm,R.keys));resultsOpen=true;
+ if(r.promoted){setTimeout(()=>{banner('PROMOTED!');SFX.promo()},400)}else if(r.gdelta>0)SFX.ghost()}
+let resultsOpen=false;
+function banner(t){const b=$('banner');b.textContent=t;b.style.opacity=1;setTimeout(()=>b.style.opacity=0,1800)}
+const KROWS=['1234567890-=','qwertyuiop[]','asdfghjkl;\'','zxcvbnm,./'];const SHIFT={'!':'1','@':'2','#':'3','$':'4','%':'5','^':'6','&':'7','*':'8','(':'9',')':'0','_':'-','+':'=','{':'[','}':']',':':';','"':"'",'<':',','>':'.','?':'/'};
+function keyOf(c){if(c===' ')return' ';if(SHIFT[c])return SHIFT[c];return c.toLowerCase()}
+function drawHeat(c,stats){const dpr=Math.min(2,window.devicePixelRatio||1);const w=c.clientWidth||500;const ks=w/12.6;const h=ks*5.3+8;c.width=w*dpr;c.height=h*dpr;c.style.height=h+'px';const g=c.getContext('2d');g.scale(dpr,dpr);
+ const agg={};for(const ch in stats){const k=keyOf(ch);const a=agg[k]||(agg[k]=[0,0]);a[0]+=stats[ch][0];a[1]+=stats[ch][1]}
+ const shiftA=[0,0];for(const ch in stats){if(ch!==ch.toLowerCase()||SHIFT[ch]){shiftA[0]+=stats[ch][0];shiftA[1]+=stats[ch][1]}}
+ const col=(a)=>{if(!a||!a[0])return'#2a2244';const r=a[1]/a[0];if(r<=0)return'#1f8a6a';if(r<.06)return lerpC('#1fd6a0','#ffe14a',r/.06);return lerpC('#ffe14a','#ff2a4a',clamp((r-.06)/.14,0,1))};
+ const key=(x,y,kw,label,a)=>{g.fillStyle=col(a);rrp(g,x+2,y+2,kw-4,ks-4,6);g.fill();if(a&&a[1]){g.shadowColor='#ff2a4a';g.shadowBlur=a[1]*3}g.shadowBlur=0;g.fillStyle=a&&a[0]?'#0a0418':'rgba(255,255,255,.5)';g.font='900 '+(ks*.36)+'px Consolas,monospace';g.textAlign='center';g.textBaseline='middle';g.fillText(label,x+kw/2,y+ks*.45);if(a&&a[1]){g.font='900 '+(ks*.22)+'px "Trebuchet MS",sans-serif';g.fillText(a[1],x+kw*.78,y+ks*.78)}};
+ KROWS.forEach((r,ri)=>{const off=[0,.5,.75,1.1][ri]*ks+4;for(let i=0;i<r.length;i++)key(off+i*ks,4+ri*ks,ks,r[i].toUpperCase(),agg[r[i]])});
+ key(4,4+3*ks,ks*1.1,'⇧',shiftA[0]?shiftA:null);key(4+ks*2.5,4+4*ks,ks*7,'space',agg[' ']);}
+function lerpC(a,b,t){const A=[1,3,5].map(i=>parseInt(a.substr(i,2),16)),B=[1,3,5].map(i=>parseInt(b.substr(i,2),16));return'rgb('+A.map((v,i)=>Math.round(lerp(v,B[i],t))).join(',')+')'}
+function openStats(){SFX.click();const d=document.createElement('div');const h=G.hist;const avg=h.length?Math.round(h.slice(-10).reduce((s,r)=>s+r.w,0)/Math.min(10,h.length)):0;
+ d.innerHTML='<div class="stats">'+chip(G.best,'BEST')+chip(avg,'AVG 10')+chip(G.races,'RACES')+chip(h.filter(r=>r.p===1).length,'WINS')+'</div><div class="sub">WPM HISTORY</div>';
+ const gc=document.createElement('canvas');gc.className='gr';d.appendChild(gc);d.insertAdjacentHTML('beforeend','<div class="sub">KEY ERRORS · ALL TIME</div>');const hm=document.createElement('canvas');hm.className='hm';d.appendChild(hm);
+ openModal('Stats',d);requestAnimationFrame(()=>{drawGraph(gc);drawHeat(hm,G.keys)})}
+function drawGraph(c){const dpr=Math.min(2,window.devicePixelRatio||1);const w=c.clientWidth||500,h=Math.round(w*.42);c.width=w*dpr;c.height=h*dpr;c.style.height=h+'px';const g=c.getContext('2d');g.scale(dpr,dpr);
+ const hs=G.hist.slice(-40);const pl=34,pr=10,pt=12,pb=20;const maxW=Math.max(60,...hs.map(r=>r.w),LEAGUES[G.top][1])+10;const minW=0;
+ g.strokeStyle='rgba(255,255,255,.1)';g.fillStyle='rgba(255,255,255,.5)';g.font='11px "Trebuchet MS",sans-serif';g.textAlign='right';for(let v=0;v<=maxW;v+=20){const y=pt+(h-pt-pb)*(1-(v-minW)/(maxW-minW));g.beginPath();g.moveTo(pl,y);g.lineTo(w-pr,y);g.stroke();g.fillText(v,pl-5,y+4)}
+ const tw=LEAGUES[G.top][1];const ty=pt+(h-pt-pb)*(1-tw/maxW);g.setLineDash([6,5]);g.strokeStyle='#ff3fd2';g.beginPath();g.moveTo(pl,ty);g.lineTo(w-pr,ty);g.stroke();g.setLineDash([]);g.fillStyle='#ff3fd2';g.textAlign='left';g.fillText('league '+tw,pl+4,ty-4);
+ if(hs.length<1){g.fillStyle='rgba(255,255,255,.5)';g.textAlign='center';g.font='16px "Trebuchet MS",sans-serif';g.fillText('race to fill this',w/2,h/2);return}
+ const X=i=>pl+(w-pl-pr)*(hs.length===1?.5:i/(hs.length-1)),Y=v=>pt+(h-pt-pb)*(1-v/maxW);
+ const gr=g.createLinearGradient(0,pt,0,h);gr.addColorStop(0,'rgba(63,240,255,.35)');gr.addColorStop(1,'rgba(63,240,255,0)');g.fillStyle=gr;g.beginPath();g.moveTo(X(0),h-pb);hs.forEach((r,i)=>g.lineTo(X(i),Y(r.w)));g.lineTo(X(hs.length-1),h-pb);g.fill();
+ g.strokeStyle='#3ff0ff';g.lineWidth=2.5;g.beginPath();hs.forEach((r,i)=>i?g.lineTo(X(i),Y(r.w)):g.moveTo(X(i),Y(r.w)));g.stroke();
+ hs.forEach((r,i)=>{g.fillStyle=r.p===1?'#ffe14a':r.p===2?'#d8d8e8':'#ff8aa0';g.beginPath();g.arc(X(i),Y(r.w),3.5,0,TAU);g.fill()})}
+function openGarage(){SFX.click();const d=document.createElement('div');d.className='cars';
+ CARS.forEach((c,i)=>{const lock=i>G.top;const e=document.createElement('div');e.className='carc'+(i===G.car?' sel':'')+(lock?' lock':'');e.appendChild(carCanvas(c[0],c[1],c[2],100,44));e.insertAdjacentHTML('beforeend','<div>'+(lock?LEAGUES[i][1]+' WPM':LEAGUES[i][0].split(' ')[0])+'</div>');if(!lock)e.onclick=()=>{G.car=i;save();openGarage()};d.appendChild(e)});openModal('Cars',d)}
+$('statsBtn').onclick=openStats;$('garageBtn').onclick=openGarage;
+// ---------- track render ----------
+function drawTrack(){const th=trackH();drawSynthBand(th);const ghosts=R.ghosts.length,n=4+ghosts;const top=34,laneH=(th-top-8)/n;const x0=clamp(laneH*.85,24,64)+8,x1=W-40;const len=R.text.length;
+ // road
+ ctx.fillStyle='rgba(10,4,24,.8)';ctx.fillRect(0,top-4,W,laneH*n+8);
+ ctx.strokeStyle='rgba(255,63,210,.5)';ctx.lineWidth=2;ctx.setLineDash([18,14]);ctx.lineDashOffset=-(R.pos*3+T*8);for(let i=1;i<n;i++){const y=top+i*laneH;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}ctx.setLineDash([]);
+ ctx.strokeStyle='#3ff0ff';ctx.lineWidth=3;ctx.shadowColor='#3ff0ff';ctx.shadowBlur=10;ctx.beginPath();ctx.moveTo(0,top-4);ctx.lineTo(W,top-4);ctx.moveTo(0,top+laneH*n+4);ctx.lineTo(W,top+laneH*n+4);ctx.stroke();ctx.shadowBlur=0;
+ // finish
+ const cs=Math.max(5,laneH/5);for(let y=top,k=0;y<top+laneH*n;y+=cs,k++){for(let j=0;j<3;j++){ctx.fillStyle=(k+j)%2?'#fff':'#111';ctx.fillRect(x1+j*cs-cs,y,cs,cs)}}
+ ctx.fillStyle='rgba(255,255,255,.15)';ctx.fillRect(x0,top,2,laneH*n);
+ const L=clamp(laneH*1.5,28,80);const lane=i=>top+laneH*(i+.5);const px=p=>x0+(x1-x0-L*.4)*clamp(p/len,0,1);
+ const label=(t,x,y,col)=>{ctx.font='900 '+clamp(laneH*.26,9,12)+'px "Trebuchet MS",sans-serif';ctx.textAlign='left';ctx.textBaseline='top';ctx.fillStyle=col;ctx.globalAlpha=.85;ctx.fillText(t,6,y-laneH/2+3);ctx.globalAlpha=1};
+ let li=0;
+ R.ghosts.forEach(gh=>{const ch=Math.min(len,ghostChars(gh,R.t));const x=px(ch),y=lane(li++);drawCar(ctx,x,y+Math.sin(T*3+li)*1.5,L,'#e0ffff','#3ff0ff',CARS[G.car][2],.38+Math.sin(T*6)*.06,true);label(gh.lbl,x,y,'rgba(63,240,255,.8)')});
+ R.ai.forEach(a=>{const x=px(a.prog),y=lane(li++);trail(x,y,L,a.col);drawCar(ctx,x,y,L,a.col,'#1a0830',a.shape);label(a.name.split(' ')[0]+(a.fin?' ✔':''),x,y,a.col)});
+ const y=lane(li),x=px(R.pos);trail(x,y,L,CARS[G.car][0]);drawCar(ctx,x,y,L,CARS[G.car][0],CARS[G.car][1],CARS[G.car][2]);label('YOU',x,y,'#ffe14a');
+ if(R.errFlash>0){ctx.fillStyle='rgba(255,59,92,'+R.errFlash+')';ctx.beginPath();ctx.arc(x+L*.5,y,L*.3,0,TAU);ctx.fill()}
+ // top bar progress
+ ctx.fillStyle='rgba(255,255,255,.7)';ctx.font='900 13px "Trebuchet MS",sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(LEAGUES[R.l][0].toUpperCase(),12,16);ctx.textAlign='right';ctx.fillText(R.t.toFixed(1)+'s',W-112,16);
+ if(R.cd>0){const n=Math.ceil(R.cd);ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(0,top-4,W,laneH*4+8+laneH*ghosts);ctx.font='900 '+Math.round(th*.4)+'px "Trebuchet MS",sans-serif';ctx.textAlign='center';ctx.fillStyle=n<=0?'#7cf08a':'#ffe14a';ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=24;ctx.fillText(n<=0?'GO!':n>3?3:n,W/2,top+laneH*n*.5);ctx.shadowBlur=0}
+}
+function trail(x,y,L,col){ctx.fillStyle=col;ctx.globalAlpha=.18;for(let k=1;k<5;k++)ctx.fillRect(x-L*.5-k*L*.3,y-2+(k%2)*3,L*.2,2);ctx.globalAlpha=1}
+function drawSynthBand(th){const g=ctx.createLinearGradient(0,0,0,th);g.addColorStop(0,'#1a0638');g.addColorStop(1,'#2a0848');ctx.fillStyle=g;ctx.fillRect(0,0,W,th)}
+function drawRaceBg(){const th=trackH();const g=ctx.createLinearGradient(0,th,0,H);g.addColorStop(0,'#1a0638');g.addColorStop(1,'#0a0218');ctx.fillStyle=g;ctx.fillRect(0,th,W,H-th);ctx.strokeStyle='rgba(255,63,210,.12)';ctx.lineWidth=1;for(let x=(T*10)%40;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,th);ctx.lineTo(x,H);ctx.stroke()}}
+// ---------- input ----------
+const kb=$('kb');
+function refocus(){if(state==='race'&&!paused){try{kb.focus({preventScroll:true})}catch(e){kb.focus()}}}
+window.addEventListener('keydown',e=>{audioInit();
+ if(e.key==='Escape'){if(state==='race'){togglePause();e.preventDefault();return}if(!$('modal').classList.contains('hidden')){goLobby();return}}
+ if(state==='race'){if(e.ctrlKey||e.metaKey||e.altKey)return;if(e.key.length===1){e.preventDefault();typeChar(e.key)}else if(e.key==='Backspace'||e.key==='Tab'||e.key===' ')e.preventDefault();return}
+ if(e.key==='Enter'||e.key===' '){e.preventDefault();if(state==='title'){viewLeague=G.top;goLobby()}else if(state==='lobby'&&$('modal').classList.contains('hidden'))startRace();else if(state==='results'&&resultsOpen){$('modal').classList.add('hidden');startRace()}}
+ if(state==='lobby'&&$('modal').classList.contains('hidden')){if(e.key==='ArrowLeft')$('lPrev').click();if(e.key==='ArrowRight')$('lNext').click()}});
+kb.addEventListener('input',()=>{const v=kb.value;kb.value='';for(const ch of v)typeChar(ch)});
+$('psg').addEventListener('pointerdown',()=>refocus());cv.addEventListener('pointerdown',()=>refocus());
+function togglePause(f){if(state!=='race')return;paused=f!==undefined?f:!paused;$('pause').classList.toggle('hidden',!paused);if(!paused)refocus()}
+$('pauseBtn').onclick=()=>togglePause(true);$('resumeBtn').onclick=()=>togglePause(false);$('quitBtn').onclick=()=>{R=null;goLobby()};
+document.addEventListener('visibilitychange',()=>{if(document.hidden)togglePause(true)});
+// ---------- loop ----------
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(!paused){T+=dt;if(state==='race'&&R)updateRace(dt)}
+ ctx.setTransform(DPR,0,0,DPR,0,0);
+ if((state==='race'||state==='results')&&R){drawRaceBg();drawTrack()}else drawTitleScene();
+ requestAnimationFrame(loop)}
+resize();requestAnimationFrame(loop);
+</script></body></html>
