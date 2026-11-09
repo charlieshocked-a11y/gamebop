@@ -26,6 +26,14 @@ Never make a game that is mostly reading: no long dialogue boxes, no text-only c
 ## DEEP GAMES (the ★ Deep Games section)
 Some games are flagged `"deep": true` in metadata. These are big adventures you spend hours in, like a monster-collecting RPG you don't beat in 10 minutes: a world to explore, many areas, lots of creatures/items/characters to collect and level, side goals, bosses, and a long main goal (aim for 2+ hours of play). Rules: still minimal reading (see above), constant animation and juice, autosave everywhere, a clear next goal always on screen. Build each Deep Game with one dedicated agent, and do **three rounds of build → play it for real → improve**. Size can go up to ~1 MB if needed.
 
+## ANIMATION must be better than "AI-looking"
+Charlie says even Rude Cat's animation looks AI-made, so it is NOT the animation reference. Raise the bar:
+- Characters are animated with real principles: anticipation, follow-through, squash & stretch, easing (never linear tweens), overlapping parts (ears, tails, hair, cloth lag behind the body), secondary motion and idle "breathing".
+- Multi-frame or skeletal/procedural limb animation for walking, running, jumping, attacking, getting hit, celebrating. No sliding static sprites, no whole-image wobble standing in for animation.
+- Hit-stop (a few frames' freeze) on impacts, camera ease/lead and gentle shake, particles with gravity and fade, dust on landings, trails on fast motion.
+- UI animates too: buttons press down and bounce, numbers count up, panels slide with easing, rewards pop.
+- Run at 60 fps with delta time; no jitter. Check animation by recording a few seconds of frames in Playwright and looking at them.
+
 ## LOOKS LIKE A REAL, QUALITY GAME (not "AI-made")
 - Graphics must look like a polished commercial indie game: a deliberate art style (e.g. hand-drawn, cozy pixel art, clean vector, painterly, low-poly 2.5D), a cohesive palette, real lighting/shading, layered parallax backgrounds, animated characters with personality (idle/walk/hit/celebrate frames or procedural squash-and-stretch).
 - Avoid the generic "AI look": no plain flat rectangles on a black screen, no default system fonts for titles, no random neon gradients on everything, no emoji as art, no walls of centered text, no identical rounded buttons everywhere. Draw custom UI that matches the game's world (wooden signs for a farm, holo panels for sci-fi…).
