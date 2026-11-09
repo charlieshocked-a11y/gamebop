@@ -3,6 +3,20 @@
 Gamebop is a browser-game portal (like CrazyGames/Poki). Each game is ONE self-contained HTML file at
 `/home/claude/gamebop-site/games/<slug>.html`, loaded inside an iframe that fills the play area.
 
+
+## FUN FIRST — the bar for every game (most important section)
+Charlie's feedback: games must be deeper, more interactive and much more fun, with a strong hook, so people actually WANT to keep playing and they don't get boring quickly. A game that is technically correct but dull is a failure.
+- **Hook in 10 seconds:** the first moment of play must already feel great: instant action, juicy feedback, no menus or reading in the way.
+- **Core loop that feels good on its own:** the basic action (jump, shoot, merge, type, drift…) must be satisfying even with no goals. Tune feel: responsiveness, weight, impact, sound, screen shake, particles, slow-mo on big moments.
+- **Constant new stuff:** introduce a new mechanic, enemy, item, zone or twist every few minutes. Nothing should feel the same at minute 20 as minute 2.
+- **Real choices:** meaningful decisions (builds, upgrade paths, risk vs reward, routes, combos), not just "number goes up". Different runs/strategies should play differently.
+- **"One more go" loop:** short sessions that end with progress (unlocks, currency, new record, a teaser of what's next). Near-misses and close calls. Daily/challenge modes where they fit.
+- **Rich interactivity:** lots of things to interact with — destructible/reactive worlds, secrets, combos, chain reactions, physics, characters that react to the player.
+- **Long-term goals:** visible unlock trees, collections, achievements (20+), bosses, mastery ratings, so there is always a next goal on screen.
+- **Difficulty curve:** easy to start, steadily harder, with spikes (bosses) and breathers. Never stalls, never walls the player.
+- **Builders must playtest for fun:** after building, play your own game for a while (by bot and by reasoning through the first 10 minutes) and ask "would a kid keep playing this?" If the answer is "it gets samey", add variety before reporting.
+- Bigger is fine: prefer one rich, deep game (up to ~400 KB) over a thin one.
+
 ## Hard rules
 - Single file, vanilla JS + CSS + canvas/DOM. NO external requests of any kind: no CDNs, no web fonts, no images by URL. Draw everything in code (canvas, SVG, CSS). Sounds are synthesized with WebAudio.
 - Original game: no names, characters, logos or signature look of existing branded games.
