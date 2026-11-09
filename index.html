@@ -83,6 +83,8 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
 .tile .c { font-size: 12.5px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
 .tile .c .dot { width: 8px; height: 8px; border-radius: 2px; }
 .badge { position: absolute; top: 8px; left: 8px; background: var(--berry); color: #fff; font: 11px/1 var(--display); padding: 5px 7px; border-radius: 6px; letter-spacing: .5px; }
+.badge.best { background: var(--pop); color: var(--pop-ink); font-size: 13px; }
+.feat .badge.best { top: 14px; left: 14px; font-size: 16px; padding: 8px 12px; }
 .badge.ext { left: auto; right: 8px; background: var(--mint); color: #062a20; }
 .fav-on { position: absolute; top: 8px; right: 8px; color: var(--berry); font-size: 18px; text-shadow: 0 1px 4px #000; }
 .empty { color: var(--muted); padding: 30px 0; }
@@ -169,11 +171,11 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
 
   const tile = g => `<button class="tile" data-play="${g.slug}" aria-label="Play ${esc(g.title)}">
       <div class="th"><img src="${g.thumb}" alt="" loading="lazy"></div>
-      ${isNew(g) ? '<span class="badge">NEW</span>' : ''}${g.mine ? '<span class="badge ext">YOURS</span>' : ''}
+      ${g.featured ? '<span class="badge best">★ BEST</span>' : isNew(g) ? '<span class="badge">NEW</span>' : ''}${g.mine ? '<span class="badge ext">YOURS</span>' : ''}
       ${favs.includes(g.slug) && !g.external ? '<span class="fav-on" aria-hidden="true">♥</span>' : ''}
       <div class="meta"><span class="t">${esc(g.title)}</span><span class="c"><span class="dot" style="background:${CAT_COLORS[g.category] || '#a69dcc'}"></span>${esc(g.category)}</span></div></button>`;
   const shelf = (title, list, opts = {}) => list.length ? `<section class="shelf"><h2>${title}${opts.sub ? `<small>${opts.sub}</small>` : ''}</h2><div class="${opts.row ? 'row' : 'grid'}">${list.map(tile).join('')}</div></section>` : '';
-  const feat = g => `<button class="feat" data-play="${g.slug}" aria-label="Play ${esc(g.title)}"><img src="${g.thumb}" alt=""><div class="cap"><h3>${esc(g.title)}</h3><p>${esc(g.blurb)}</p><span class="playpill">Play</span></div></button>`;
+  const feat = g => `<button class="feat" data-play="${g.slug}" aria-label="Play ${esc(g.title)}"><img src="${g.thumb}" alt="">${g.featured ? '<span class="badge best">★ BEST GAME</span>' : ''}<div class="cap"><h3>${esc(g.title)}</h3><p>${esc(g.blurb)}</p><span class="playpill">Play</span></div></button>`;
 
   function home() {
     renderRail('');
@@ -181,7 +183,8 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
     const pool = fresh.length >= 3 ? fresh : GAMES;
     // featured: rotate daily
     const d = Math.floor(Date.now() / DAY), pickN = i => pool[(d * 7 + i * 5) % pool.length];
-    const f = [pickN(0), pickN(1), pickN(2)].filter((g, i, a) => a.indexOf(g) === i);
+    const star = GAMES.find(g => g.featured);
+    const f = (star ? [star, pickN(0), pickN(1), pickN(2)] : [pickN(0), pickN(1), pickN(2)]).filter((g, i, a) => a.indexOf(g) === i).slice(0, 3);
     const rec = recent.map(s => bySlug[s]).filter(Boolean);
     const fav = favs.map(s => bySlug[s]).filter(Boolean);
     let html = `<div class="hero">${feat(f[0])}<div class="side">${f.slice(1).map(feat).join('')}</div></div>`;
