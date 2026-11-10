@@ -641,5 +641,95 @@ window.GAMEBOP_GAMES = [
   "added": "2026-11-09",
   "file": "games/noodle-rush.html",
   "thumb": "thumbs/noodle-rush.jpg"
+ },
+ {
+  "slug": "gale-regatta",
+  "title": "Gale Regatta",
+  "keywords": "sailing sailboat boat racing regatta wind ocean sea yacht catamaran career upgrades",
+  "deep": false,
+  "category": "Racing",
+  "tags": [
+   "sailing",
+   "career",
+   "upgrades",
+   "ghost racing"
+  ],
+  "blurb": "Read the wind, trim your sail, and out-tack five rivals.",
+  "controls": "A/D or ←→ steer · W/S trim · Space tack · Touch pads + trim slider",
+  "added": "2026-11-10",
+  "file": "games/gale-regatta.html",
+  "thumb": "thumbs/gale-regatta.jpg"
+ },
+ {
+  "slug": "trickle-valley",
+  "title": "Trickle Valley",
+  "keywords": "water physics digging puzzle plants garden flowing fluid sandbox frogs ducks lava ice",
+  "deep": false,
+  "category": "Puzzle",
+  "tags": [
+   "physics",
+   "digging",
+   "water",
+   "garden"
+  ],
+  "blurb": "Dig channels, guide real flowing water, and make thirsty gardens bloom.",
+  "controls": "Mouse/touch drag to dig · Tap gadgets · Space flow · Z undo · R restart",
+  "added": "2026-11-10",
+  "file": "games/trickle-valley.html",
+  "thumb": "thumbs/trickle-valley.jpg"
+ },
+ {
+  "slug": "canopy-swing",
+  "title": "Canopy Swing",
+  "keywords": "jungle swing vine rope monkey gibbon physics momentum platformer canopy endless runner animals",
+  "deep": false,
+  "category": "Platformer",
+  "tags": [
+   "swinging",
+   "physics",
+   "jungle",
+   "endless"
+  ],
+  "blurb": "Swing through a living jungle, fling for combos, outrun the jaguar.",
+  "controls": "Mouse hold · Arrows + Space · Touch hold",
+  "added": "2026-11-10",
+  "file": "games/canopy-swing.html",
+  "thumb": "thumbs/canopy-swing.jpg"
+ },
+ {
+  "slug": "wild-lens",
+  "title": "Wild Lens",
+  "keywords": "wildlife photography safari camera animals zoo nature jeep zebra elephant lion ocean collection",
+  "deep": false,
+  "category": "Adventure",
+  "tags": [
+   "photography",
+   "animals",
+   "safari",
+   "collection"
+  ],
+  "blurb": "Ride a safari jeep and snap legendary wildlife shots.",
+  "controls": "Mouse aim · Scroll zoom · Click/Space snap · S stop · W faster · 1-4 tools · Touch: drag, pinch, shutter",
+  "added": "2026-11-10",
+  "file": "games/wild-lens.html",
+  "thumb": "thumbs/wild-lens.jpg"
+ },
+ {
+  "slug": "quiver-peak",
+  "title": "Quiver Peak",
+  "keywords": "archery bow arrow target sports mountain wind bullseye tournament shooting crossbow",
+  "deep": false,
+  "category": "Sports",
+  "tags": [
+   "archery",
+   "career",
+   "wind",
+   "skill"
+  ],
+  "blurb": "Draw, breathe, release. Beat the wind to win the Summit.",
+  "controls": "Mouse drag · Shift/right-click steady · Touch + Steady button",
+  "added": "2026-11-10",
+  "file": "games/quiver-peak.html",
+  "thumb": "thumbs/quiver-peak.jpg"
  }
 ];
