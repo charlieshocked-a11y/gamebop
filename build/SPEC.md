@@ -3,6 +3,16 @@
 Gamebop is a browser-game portal (like CrazyGames/Poki). Each game is ONE self-contained HTML file at
 `/home/claude/gamebop-site/games/<slug>.html`, loaded inside an iframe that fills the play area.
 
+## ⚠ READ FIRST — Charlie's verdict (2026-11-11) and the new bar
+Charlie played the games and said they are "simple, boring, they don't hook you, they're not good games". Polished menus and long feature lists did NOT make them fun. What went wrong, and the rules that fix it:
+1. **One great hook, not a feature list.** Previous prompts asked for 6 worlds, 6 boat classes, 20 achievements, 40 species… and the builder spread itself thin, so every feature was shallow. Instead: find ONE core action that is a joy on its own (a swing, a flick, a slice, a spot, a merge) and spend most of the effort making it feel incredible and making it deepen over time. Extra modes/unlocks come only after the core is great. Good references for this quality bar (examples only, never copy them): Simon Willison's Claude-built games, e.g. his tree spot-the-difference game: one simple idea, beautiful, calm, and you want to see the next challenge; and the 2D swinging-ball games Charlie loves on CrazyGames: tiny controls, huge satisfaction.
+2. **CONTROLS ARE DEAD SIMPLE and feel instant.** One or two buttons wherever possible. Never make the player click small targets during action. Auto-target the obvious thing: e.g. in a swinging game, Space (or tap anywhere) grabs the NEXT anchor ahead automatically; release lets go. Keyboard, mouse and touch must each be enough on their own. Be forgiving: coyote time, input buffering, generous hitboxes, aim assist, snap-to-target. Response on the same frame as the input. If a 9-year-old can't play it within 5 seconds without reading, the controls are wrong.
+3. **"I want to see the next one."** Short, escalating challenges (levels/rounds of 20-90 s) where each one shows something new: a new twist, obstacle, creature or visual. Tease the next one on the results screen. Always a clear goal on screen.
+4. **Surprise and delight, frequently.** Small unexpected moments every minute: a critter reacts, a secret, a funny animation, a rare event, a combo fanfare, an easter egg. This is what makes it feel crafted, not generated.
+5. **Feel > features.** Springy physics, momentum, weight, hit-stop, screen shake, satisfying sounds. Tune numbers by playing, not by guessing.
+6. **2D or 3D, whichever fits the game.** 2D canvas is great for most games. 3D is welcome when it makes the game better: use three.js ONLY as a local shared copy at `games/lib/three.min.js` loaded with a classic `<script src="lib/three.min.js">` (never a CDN). If that file is missing and you cannot download it, use 2D or hand-written WebGL / canvas pseudo-3D instead.
+7. **Independent fun review is mandatory** (see "Fun review gate" at the end). A game that scores under 8/10 is improved; under 7 after 3 rounds is dropped.
+
 
 ## FUN FIRST — the bar for every game (most important section)
 Charlie's feedback: games must be deeper, more interactive and much more fun, with a strong hook, so people actually WANT to keep playing and they don't get boring quickly. A game that is technically correct but dull is a failure.
@@ -18,7 +28,7 @@ Charlie's feedback: games must be deeper, more interactive and much more fun, wi
 - Bigger is fine: prefer one rich, deep game (up to ~400 KB) over a thin one.
 
 ## Simon Willison style (Charlie's reference)
-Charlie wants games in the spirit of Simon Willison's Claude-built browser games (simonwillison.net): one self-contained page, made from one detailed prompt, playable instantly on desktop and phone, with procedural WebAudio sound and Playwright-tested at desktop and mobile sizes. Simon's own lesson is that fun comes from **playtesting and iterating**: his first versions were "playable but not fun" until he played them and fixed what was boring. So every builder must do at least one full playtest-then-improve pass, and Deep Games must do three.
+Charlie wants games in the spirit of Simon Willison's Claude-built browser games (simonwillison.net): one self-contained page, made from one detailed prompt, playable instantly on desktop and phone, with procedural WebAudio sound and Playwright-tested at desktop and mobile sizes. Simon's own lesson is that fun comes from **playtesting and iterating**: his first versions were "playable but not fun" until he played them and fixed what was boring. So every builder must do at least three full rounds of playtest-then-improve, followed by the independent Fun review gate at the end of this file.
 
 ## NO walls of text
 Never make a game that is mostly reading: no long dialogue boxes, no text-only cutscenes, no "talk to people and read" gameplay without animation. Tell the story through animation, level design, character expressions, icons, short barks (≤ 8 words) and sound. If a character speaks, it's a short, skippable speech bubble over an animated character.
@@ -80,3 +90,14 @@ Re-run check.js after the final edit so the thumbnail is current.
 
 ## Report back (exactly this JSON per game, in a ```json block)
 {"slug":"...","title":"...","keywords":"8-15 topic words","deep":false,"category":"one of: Action, Arcade, Puzzle, Strategy, Racing, Sports, Typing, Idle, Casual, Adventure, Music, Word","tags":["2-4 short tags"],"blurb":"max 12 words, punchy","controls":"short, e.g. Mouse · Arrows/WASD · Touch","prompt":"the prompt you built it from"}
+
+## Fun review gate (mandatory, added 2026-11-11)
+After the builder's own 3 rounds of build → play → improve, a SEPARATE reviewer agent (who did not build the game) plays it with Playwright: real inputs at 1280x720 and 390x700, plus recorded frames, at least 3 levels/rounds deep. It scores each 1-10, harshly, like Charlie would:
+- **Hook**: is the first 10 seconds fun with zero reading?
+- **Controls**: one or two simple inputs, instant, forgiving, no fiddly clicking?
+- **Feel/juice**: does the core action feel satisfying (physics, sound, shake, particles)?
+- **Want-more**: does each level/round show something new, so you want to see the next one?
+- **Looks/animation**: does it look like a real indie game, with no AI-generated look?
+- **Surprise**: are there delightful little moments?
+Overall = the lowest of these, not the average. 8+ ships. Under 8: the reviewer lists the 3-5 most important concrete fixes, the builder applies them, and the reviewer re-checks. Still under 7 after 3 rounds: don't ship it (or drop it from the site).
+The builder's own self-review counts for nothing. Only the independent score counts.
