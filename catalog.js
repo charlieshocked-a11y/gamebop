@@ -731,5 +731,94 @@ window.GAMEBOP_GAMES = [
   "added": "2026-11-10",
   "file": "games/quiver-peak.html",
   "thumb": "thumbs/quiver-peak.jpg"
+ },
+ {
+  "slug": "wreckaroo",
+  "title": "Wreckaroo",
+  "keywords": "wrecking ball demolition crane physics destruction smash tower collapse swing tnt robot boss",
+  "deep": false,
+  "category": "Arcade",
+  "tags": [
+   "Physics",
+   "Destruction",
+   "One-button"
+  ],
+  "blurb": "Swing a giant wrecking ball and watch towers crumble!",
+  "controls": "Hold Space / Mouse / Touch · let go to fling",
+  "added": "2026-11-11",
+  "file": "games/wreckaroo.html",
+  "thumb": "thumbs/wreckaroo.jpg"
+ },
+ {
+  "slug": "slingstar",
+  "title": "Slingstar",
+  "keywords": "space comet planets orbit slingshot gravity one tap stars astronaut black hole wormhole arcade",
+  "deep": false,
+  "category": "Arcade",
+  "tags": [
+   "one tap",
+   "space",
+   "physics",
+   "levels"
+  ],
+  "blurb": "Whip a comet planet to planet with one perfect tap.",
+  "controls": "Space / Click / Tap to let go",
+  "added": "2026-11-11",
+  "file": "games/slingstar.html",
+  "thumb": "thumbs/slingstar.jpg"
+ },
+ {
+  "slug": "tetherdrift",
+  "title": "Tetherdrift",
+  "keywords": "racing drift car rope swing tether toy cars drifting corners time trial police chase",
+  "deep": false,
+  "category": "Racing",
+  "tags": [
+   "one-button",
+   "drift",
+   "racing",
+   "time trial"
+  ],
+  "blurb": "Hold to tether a corner post, swing, release and rocket!",
+  "controls": "Hold Space / Mouse / Touch",
+  "added": "2026-11-11",
+  "file": "games/tetherdrift.html",
+  "thumb": "thumbs/tetherdrift.jpg"
+ },
+ {
+  "slug": "glowburst",
+  "title": "Glowburst",
+  "keywords": "fireworks lanterns chain reaction festival night one tap puzzle dragon explosion casual relaxing",
+  "deep": false,
+  "category": "Puzzle",
+  "tags": [
+   "one-tap",
+   "chain reaction",
+   "fireworks",
+   "boss"
+  ],
+  "blurb": "One tap. One firework. Watch the whole sky chain-burst.",
+  "controls": "Click · Tap · Space (arrows pick spot)",
+  "added": "2026-11-11",
+  "file": "games/glowburst.html",
+  "thumb": "thumbs/glowburst.jpg"
+ },
+ {
+  "slug": "springflip-circus",
+  "title": "Springflip Circus",
+  "keywords": "circus trampoline acrobat flip backflip bounce trapeze cannon clown seal one-button combo",
+  "deep": false,
+  "category": "Arcade",
+  "tags": [
+   "one-button",
+   "acrobatics",
+   "physics",
+   "combo"
+  ],
+  "blurb": "Hold to flip, let go to stick the landing!",
+  "controls": "Hold Space / Mouse / Touch",
+  "added": "2026-11-11",
+  "file": "games/springflip-circus.html",
+  "thumb": "thumbs/springflip-circus.jpg"
  }
 ];
