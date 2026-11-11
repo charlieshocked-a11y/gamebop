@@ -1,7 +1,7 @@
 # Gamebop weekly drop — runbook (updated 2026-11-11)
 
 The live site is GitHub Pages: https://charlieshocked-a11y.github.io/gamebop/ (repo charlieshocked-a11y/gamebop, branch main, served from the repo root).
-Charlie's rule (2026-11-11): keep the same number of games each week, but quality must NOT drop because of quantity. Every single game must be fun, hooky and simple to control. Read the "⚠ READ FIRST" section of build/SPEC.md before anything else.
+Charlie's rule (2026-11-11): keep the same number of games each week, but quality must NOT drop because of quantity. Every single game must be fun, hooky and simple to control. Read build/CHARLIE.md and the "⚠ READ FIRST" section of build/SPEC.md before anything else, and pass build/CHARLIE.md to every builder and reviewer.
 
 1. Attach the repo (add_repo charlieshocked-a11y/gamebop, access "push") and clone it to /home/claude/gamebop-site.
 2. Write the prompts. Each prompt is built around ONE strong hook, the core action that's fun on its own. Say in one line how it is controlled (one or two buttons, auto-targeting), how levels escalate so you want to see the next one, and which surprise-and-delight moments it has. Progression and saves are mentioned briefly, and NO long feature lists (no "6 worlds, 6 classes, 40 species…"). Aim for 6-10 sentences. Don't reuse any title or concept already in build/meta.json. Mix the categories (at least 2 HARD typing games), use original names, and no branded games or characters.
