@@ -83,3 +83,10 @@ No text walls, dialogue or text cutscenes. Use animation, icons, level design, a
 - Weak feedback: things vanish with no sound, shake or particles.
 - Waiting: long animations before you can act, slow restarts, unskippable screens.
 - Losing feels random or unfair.
+
+## Rule 11 (Charlie, 2026-11-11): too easy and too short is the most common failure
+Charlie's feedback on Skybolt Roadster: he bought every upgrade fast, and even on the hardest mode he could outrun the cops easily. He said the other games aren't good enough either.
+- **Long progression:** upgrades and unlocks should take hours, not minutes. Use many tiers (for example 10 or more levels per upgrade) with rising prices, plus late-game items, prestige or rare unlocks. Never let a player max everything in one session.
+- **Hard means hard:** the top difficulty should beat a skilled player most of the time at first. Enemies must keep up with a fully upgraded player, so scale enemy speed and smarts to the player's upgrades or heat level. Late levels should need mastery, not just patience.
+- **Playtest as a good player:** test with a fully upgraded save and a skilled bot or script. If the max-upgrade player still wins easily on the hardest setting, it is too easy, so tune it up.
+- **Big world, real graphics:** a world should feel large and varied (several distinct areas and landmarks), with lighting, shadows or fake shadows, detail props and animation, not flat boxes.
