@@ -91,6 +91,30 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
 .drop { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; background: linear-gradient(100deg, var(--pop), var(--berry)); color: var(--pop-ink); border-radius: var(--r); padding: 12px 18px; }
 .drop b { font: 20px/1.1 var(--display); }
 .drop span { font-weight: 600; }
+.promo{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:stretch;border-radius:var(--r);overflow:hidden;background:radial-gradient(120% 140% at 0% 0%,#3a1d6e 0%,#170f33 55%,#0c091a 100%);border:1px solid #ffb52e55;cursor:pointer;padding:0;text-align:left;color:#fff;box-shadow:0 14px 40px rgba(255,120,40,.18)}
+.promo .txt{padding:22px 22px 20px;display:flex;flex-direction:column;gap:10px;justify-content:center;min-width:0}
+.promo .tag{align-self:flex-start;background:linear-gradient(90deg,#ff5a36,#ffb52e);color:#1a0d00;font:13px/1 var(--display);padding:6px 10px;border-radius:6px;letter-spacing:.5px;animation:promoPulse 1.6s ease-in-out infinite}
+.promo h3{margin:0;font:clamp(24px,3.2vw,36px)/1.02 var(--display)}
+.promo h3 small{display:block;font:600 14px var(--body);color:#ffb52e;letter-spacing:.4px;margin-bottom:4px}
+.promo p{margin:0;color:#d9d2f5;font-size:15px}
+.promo .chips{display:flex;flex-wrap:wrap;gap:6px}
+.promo .chips span{background:#ffffff14;border:1px solid #ffffff22;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700}
+.promo .go{align-self:flex-start;background:linear-gradient(90deg,#ff5a36,#ffb52e);color:#1a0d00;font-weight:900;font-size:16px;padding:10px 22px;border-radius:999px;box-shadow:0 6px 18px rgba(255,110,40,.4);transition:transform .15s}
+.promo:hover .go{transform:scale(1.06)}
+.promo .pic{position:relative;min-height:200px;overflow:hidden}
+.promo .pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.08);animation:promoPan 9s ease-in-out infinite alternate}
+.promo .pic::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,#170f33 0%,transparent 35%)}
+.promo .pic::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.18) 50%,transparent 60%);background-size:250% 100%;animation:promoShine 3.2s ease-in-out infinite}
+.promo .siren{position:absolute;z-index:2;top:12px;right:14px;display:flex;gap:6px}
+.promo .siren i{width:12px;height:12px;border-radius:50%;background:#ff2d55;box-shadow:0 0 14px #ff2d55;animation:sirenA .5s steps(1) infinite}
+.promo .siren i+i{background:#2d7bff;box-shadow:0 0 14px #2d7bff;animation-delay:.25s}
+@keyframes promoPan{to{transform:scale(1.18) translateX(-3%)}}
+@keyframes promoShine{0%{background-position:150% 0}60%,100%{background-position:-60% 0}}
+@keyframes promoPulse{50%{transform:scale(1.06)}}
+@keyframes sirenA{50%{opacity:.15}}
+.badge.hot{background:linear-gradient(90deg,#ff5a36,#ffb52e);color:#1a0d00}
+@media (max-width:700px){.promo{grid-template-columns:minmax(0,1fr)}.promo .pic{order:-1;min-height:160px}.promo .pic::before{background:linear-gradient(0deg,#170f33 0%,transparent 45%)}}
+@media (prefers-reduced-motion:reduce){.promo *,.promo *::after{animation:none!important}}
 .badge.ext { left: auto; right: 8px; background: var(--mint); color: #062a20; }
 .fav-on { position: absolute; top: 8px; right: 8px; color: var(--berry); font-size: 18px; text-shadow: 0 1px 4px #000; }
 .empty { color: var(--muted); padding: 30px 0; }
@@ -180,11 +204,11 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
 
   const tile = g => `<button class="tile" data-play="${g.slug}" aria-label="Play ${esc(g.title)}">
       <div class="th"><img src="${g.thumb}" alt="" loading="lazy"></div>
-      ${g.featured ? '<span class="badge best">★ BEST</span>' : isNew(g) ? '<span class="badge">NEW</span>' : ''}
+      ${g.featured ? '<span class="badge best">★ BEST</span>' : g.spotlight ? '<span class="badge hot">'+esc(g.spotlight.tag)+'</span>' : isNew(g) ? '<span class="badge">NEW</span>' : ''}
       ${favs.includes(g.slug) && !g.external ? '<span class="fav-on" aria-hidden="true">♥</span>' : ''}
       <div class="meta"><span class="t">${esc(g.title)}</span><span class="c"><span class="dot" style="background:${CAT_COLORS[g.category] || '#a69dcc'}"></span>${esc(g.category)}</span></div></button>`;
   const shelf = (title, list, opts = {}) => list.length ? `<section class="shelf"><h2>${title}${opts.sub ? `<small>${opts.sub}</small>` : ''}</h2><div class="${opts.row ? 'row' : 'grid'}">${list.map(tile).join('')}</div></section>` : '';
-  const feat = g => `<button class="feat" data-play="${g.slug}" aria-label="Play ${esc(g.title)}"><img src="${g.thumb}" alt="">${g.featured ? '<span class="badge best">★ BEST GAME</span>' : ''}<div class="cap"><h3>${esc(g.title)}</h3><p>${esc(g.blurb)}</p><span class="playpill">Play</span></div></button>`;
+  const feat = g => `<button class="feat" data-play="${g.slug}" aria-label="Play ${esc(g.title)}"><img src="${g.thumb}" alt="">${g.featured ? '<span class="badge best">★ BEST GAME</span>' : g.spotlight ? '<span class="badge best hot">'+esc(g.spotlight.tag)+'</span>' : ''}<div class="cap"><h3>${esc(g.title)}</h3><p>${esc(g.blurb)}</p><span class="playpill">Play</span></div></button>`;
 
   function home() {
     renderRail('');
@@ -193,11 +217,13 @@ main { min-width: 0; padding-block: 20px 60px; padding-left: max(16px, env(safe-
     // featured: rotate daily
     const d = Math.floor(Date.now() / DAY), pickN = i => pool[(d * 7 + i * 5) % pool.length];
     const star = GAMES.find(g => g.featured);
-    const f = (star ? [star, pickN(0), pickN(1), pickN(2)] : [pickN(0), pickN(1), pickN(2)]).filter((g, i, a) => a.indexOf(g) === i).slice(0, 3);
+    const spot = GAMES.find(g => g.spotlight && !g.featured);
+    const f = (star ? [star, spot, pickN(0), pickN(1), pickN(2)].filter(Boolean) : [pickN(0), pickN(1), pickN(2)]).filter((g, i, a) => a.indexOf(g) === i).slice(0, 3);
     const rec = recent.map(s => bySlug[s]).filter(Boolean);
     const fav = favs.map(s => bySlug[s]).filter(Boolean);
     const deep = GAMES.filter(g => g.deep);
     let html = `<div class="drop"><b>30 new games every week</b><span>Fresh games land every Sunday. Check back to see what's new.</span></div><div class="hero">${feat(f[0])}<div class="side">${f.slice(1).map(feat).join('')}</div></div>`;
+    if (spot) { const S = spot.spotlight; html += `<button class="promo" data-play="${spot.slug}" aria-label="Play ${esc(spot.title)}"><div class="txt"><span class="tag">${esc(S.tag)} · JUST UPGRADED</span><h3><small>${esc(spot.title)}</small>${esc(S.head)}</h3><p>${esc(S.line)}</p><div class="chips">${(S.chips||[]).map(c=>`<span>${esc(c)}</span>`).join('')}</div><span class="go">Play now ▶</span></div><div class="pic"><img src="${spot.thumb}" alt=""><div class="siren"><i></i><i></i></div></div></button>`; }
     html += deep.length ? shelf('★ Deep Games', deep, { sub: 'big adventures you can sink hours into' }) : '';
     html += shelf('Continue playing', rec, { row: true });
     html += shelf('Favorites', fav, { row: true });

@@ -45,11 +45,22 @@ window.GAMEBOP_GAMES = [
    "police chase",
    "flying car"
   ],
-  "blurb": "Boost and fly a rocket roadster to outrun the cops.",
+  "blurb": "Boost, fly and outrun cops, choppers and SWAT in a 3D city chase.",
   "controls": "WASD drive · Shift boost · Space fly",
   "added": "2026-11-08",
   "mine": true,
   "keywords": "car driving flying police cops chase 3d city open world vehicle boost",
+  "spotlight": {
+   "tag": "🔥 HOT",
+   "head": "Outrun the whole city.",
+   "line": "Boost, fly over rooftops and escape cops, choppers and SWAT trucks.",
+   "chips": [
+    "30+ missions",
+    "Boss chases",
+    "Insane mode",
+    "Flying car"
+   ]
+  },
   "file": "games/skybolt-roadster.html",
   "thumb": "thumbs/skybolt-roadster.jpg"
  },
