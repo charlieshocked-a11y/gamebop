@@ -53,12 +53,13 @@ window.GAMEBOP_GAMES = [
   "spotlight": {
    "tag": "🔥 HOT",
    "head": "Outrun the whole city.",
-   "line": "Boost, fly over rooftops and escape cops, choppers and SWAT trucks.",
+   "line": "Boost and fly through a huge neon city while cop squads set roadblocks, choppers hunt you and SWAT trucks charge.",
    "chips": [
-    "30+ missions",
-    "Boss chases",
-    "Insane mode",
-    "Flying car"
+    "48 missions",
+    "Smart cop squads",
+    "6 cars",
+    "Huge 3D city",
+    "Insane mode"
    ]
   },
   "file": "games/skybolt-roadster.html",
