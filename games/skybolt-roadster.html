@@ -1668,7 +1668,7 @@ function spawnCop(type, opt){
     const g=groundAt(x,z,0); if (g<0.5&&g>-1) break;
   }
   const T=CT[type], el=M&&!M.tut&&M.def.elite?1:0;
-  Object.assign(c,{active:true,x,z,y:groundAt(x,z,0),vy:0,v:0,vx:0,vz:0,grounded:true,wreck:0,stuck:0,rev:0,revTurn:1,hitCD:0,yaw:Math.atan2(P.x-x,P.z-z),
+  Object.assign(c,{active:true,x,z,y:groundAt(x,z,0),vy:0,v:0,vx:0,vz:0,grounded:true,wreck:0,spkS:null,spkCD:0,flat:0,stuck:0,rev:0,revTurn:1,hitCD:0,yaw:Math.atan2(P.x-x,P.z-z),
     hp:opt.boss?T.hp+1+el+(type==='int'?1:0):(type==='swat'?2:1), inv:0, boss:!!opt.boss, role:type==='int'?'cut':'chase', side:Math.random()<.5?-1:1, ramCD:2+Math.random()*2, wind:0, ram:0,
     st:'chase', stT:2.5, nm:0, nmHit:0, dropT:5, rad:T.rad, sees:false, losT:Math.random()*0.2, sx:0, sz:0, sT:0, node:null, direct:false, dirT:0});
   c.maxHp=c.hp; c.lastG=c.y; c.g.visible=true; c.g.rotation.set(0,c.yaw,0); c.g.userData.hl.visible=false;
@@ -1753,14 +1753,30 @@ function routeTo(c,px,pz,dt){
   return Math.abs(c.x-rxC)<Math.abs(c.z-rzC)?[rxC,c.z]:[c.x,rzC];  // off-road: get back onto the nearest street
 }
 function copFx(c,n,col){ emit(c.x,c.y+1.2,c.z,n,col||0xffb347,16,6,0.9,20); }
-function takedown(c, how){
-  c.wreck=3.5; c.vx=P.vx*0.8+(c.x-P.x)*2; c.vz=P.vz*0.8+(c.z-P.z)*2; c.vy=10+Math.hypot(P.vx,P.vz)*0.15; c.spin=(Math.random()-.5)*10; c.spin2=(Math.random()-.5)*7;
+function takedown(c, how, spiked){
+  c.wreck=3.5;
+  if (spiked){
+    // spike-strip wreck: the cop keeps its OWN momentum (never launched relative to the player, which could be far away), blows tyres and skids/rolls forward
+    const sp=Math.max(6,Math.abs(c.v||0)), fx=Math.sin(c.yaw), fz=Math.cos(c.yaw);
+    c.vx=fx*sp*0.85; c.vz=fz*sp*0.85; c.vy=3+Math.min(6,sp*0.08); c.spin=(Math.random()-.5)*3; c.spin2=(Math.random()<.5?-1:1)*(2+Math.random()*2.5);
+  } else { c.vx=P.vx*0.8+(c.x-P.x)*2; c.vz=P.vz*0.8+(c.z-P.z)*2; c.vy=10+Math.hypot(P.vx,P.vz)*0.15; c.spin=(Math.random()-.5)*10; c.spin2=(Math.random()-.5)*7; }
   c.g.userData.hl.visible=false;
   run.td++; const ch=chainUp();
   earn(Math.round(45*Math.max(1,curHeat())*(1+0.25*(ch-1))),(how||'TAKEDOWN')+(ch>1?' x'+ch:''),'big');
-  shake=Math.min(1,shake+0.6); sfxTakedown(); fovKick=8; slowmo(0.25,0.14);
+  sfxTakedown();
+  if (spiked){ const dd=Math.hypot(c.x-P.x,c.z-P.z); if (dd<60) shake=Math.min(1,shake+0.25*(1-dd/60)); }   // no slow-mo freeze for spike wrecks
+  else { shake=Math.min(1,shake+0.6); fovKick=8; slowmo(0.25,0.14); }
   copFx(c,36); copFx(c,14,0xff3b4e); emit(c.x,c.y+1.5,c.z,10,0xffffff,22,4,0.4,10);
   if (M&&!M.tut){ M.td++; if (M.def.g==='escape') M.gone++; if (c.boss){ pop('BOSS DOWN!','huge'); sfxBoom(); slowmo(0.3,0.6); } }
+}
+// a cop rolling over a strip: one hit per strip, and tough cops keep driving THROUGH on shredded tyres (no reversing/stun on top of the strip)
+function spikeCop(c,s){
+  c.spkS=s; c.spkCD=2.5;
+  c.hp=(c.hp||1)-1;
+  if (c.hp<=0){ takedown(c,'COP SPIKED',true); return; }
+  c.flat=3; c.inv=Math.max(c.inv,0.5);
+  copFx(c,16,0xfff0b0); sfxSpike();
+  if (Math.hypot(c.x-P.x,c.z-P.z)<120) pop('COP SPIKED '+(c.maxHp-c.hp)+'/'+c.maxHp,'big');
 }
 function hitCop(c){
   c.hp--; if (c.hp<=0){ takedown(c); return; }
@@ -1771,7 +1787,7 @@ function updateCops(dt){
   const heat=curHeat(), ps=Math.hypot(P.vx,P.vz), TDV=(mode==='mission'?20:24)-S.ram*0.8;
   for (const c of cops){
     if (!c.active) continue;
-    c.hitCD-=dt; c.inv-=dt;
+    c.hitCD-=dt; c.inv-=dt; if (c.spkCD>0) c.spkCD-=dt; if (c.flat>0) c.flat-=dt;
     if (c.wreck>0){
       c.wreck-=dt; c.vy-=GRAV*dt; c.x+=c.vx*dt; c.z+=c.vz*dt; c.y+=c.vy*dt;
       const g=groundAt(c.x,c.z,c.y); if (c.y<g){ c.y=g; c.vy=Math.abs(c.vy)>3?-c.vy*0.3:0; c.vx*=0.6; c.vz*=0.6; c.spin*=0.6; c.spin2*=0.6; }
@@ -1781,7 +1797,7 @@ function updateCops(dt){
       continue;
     }
     const T=CT[c.type];
-    const vmax=copVmax(c)*(run.spotted?1.05:1);
+    const vmax=copVmax(c)*(run.spotted?1.05:1)*(c.flat>0?0.6:1);
     const dxp=P.x-c.x, dzp=P.z-c.z, d=Math.hypot(dxp,dzp);
     const hl=c.g.userData.hl;
     let tgt=vmax, turn=0, straight=false;
@@ -1830,6 +1846,7 @@ function updateCops(dt){
     c.vy-=GRAV*dt; vertical(c,dt);
     if (c.y<-2){ takedown(c,'SPLASHED'); continue; }
     c.g.position.set(c.x,c.y,c.z); c.g.rotation.set(0,c.yaw,0);
+    if (c.flat>0&&Math.abs(c.v)>8&&Math.random()<dt*20) emit(c.x,c.y+0.4,c.z,1,0xfff0b0,6,1.5,0.3,8);   // rim sparks on shredded tyres
     if (d>440&&!c.sees){ if (c.boss){ const a=Math.random()*6.28; c.x=P.x+Math.sin(a)*150; c.z=Math.min(SHORE-20,P.z+Math.cos(a)*150); if (inCity(c.x,c.z)) c.x=nearestRoad(c.x); c.y=groundAt(c.x,c.z,0); c.lastG=c.y; }
       else if (!(M&&!M.tut&&M.def.g==='escape')){ c.active=false; c.g.visible=false; } continue; }
     const rad=c.rad;
@@ -1972,7 +1989,7 @@ function updateThreats(dt){
         emit(P.x,0.6,P.z,22,0xfff0b0,12,3,0.4,18);
       }
     }
-    for (const c of cops){ if (!c.active||c.wreck>0||c.type==='swat') continue; if (spikeHitsCop(s,c)){ if (c.maxHp>1){ if (c.inv<=0) hitCop(c); } else takedown(c,'COP SPIKED'); } }
+    for (const c of cops){ if (!c.active||c.wreck>0||c.type==='swat') continue; if (c.spkS===s&&c.spkCD>0) continue; if (spikeHitsCop(s,c)) spikeCop(c,s); }
   }
   for (const b of rblocks){
     const bd=Math.hypot(b.x-P.x,b.z-P.z);
