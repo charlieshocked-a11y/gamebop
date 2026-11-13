@@ -832,5 +832,95 @@ window.GAMEBOP_GAMES = [
   "added": "2026-11-11",
   "file": "games/springflip-circus.html",
   "thumb": "thumbs/springflip-circus.jpg"
+ },
+ {
+  "slug": "burrow-bolt",
+  "title": "Burrow Bolt",
+  "keywords": "mole digging tunnel leap jump worms momentum timing one button underground fox boss arcade",
+  "deep": false,
+  "category": "Arcade",
+  "tags": [
+   "one-button",
+   "momentum",
+   "levels",
+   "animals"
+  ],
+  "blurb": "Dive deep, burst out, flip high and gulp every worm!",
+  "controls": "Hold Space / Mouse / Touch",
+  "added": "2026-11-12",
+  "file": "games/burrow-bolt.html",
+  "thumb": "thumbs/burrow-bolt.jpg"
+ },
+ {
+  "slug": "knuckle-comet",
+  "title": "Knuckle Comet",
+  "keywords": "boxing punch combo sky flying goblins balloons boss blimp action chain clouds superhero",
+  "deep": false,
+  "category": "Action",
+  "tags": [
+   "one-button",
+   "combo",
+   "boss fights",
+   "sky"
+  ],
+  "blurb": "Rocket-punch goblins across the sky and never touch the ground.",
+  "controls": "Space / click / tap punch · ←→ pick target",
+  "added": "2026-11-12",
+  "file": "games/knuckle-comet.html",
+  "thumb": "thumbs/knuckle-comet.jpg"
+ },
+ {
+  "slug": "pinquake",
+  "title": "Pinquake",
+  "keywords": "bowling pins strike ball sports physics arcade lanes bumpers tnt badger boss upgrades skins",
+  "deep": false,
+  "category": "Sports",
+  "tags": [
+   "bowling",
+   "physics",
+   "levels",
+   "boss"
+  ],
+  "blurb": "Every throw is an explosion. Curve, smash, bonk the badger!",
+  "controls": "Mouse drag · Touch drag · ←/→ + hold Space",
+  "added": "2026-11-12",
+  "file": "games/pinquake.html",
+  "thumb": "thumbs/pinquake.jpg"
+ },
+ {
+  "slug": "teeter-zoo",
+  "title": "Teeter Zoo",
+  "keywords": "stacking tower animals zoo crane drop balance physics panda cute casual one-button",
+  "deep": false,
+  "category": "Casual",
+  "tags": [
+   "one-button",
+   "stacking",
+   "physics",
+   "cute"
+  ],
+  "blurb": "Drop squishy animals into a wobbly tower, nail the perfects!",
+  "controls": "Space / Click / Tap",
+  "added": "2026-11-12",
+  "file": "games/teeter-zoo.html",
+  "thumb": "thumbs/teeter-zoo.jpg"
+ },
+ {
+  "slug": "drumhop",
+  "title": "Drumhop",
+  "keywords": "rhythm music drums beat bounce ball timing jungle tap boss toad bird songs festival",
+  "deep": false,
+  "category": "Music",
+  "tags": [
+   "rhythm",
+   "one-tap",
+   "bounce",
+   "boss"
+  ],
+  "blurb": "Tap the beat as your ball hops across singing drums!",
+  "controls": "Space / Click / Tap (hold on long drums)",
+  "added": "2026-11-12",
+  "file": "games/drumhop.html",
+  "thumb": "thumbs/drumhop.jpg"
  }
 ];
