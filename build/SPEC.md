@@ -69,6 +69,8 @@ Add a "keywords" string to each game's JSON: 8-15 plain topic words people might
 - Very small and unnoticeable: ~11-12px text, ~55% opacity (full on hover), no box or a very subtle one, respects safe-area insets, never overlaps buttons, and hidden during gameplay.
 
 ## Hard rules
+- Follow build/SHARED.md: every game loads lib/gb.js first in <head> (phone settings bar + master volume, data-gbctl on touch controls) and, if it has a competitive score, lib/board.js leaderboards.
+
 - Single file, vanilla JS + CSS + canvas/DOM. NO external requests of any kind: no CDNs, no web fonts, no images by URL. Draw everything in code (canvas, SVG, CSS). Sounds are synthesized with WebAudio.
 - Original game: no names, characters, logos or signature look of existing branded games.
 - Must fill the viewport (100vw x 100vh), resize correctly, and look good at both 1280x720 and a 390x700 phone. No page scroll.
