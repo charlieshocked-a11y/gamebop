@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Pocket Golf</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Mini Putt Madness</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#2f7a3a;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent}
@@ -9,7 +11,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#2f7a3a;font-family:
 .ov{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;z-index:5}
 .ov.on{display:flex}
 .dim{background:rgba(10,30,15,.62)}
-.title{font-weight:900;text-align:center;line-height:.86;font-size:clamp(56px,13vmin,140px);letter-spacing:.01em;color:#fff;-webkit-text-stroke:3px #173d1f;text-shadow:0 6px 0 #173d1f,0 12px 24px rgba(0,0,0,.35)}
+.title{font-weight:900;text-align:center;line-height:.86;font-size:clamp(40px,11.5vmin,124px);white-space:nowrap;letter-spacing:.01em;color:#fff;-webkit-text-stroke:3px #173d1f;text-shadow:0 6px 0 #173d1f,0 12px 24px rgba(0,0,0,.35)}
 .title span{display:block}.title span:first-child{color:#fff}.title span:last-child{color:#ffd23d}
 .btn{font:900 20px/1 inherit;font-family:inherit;color:#173d1f;background:#fff;border:3px solid #173d1f;border-radius:999px;padding:13px 28px;cursor:pointer;box-shadow:0 5px 0 #173d1f;transition:transform .1s;text-transform:uppercase;letter-spacing:.04em}
 .btn:hover{transform:translateY(-2px)}.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #173d1f}
@@ -88,13 +90,13 @@ td.b{background:#ffd23d}td.e{background:#ff9ad0}td.o{background:#ffd8d0}
 <div class="ib" id="cardB"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg></div>
 
 <div class="ov on" id="sTitle">
- <div class="title"><span>POCKET</span><span>GOLF</span></div>
+ <div class="title"><span>MINI PUTT</span><span>MADNESS</span></div>
  <button class="btn big" id="bPlay">PLAY</button>
- <div class="row"><button class="btn" id="bCourses">Courses</button><button class="btn" id="bBalls">Balls</button></div>
+ <div class="row"><button class="btn" id="bCourses">Courses</button><button class="btn" id="bBalls">Balls</button><button class="btn" id="bBoard">🏆 Leaderboard</button></div>
 </div>
 <div class="ov dim" id="sCourses"><div class="h2">COURSES</div><div class="courses" id="crs"></div><button class="btn" id="bBack1">Back</button></div>
 <div class="ov dim" id="sBalls"><div class="panel"><div class="tot" id="bTot"></div><div class="balls" id="balls"></div><button class="btn" id="bBack2">Back</button></div></div>
-<div class="ov dim" id="sCard"><div class="word" id="cWord"></div><div class="panel" style="width:auto"><div id="cTable"></div><div class="tot" id="cTot"></div><div class="row"><button class="btn" id="bCMenu">Menu</button><button class="btn big" id="bCNext">Next</button></div></div></div>
+<div class="ov dim" id="sCard"><div class="word" id="cWord"></div><div class="panel" style="width:auto"><div id="cTable"></div><div class="tot" id="cTot"></div><div class="tot" id="cNew" style="color:#ffd23d;display:none">NEW BEST!</div><div class="row"><button class="btn" id="bCMenu">Menu</button><button class="btn" id="bCBoard" title="Leaderboard">🏆</button><button class="btn big" id="bCNext">Next</button></div></div></div>
 <div class="ov dim" id="sPause"><div class="h2">PAUSED</div><button class="btn big" id="bResume">Resume</button><div class="row"><button class="btn red" id="bRetry">Retry hole</button><button class="btn" id="bMenu">Menu</button></div></div>
 
 <a id="gbSup" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
@@ -256,6 +258,8 @@ function showCard(word){
  $('cTable').innerHTML='<table class="sc">'+r1+r2+r3+'</table>';
  const done=G.scores.filter(s=>s!=null).length===9,diff=ts-tp;
  $('cTot').textContent=(diff>0?'+':'')+(diff===0?'E':diff)+(done?'  ·  ★ '+(S.best[G.ci]!=null?Math.min(S.best[G.ci],ts):ts):'');
+ $('cNew').style.display='none';$('bCBoard').style.display=done&&!G.practice?'':'none';
+ if(done&&!G.practice&&!G.gbSent&&window.GBBoard){G.gbSent=true;const ci=G.ci;GBBoard.submit(lbId(ci),ts,{lower:true}).then(r=>{if(r&&r.best&&screen==='card'&&G.ci===ci)$('cNew').style.display=''})}
  if(done){if(S.best[G.ci]==null||ts<S.best[G.ci])S.best[G.ci]=ts;S.unlocked=Math.max(S.unlocked,Math.min(3,G.ci+2));S.cur=null;persist()}
  else if(G.scores[G.hi]!=null){S.cur={ci:G.ci,hi:G.hi+1,scores:G.scores};persist()}
  $('bCNext').textContent=done?(G.ci<2?'Next course':'Again'):(G.scores[G.hi]!=null?'Next':'Back');
@@ -266,6 +270,10 @@ $('bCNext').onclick=()=>{SFX.click();const done=G.scores.filter(s=>s!=null).leng
  if(done){startCourse(G.ci<2?G.ci+1:G.ci);return}
  if(G.scores[G.hi]!=null){G.hi++;loadHole();screen='play';show('')}else{screen='play';show('')}};
 $('bCMenu').onclick=()=>{SFX.click();toTitle()};
+const LBN=['Garden','Frost','Neon'];function lbId(ci){return 'pocket-golf:'+LBN[ci].toLowerCase()}
+function lbOpts(ci){return{title:'Mini Putt Madness',label:LBN[ci],lower:true,format:v=>Math.round(v)+' strokes'}}
+$('bCBoard').onclick=()=>{SFX.click();GBBoard.show(lbId(G.ci),lbOpts(G.ci))};
+$('bBoard').onclick=()=>{SFX.click();const ci=Math.max(0,Math.min(2,(S.cur&&S.cur.ci)||0));GBBoard.show(lbId(ci),lbOpts(ci))};
 $('cardB').onclick=e=>{e.stopPropagation();if(screen!=='play')return;showCard('');screen='peek';$('bCNext').textContent='Back'};
 
 function update(dt){
@@ -389,13 +397,15 @@ function drawGame(){
  cx.restore();
  // HUD
  cx.setTransform(DPR,0,0,DPR,0,0);
- cx.fillStyle='rgba(255,255,255,.92)';rr(10,10,Math.min(250,VW-190),40,20);cx.fill();cx.strokeStyle='#173d1f';cx.lineWidth=3;cx.stroke();
+ // phones: keep the pill clear of the shared settings tab at top centre (compact 2-row pill when narrow)
+ const cmp=window.GB&&GB.isTouch&&Math.min(250,VW-190)>VW/2-34,bx=cmp?-60:0;
+ cx.fillStyle='rgba(255,255,255,.92)';if(cmp)rr(10,10,Math.max(116,Math.min(150,VW/2-34)),52,20);else rr(10,10,Math.min(250,VW-190),40,20);cx.fill();cx.strokeStyle='#173d1f';cx.lineWidth=3;cx.stroke();
  // flag icon
  cx.strokeStyle='#173d1f';cx.lineWidth=2.5;cx.beginPath();cx.moveTo(26,42);cx.lineTo(26,18);cx.stroke();cx.fillStyle='#ff4a3a';cx.beginPath();cx.moveTo(26,18);cx.lineTo(40,23);cx.lineTo(26,28);cx.fill();
- cx.font='900 20px system-ui,sans-serif';cx.fillStyle='#173d1f';cx.textAlign='left';cx.textBaseline='middle';cx.fillText((G.hi+1),44,31);
- cx.font='800 14px system-ui,sans-serif';cx.fillText('PAR '+G.H.p,70,31);
- cx.fillStyle='#fff';cx.strokeStyle='#173d1f';cx.lineWidth=2;cx.beginPath();cx.arc(140,30,8,0,TAU);cx.fill();cx.stroke();
- cx.font='900 20px system-ui,sans-serif';cx.fillStyle=G.strokes>G.H.p?'#d03a2a':'#173d1f';cx.fillText(G.strokes,154,31);
+ cx.font='900 20px system-ui,sans-serif';cx.fillStyle='#173d1f';cx.textAlign='left';cx.textBaseline='middle';cx.fillText((G.hi+1),44,cmp?27:31);
+ cx.font='800 14px system-ui,sans-serif';if(cmp){cx.font='800 12px system-ui,sans-serif';cx.fillText('PAR '+G.H.p,20,50)}else cx.fillText('PAR '+G.H.p,70,31);
+ cx.fillStyle='#fff';cx.strokeStyle='#173d1f';cx.lineWidth=2;cx.beginPath();cx.arc(140+bx,cmp?36:30,8,0,TAU);cx.fill();cx.stroke();
+ cx.font='900 20px system-ui,sans-serif';cx.fillStyle=G.strokes>G.H.p?'#d03a2a':'#173d1f';cx.fillText(G.strokes,154+bx,cmp?37:31);
  if(G.state==='intro'){const a=clamp(G.introT,0,1);cx.globalAlpha=a;stroked('HOLE '+(G.hi+1),VW/2,VH*.42,54,'#fff');stroked('PAR '+G.H.p,VW/2,VH*.42+48,28,'#ffd23d');cx.globalAlpha=1}
  if(G.msg){cx.globalAlpha=clamp(G.msg.l,0,1);stroked(G.msg.t,VW/2,VH*.3,40,'#7ad0ff');cx.globalAlpha=1}
  if(G.state==='aim'&&G.strokes===0&&G.hi===0&&G.ci===0&&!G.aim){cx.globalAlpha=.6+.4*Math.sin(time*4);stroked(isTouch?'drag back · release':'drag back & release · or ← → ↑ ↓ + Space',VW/2,VH-26,16,'#fff');cx.globalAlpha=1}
@@ -443,6 +453,7 @@ function openCourses(){screen='menu';show('sCourses');const box=$('crs');box.inn
   const g=c.getContext('2d');const o=cx;cx=g;const H=compile(C.holes[i===0?2:i===1?6:0]);const v=computeView(H,{x:0,y:0,w:380,h:220});cx.setTransform(v.M);drawHole(H,C.th,null,1,{});cx.setTransform(1,0,0,1,0,0);if(lock){cx.fillStyle='rgba(0,0,0,.45)';cx.fillRect(0,0,380,220)}cx=o;
   const par=C.holes.reduce((a,h)=>a+h.p,0);const best=S.best[i];
   const t=document.createElement('div');t.innerHTML=C.n+'<small>'+(lock?'—':best!=null?'★ '+best+' ('+(best-par>0?'+':'')+(best-par||'E')+')':'PAR '+par)+'</small>';d.appendChild(t);
+  if(!lock){const lb=document.createElement('button');lb.className='btn';lb.textContent='🏆';lb.title='Leaderboard';lb.style.cssText='font-size:15px;padding:4px 10px;margin:0 0 8px';lb.onclick=ev=>{ev.stopPropagation();SFX.click();GBBoard.show(lbId(i),lbOpts(i))};t.appendChild(lb)}
   d.onclick=()=>{if(lock)return;SFX.click();startCourse(i,S.cur)};box.appendChild(d)})}
 function openBalls(){screen='menu';show('sBalls');$('bTot').textContent='BIRDIES '+S.birdies+'  ·  ACES '+S.aces;const box=$('balls');box.innerHTML='';
  SKINS.forEach((sk,i)=>{const ok=skinOk(i);const d=document.createElement('div');d.className='bl'+(S.skin===i?' sel':'')+(ok?'':' lock');const c=document.createElement('canvas');c.width=c.height=112;d.appendChild(c);

@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Quiver Peak</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Bullseye</title>
 <style>
 :root{--ink:#2b1a10;--cream:#fff3dc;--gold:#f2b538}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -84,6 +86,7 @@ box-shadow:inset 0 2px 0 rgba(255,222,170,.45),inset 0 -3px 0 rgba(0,0,0,.28),0 
 #hEvN{font:700 14px Georgia,serif;color:#ffe4b0;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #hEvS{font-size:13px;color:#fff4de;display:block;margin-top:2px;white-space:nowrap}
 #hScore{position:absolute;top:calc(6px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);font:700 36px Georgia,serif;color:#fff;text-shadow:0 3px 0 #3d200e,0 0 14px rgba(0,0,0,.45);transition:transform .2s cubic-bezier(.3,1.8,.5,1)}
+.gbt #hEv{max-width:calc(50vw - 42px)}.gbt #hScore{top:calc(40px + env(safe-area-inset-top))}
 #hScore.bump{transform:translateX(-50%) scale(1.25)}
 #bPause{position:absolute;top:calc(10px + env(safe-area-inset-top));right:calc(62px + env(safe-area-inset-right));pointer-events:auto}
 .rbtn{pointer-events:auto;position:absolute;border-radius:50%;padding:6px;transition:transform .15s cubic-bezier(.3,1.8,.5,1)}
@@ -137,8 +140,8 @@ table.st td.rs{font-size:12.5px;opacity:.75;text-align:center}
  <div id="hEv"><span id="hEvN">Village Fair</span><span id="hEvS">Round 1</span></div>
  <div id="hScore">0</div>
  <button class="ibtn" id="bPause" aria-label="Pause"><svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button>
- <button class="rbtn" id="bFocus" aria-label="Focus"><div class="in"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></div></button>
- <button class="rbtn" id="bSteady" aria-label="Steady"><div class="in"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#fff1d6" stroke-width="2"/><circle cx="12" cy="12" r="4.5"/><rect x="11" y="0" width="2" height="5"/><rect x="11" y="19" width="2" height="5"/><rect x="0" y="11" width="5" height="2"/><rect x="19" y="11" width="5" height="2"/></svg><span>STEADY</span></div></button>
+ <button class="rbtn" id="bFocus" aria-label="Focus" data-gbctl="focus"><div class="in"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></div></button>
+ <button class="rbtn" id="bSteady" aria-label="Steady" data-gbctl="steady"><div class="in"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#fff1d6" stroke-width="2"/><circle cx="12" cy="12" r="4.5"/><rect x="11" y="0" width="2" height="5"/><rect x="11" y="19" width="2" height="5"/><rect x="0" y="11" width="5" height="2"/><rect x="19" y="11" width="5" height="2"/></svg><span>STEADY</span></div></button>
 </div>
 <div class="coinbox" id="coinbox"><i class="coin"></i><span id="coinv">0</span></div>
 <button class="ibtn" id="bMute" aria-label="Sound"><svg viewBox="0 0 24 24" id="muteIc"></svg></button>
@@ -147,6 +150,7 @@ table.st td.rs{font-size:12.5px;opacity:.75;text-align:center}
  <div class="mcol">
   <button class="btn red big" id="bPlay">Play</button>
   <div class="mrow"><button class="btn" id="bArmory">Armory</button><button class="btn" id="bTrophies">Trophies</button></div>
+  <button class="btn sm" id="bBoard">🏆 Leaderboard</button>
   <button class="btn sm" id="bHow">How to play</button>
  </div>
  <a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
@@ -167,6 +171,7 @@ table.st td.rs{font-size:12.5px;opacity:.75;text-align:center}
 <div id="toast"><div class="md">★</div><div><b id="toastN"></b><span id="toastD"></span></div></div>
 <script>
 'use strict';
+if(window.GB&&GB.isTouch)document.documentElement.classList.add('gbt');
 // ================= UTIL =================
 const $=id=>document.getElementById(id);
 const cv=$('c');let cx=cv.getContext('2d');
@@ -775,7 +780,10 @@ function stormSetup(){const n=SS.n,list=[20,30,40,50,60,70,80,90],mi=Math.min(7,
 function stormShot(r){const ring=(r.kind==='ring'||r.kind==='split')?r.ring:0;let pts=0,label;if(ring>=SS.need){pts=Math.round(ring*SS.mult);SS.score+=pts;label='+'+pts}else{SS.lives--;label=ring?ring+' — need '+SS.need:'MISS';AU.groan();G.shake=.6;word(SS.lives?'−1 ♥':'OUT!','#ff8a7a')}
  SS.n++;S.st.storm=Math.max(S.st.storm,SS.n);if(SS.n>=10)ach('storm10');hudUpd();return{pts,label,col:pts?null:'#ff8a7a'}}
 function stormAfter(){if(SS.lives>0){stormSetup();return goReturn()}const sc=SS.score,nb=sc>(S.best.storm||0);if(nb)S.best.storm=sc;const coins=Math.round(sc*.5);addCoins(coins);save();G.state='results';
- resultScreen({rib:'Storm Range',title:'Blown away!',lines:[['Score',sc+(nb?'<span class="newb">BEST</span>':'')],['Shots',SS.n]],coins,btns:[['Again','red',()=>startMode('storm')],['Menu','',()=>toMenu('modes')]]})}
+ resultScreen({rib:'Storm Range',title:'Blown away!',lines:[['Score',sc+(nb?'<span class="newb">BEST</span>':'')],['Shots',SS.n]],coins,btns:[['Again','red',()=>startMode('storm')],['🏆','',showBoard],['Menu','',()=>toMenu('modes')]]});
+ if(sc>0&&window.GBBoard)GBBoard.submit(LB,sc).then(r=>{const b=document.querySelector('#rsBody .rline b');if(r&&r.best&&!nb&&b&&G.state==='results')b.insertAdjacentHTML('beforeend','<span class="newb">BEST</span>')})}
+const LB='quiver-peak',LBO={title:'Bullseye',label:'Storm Range'};
+function showBoard(){GBBoard.show(LB,LBO)}
 // ---- daily wind
 function dayKey(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
 function startDaily(){const k=dayKey(),seed=k.split('-').reduce((a,b)=>a*37+ +b,7),r=mulberry(seed);const vs=['meadow','pine','lake','glacier','ridge','summit'],v=vs[Math.floor(r()*6)];baseSession('daily',v,seed);
@@ -896,10 +904,10 @@ function drawHUD(){if(!SS||SS.mode==='title'||G.state==='results'||G.state==='ro
   L.forEach((c,i)=>{const X=x+i*cw;cx.fillStyle=c.me?'rgba(242,181,56,.35)':'rgba(40,22,10,.6)';rr(X+2,y,cw-4,64*k,10*k);cx.fill();drawFaceIcon(cx,c.f,X+cw/2,y+24*k,30*k,c.emote,G.real+i);cx.fillStyle='#fff4de';cx.font='700 '+(14*k|0)+'px Georgia,serif';cx.textAlign='center';cx.fillText(c.tot,X+cw/2,y+54*k);
    if(c.rv&&c.rv.bt>0&&c.rv.bark){const tw=Math.min(200,cx.measureText(c.rv.bark).width+20);cx.font='italic 700 '+(13*k|0)+'px Georgia,serif';const tw2=cx.measureText(c.rv.bark).width+18,bx=Math.min(W-8-tw2,Math.max(8,X+cw/2-tw2/2)),by=y+72*k,a=Math.min(1,c.rv.bt*3);cx.globalAlpha=a;cx.fillStyle='#fff8e9';rr(bx,by,tw2,24*k,10*k);cx.fill();cx.beginPath();cx.moveTo(X+cw/2-5,by);cx.lineTo(X+cw/2,by-7);cx.lineTo(X+cw/2+5,by);cx.fill();cx.fillStyle='#2b1a10';cx.fillText(c.rv.bark,bx+tw2/2,by+12*k);cx.globalAlpha=1}})}
  // scope inset
- const tg=SS.objs.find(o=>o.type==='target');if(tg&&G.state!=='title'){const R=44*k,sx=14+R+4,sy=H-14-R-4-(G.safeB||0);cx.fillStyle='rgba(30,18,8,.75)';cx.beginPath();cx.arc(sx,sy,R+6,0,TAU);cx.fill();drawFace(sx,sy,R*.85);
+ const tg=SS.objs.find(o=>o.type==='target');if(tg&&G.state!=='title'){const R=44*k,sx=window.GB&&GB.settings.flip?W-(14+R+4):14+R+4,sy=H-14-R-4-(G.safeB||0);cx.fillStyle='rgba(30,18,8,.75)';cx.beginPath();cx.arc(sx,sy,R+6,0,TAU);cx.fill();drawFace(sx,sy,R*.85);
   for(const a of G.stuck)if(a.obj===tg){const px=sx+a.lx/tg.R*R*.85,py=sy-a.ly/tg.R*R*.85;cx.fillStyle=a.ar.fl;cx.strokeStyle='#111';cx.lineWidth=1.2;cx.beginPath();cx.arc(px,py,3.2*k,0,TAU);cx.fill();cx.stroke()}
   cx.strokeStyle='#6e3f1f';cx.lineWidth=3;cx.beginPath();cx.arc(sx,sy,R+5,0,TAU);cx.stroke()}}
-function drawTitle(){const t=G.real-(G.titleT||0),portrait=W<H*.9,fs=portrait?Math.min(W*.19,H*.1):Math.min(W*.1,H*.15),lines=portrait?['QUIVER','PEAK']:['QUIVER PEAK'];
+function drawTitle(){const t=G.real-(G.titleT||0),portrait=W<H*.9,fs=portrait?Math.min(W*.115,H*.1):Math.min(W*.1,H*.15),lines=['BULLSEYE'];
  cx.font='900 '+fs+'px Georgia,"Times New Roman",serif';cx.textBaseline='alphabetic';cx.textAlign='left';let y=portrait?H*.1+fs*.85:H*.07+fs*.85,ci=0;
  const w0=cx.measureText(lines[0]).width;const at=clamp((t-.95)/.18,0,1),ay=y-fs*.33,ax1=W/2+w0*.5+fs*.5,ax=lerp(-fs*3,ax1,eoc(at)),wb=at>=1?Math.exp(-(t-1.13)*4)*Math.sin((t-1.13)*40)*.06:0;
  if(at>0){cx.save();cx.translate(ax,ay);cx.rotate(-.08+wb);const ar=ARROWS[0];cx.lineCap='round';cx.strokeStyle='#3d1f0c';cx.lineWidth=fs*.11;cx.beginPath();cx.moveTo(-fs*.1,0);cx.lineTo(-w0-fs*1.4,0);cx.stroke();cx.strokeStyle='#c89b5e';cx.lineWidth=fs*.06;cx.stroke();
@@ -1055,6 +1063,7 @@ $('bPause').onclick=()=>togglePause(true);$('bResume').onclick=()=>{AU.click();t
 $('bNextRound').onclick=()=>{AU.click();nextRound()};
 $('bPlay').onclick=()=>{AU.init();AU.click();if(S.run)startMode('resume');else startMode('modes')};
 $('bHow').onclick=()=>{AU.init();AU.click();G.pend=null;startTutorial(true)};
+$('bBoard').onclick=()=>{AU.init();AU.click();showBoard()};
 $('bArmory').onclick=()=>{AU.init();AU.click();buildArmory();show('armory')};
 $('bTrophies').onclick=()=>{AU.init();AU.click();buildTrophies();show('trophies')};
 $('tutSkip').onclick=()=>{AU.click();endTutorial(true)};

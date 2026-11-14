@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Springflip Circus</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Flip Circus</title>
 <style>
 :root{--red:#c8283a;--deep:#6e1020;--gold:#f4b73e;--cream:#f8ead0;--ink:#3a0a12}
 html,body{margin:0;height:100%;overflow:hidden;background:#1a0710;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;font-family:Georgia,'DejaVu Serif','Times New Roman',serif;color:var(--cream)}
@@ -73,7 +75,7 @@ h2.at{font-size:clamp(34px,8vw,52px);margin:0 0 4px;color:#f4b73e;text-shadow:0 
 <canvas id="c"></canvas>
 
 <div id="title" class="ov on">
- <svg class="logo" viewBox="0 0 640 270" aria-label="Springflip Circus">
+ <svg class="logo" viewBox="0 0 640 270" aria-label="Flip Circus">
   <defs>
    <linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbe0"/><stop offset=".45" stop-color="#ffd24a"/><stop offset="1" stop-color="#f08218"/></linearGradient>
    <linearGradient id="rb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ef4655"/><stop offset="1" stop-color="#a3172a"/></linearGradient>
@@ -82,8 +84,8 @@ h2.at{font-size:clamp(34px,8vw,52px);margin:0 0 4px;color:#f4b73e;text-shadow:0 
   <g opacity=".9">
    <path d="M80,40 l8,0 -4,-8z M552,30 l8,0 -4,-8z" fill="#ffd24a"/>
   </g>
-  <text font-family="Georgia,'DejaVu Serif',serif" font-weight="900" font-size="80" letter-spacing="1" textLength="540" lengthAdjust="spacingAndGlyphs" fill="#4a0a14" transform="translate(0,9)"><textPath href="#arc" startOffset="50%" text-anchor="middle">SPRINGFLIP</textPath></text>
-  <text font-family="Georgia,'DejaVu Serif',serif" font-weight="900" font-size="80" letter-spacing="1" textLength="540" lengthAdjust="spacingAndGlyphs" fill="url(#lg)" stroke="#6e1020" stroke-width="9" stroke-linejoin="round" paint-order="stroke"><textPath href="#arc" startOffset="50%" text-anchor="middle">SPRINGFLIP</textPath></text>
+  <text font-family="Georgia,'DejaVu Serif',serif" font-weight="900" font-size="104" letter-spacing="6" textLength="330" lengthAdjust="spacingAndGlyphs" fill="#4a0a14" transform="translate(0,9)"><textPath href="#arc" startOffset="50%" text-anchor="middle">FLIP</textPath></text>
+  <text font-family="Georgia,'DejaVu Serif',serif" font-weight="900" font-size="104" letter-spacing="6" textLength="330" lengthAdjust="spacingAndGlyphs" fill="url(#lg)" stroke="#6e1020" stroke-width="9" stroke-linejoin="round" paint-order="stroke"><textPath href="#arc" startOffset="50%" text-anchor="middle">FLIP</textPath></text>
   <path d="M110,186 L60,176 L84,206 L56,236 L130,232 Z M530,186 L580,176 L556,206 L584,236 L510,232 Z" fill="#7a0f1e"/>
   <path d="M120,180 Q320,160 520,180 L512,238 Q320,218 128,238 Z" fill="url(#rb)" stroke="#f4b73e" stroke-width="4"/>
   <path d="M128,188 Q320,170 512,188" fill="none" stroke="#ffdf8a" stroke-width="2" stroke-dasharray="2 10" stroke-linecap="round"/>
@@ -91,7 +93,7 @@ h2.at{font-size:clamp(34px,8vw,52px);margin:0 0 4px;color:#f4b73e;text-shadow:0 
  </svg>
  <div class="menu">
   <button id="bPlay" class="btn big">Play</button>
-  <div class="row"><button id="bActs" class="btn alt sm">Acts</button><button id="bHow" class="btn alt sm">How to play</button></div>
+  <div class="row"><button id="bActs" class="btn alt sm">Acts</button><button id="bHow" class="btn alt sm">How to play</button><button id="bBoard" class="btn alt sm">🏆 Leaderboard</button></div>
   <div class="cos"><button id="cPrev" aria-label="previous costume">&lsaquo;</button><div id="cosName">Classic</div><button id="cNext" aria-label="next costume">&rsaquo;</button></div>
  </div>
  <a id="sup" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
@@ -115,6 +117,7 @@ h2.at{font-size:clamp(34px,8vw,52px);margin:0 0 4px;color:#f4b73e;text-shadow:0 
   <div class="rb">
    <button id="bHome" class="btn alt sm" aria-label="menu"><svg class="ic" viewBox="0 0 24 24"><path d="M3 11 L12 3 L21 11 V21 H14 V15 H10 V21 H3Z" fill="#3a0a12"/></svg></button>
    <button id="bRetry" class="btn alt sm" aria-label="retry"><svg class="ic" viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 0 8 8h-3a5 5 0 1 1-5-5v3l5-4.5L12 1z" fill="#3a0a12"/></svg></button>
+   <button id="bBoard2" class="btn alt sm" aria-label="leaderboard">🏆</button>
    <button id="bNext" class="btn big">Next</button>
   </div>
  </div>
@@ -354,6 +357,8 @@ $('cNext').onclick=()=>{S.click();save.costume=(save.costume+1)%COST.length;updC
 function curCos(){return cosUnlocked(save.costume)?COST[save.costume]:COST[0]}
 $('bPlay').onclick=()=>{initAudio();S.click();if(!save.tut)startAct(0,true);else startAct(Math.min(save.unlocked-1,ACTS.length-1),false)};
 $('bHow').onclick=()=>{initAudio();S.click();startAct(0,true)};
+const LB='springflip-circus',LBO={title:'Flip Circus',label:'Encore'};
+$('bBoard').onclick=$('bBoard2').onclick=()=>{initAudio();S.click();GBBoard.show(LB,LBO)};
 $('bActs').onclick=()=>{initAudio();S.click();buildGrid();showOv('acts');mode='acts'};
 $('bBack').onclick=()=>{S.click();goTitle()};
 $('bNext').onclick=()=>{S.click();if(won||act.endless){const n=act.endless?ai:Math.min(ai+1,ACTS.length-1);if(n<save.unlocked)startAct(n,false);else startAct(ai,false)}else startAct(ai,false)};
@@ -643,6 +648,8 @@ function showResults(){if(mode!=='play')return;mode='results';resT=rtime;inp.hel
  if(showT){$('rNext').textContent=act.endless?'Beat your best!':act.next;drawIcon($('rIcon').getContext('2d'),ACTS[nx].icon,104)}else if(act.endless){$('rNext').textContent='Beat your best!';drawIcon($('rIcon').getContext('2d'),'encore',104)}
  $('bNext').textContent=won?(act.endless?'Again':(ai+1<ACTS.length?'Next':'Again')):'Retry';
  $('bRetry').style.display=won?'':'none';
+ $('bBoard2').style.display=act.endless?'':'none';
+ if(act.endless&&total>0&&window.GBBoard)GBBoard.submit(LB,total).then(r=>{if(r&&r.best&&mode==='results'&&!/^New best/.test($('rLine').textContent))$('rLine').textContent='New best! '+$('rLine').textContent});
  showOv('res');$('hudb').classList.remove('on');$('skip').classList.remove('on');
  resAnim={t:0,total,medal};if(won)S.cheer(1)}
 let resT=0,resAnim=null;
@@ -982,22 +989,22 @@ function drawStorm(){ctx.setTransform(DPR,0,0,DPR,0,0);
  if(rain.length<120)for(let i=0;i<120;i++)rain.push({x:Math.random()*W,y:Math.random()*H,s:rnd(600,1000)});
  ctx.strokeStyle='rgba(190,210,255,.45)';ctx.lineWidth=1.4;ctx.beginPath();for(const r of rain){r.y+=r.s/60;r.x-=r.s/600;if(r.y>H){r.y=-20;r.x=Math.random()*W*1.1}ctx.moveTo(r.x,r.y);ctx.lineTo(r.x-3,r.y+16)}ctx.stroke()}
 function pill(x,y,w,h,fill,stroke){ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,h/2):ctx.rect(x,y,w,h);ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2.5;ctx.stroke()}}
-function drawHUD(){ctx.setTransform(DPR,0,0,DPR,0,0);const narrow=W<640;
+function drawHUD(){ctx.setTransform(DPR,0,0,DPR,0,0);const narrow=W<640,gbo=window.GB&&GB.isTouch?26:0;// gbo: clear the shared settings tab (top centre) on touch screens
  shownScore=lerp(shownScore,score,.18);if(Math.abs(shownScore-score)<1)shownScore=score;
  // score
  ctx.textBaseline='middle';
- const scx=narrow?W/2+0:W-66,scy=narrow?30:30;ctx.textAlign=narrow?'center':'right';ctx.font='900 '+(narrow?24:28)+'px '+FS;ctx.lineJoin='round';ctx.lineWidth=5;ctx.strokeStyle='#3a0a12';ctx.strokeText(Math.round(shownScore).toLocaleString(),scx,scy);ctx.fillStyle='#fff3c8';ctx.fillText(Math.round(shownScore).toLocaleString(),scx,scy);
+ const scx=narrow?W/2+0:W-66,scy=narrow?30+gbo:30;ctx.textAlign=narrow?'center':'right';ctx.font='900 '+(narrow?24:28)+'px '+FS;ctx.lineJoin='round';ctx.lineWidth=5;ctx.strokeStyle='#3a0a12';ctx.strokeText(Math.round(shownScore).toLocaleString(),scx,scy);ctx.fillStyle='#fff3c8';ctx.fillText(Math.round(shownScore).toLocaleString(),scx,scy);
  // mult badge
  if(mult>1){const mx=narrow?W/2+ (ctx.measureText(Math.round(shownScore).toLocaleString()).width/2+34):W-66-ctx.measureText(Math.round(shownScore).toLocaleString()).width-36,my=scy;const k=1+multPop*.6;ctx.save();ctx.translate(mx,my);ctx.scale(k,k);ctx.rotate(Math.sin(time*4)*.08);ctx.fillStyle=mult>=6?'#ff4a5a':mult>=4?'#ff9a3a':'#2aa66e';starPath(ctx,0,0,24,17,10);ctx.fill();ctx.strokeStyle='#fff3c8';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#fff';ctx.font='900 16px '+FS;ctx.textAlign='center';ctx.fillText('x'+mult,0,1);ctx.restore()}
  // goals
- if(act.goals.length){const gy=narrow?66:30;const parts2=act.goals.map((g,i)=>({txt:GL[g[0]]+'  '+prog[i]+'/'+g[1],done:prog[i]>=g[1],g,i}));ctx.font='900 '+(narrow?15:17)+'px '+FT;
+ if(act.goals.length){const gy=(narrow?66:30)+gbo;const parts2=act.goals.map((g,i)=>({txt:GL[g[0]]+'  '+prog[i]+'/'+g[1],done:prog[i]>=g[1],g,i}));ctx.font='900 '+(narrow?15:17)+'px '+FT;
   const ws=parts2.map(p=>ctx.measureText(p.txt).width+56);const tot=ws.reduce((a,b)=>a+b,0)+(ws.length-1)*8;let x=W/2-tot/2;const pk=1+goalPulse*.12;
   ctx.save();ctx.translate(W/2,gy);ctx.scale(pk,pk);ctx.translate(-W/2,-gy);
   parts2.forEach((p,j)=>{const w=ws[j];pill(x,gy-17,w,34,p.done?'rgba(30,110,60,.92)':'rgba(40,6,16,.86)','#f4b73e');drawGoalIcon(p.g[0],x+20,gy,p.done);ctx.fillStyle=p.done?'#d8ffe0':'#fff3c8';ctx.textAlign='left';ctx.fillText(p.txt,x+38,gy+1);x+=w+8});
   ctx.restore();
   // timer bar
   if(!tut){const tw=Math.min(260,W*.5),tx=W/2-tw/2,ty=gy+24;const fr=clamp(timeLeft/(act.time||60),0,1);pill(tx,ty,tw,7,'rgba(0,0,0,.4)');pill(tx,ty,Math.max(7,tw*fr),7,fr<.25?(Math.sin(time*10)>0?'#ff4a5a':'#ffb040'):'#f4b73e')}
- }else{const gy=narrow?66:30;ctx.font='900 17px '+FT;const txt='Encore  '+Math.ceil(timeLeft)+'s';const w=ctx.measureText(txt).width+30;pill(W/2-w/2,gy-17,w,34,'rgba(40,6,16,.86)','#f4b73e');ctx.fillStyle='#fff3c8';ctx.textAlign='center';ctx.fillText(txt,W/2,gy+1);
+ }else{const gy=(narrow?66:30)+gbo;ctx.font='900 17px '+FT;const txt='Encore  '+Math.ceil(timeLeft)+'s';const w=ctx.measureText(txt).width+30;pill(W/2-w/2,gy-17,w,34,'rgba(40,6,16,.86)','#f4b73e');ctx.fillStyle='#fff3c8';ctx.textAlign='center';ctx.fillText(txt,W/2,gy+1);
   ctx.font='700 12px '+FS;ctx.fillStyle='rgba(255,243,200,.7)';ctx.fillText('Best '+(save.best[ai]||0).toLocaleString(),W/2,gy+30)}
  // act banner
  if(banner<1.4&&!tut){banner+=1/60;const k=eOutBack(Math.min(1,banner*4)),f=Math.min(1,(1.4-banner)*4);ctx.save();ctx.globalAlpha=f;ctx.translate(W/2,(narrow?118:92)+30-24*eOut(Math.min(1,banner*4)));ctx.scale(k*.72,k*.72);
@@ -1028,7 +1035,7 @@ function drawTut(narrow){const [ax,ay]=S2(A.x,A.y);let cap='',showHand=false,dow
  else if(tutStep===1){const pr=A.rot+A.w/KO;cap=pr>TAU-.35?'Let go!':'Keep holding...';showHand=true;down=pr<=TAU-.35}
  else if(tutStep===2){cap='Land on your feet!'}
  else return;
- const y=Math.min(H-120,ay+110*sc+40);ctx.save();ctx.font='900 '+(narrow?26:32)+'px '+FT;ctx.textAlign='center';ctx.textBaseline='middle';const k=1+Math.sin(time*6)*.04;ctx.translate(W/2,Math.max(narrow?120:96,H*.15));ctx.scale(k,k);ctx.lineWidth=7;ctx.strokeStyle='#3a0a12';ctx.strokeText(cap,0,0);ctx.fillStyle='#fff3a0';ctx.fillText(cap,0,0);ctx.restore();
+ const y=Math.min(H-120,ay+110*sc+40);ctx.save();ctx.font='900 '+(narrow?26:32)+'px '+FT;ctx.textAlign='center';ctx.textBaseline='middle';const k=1+Math.sin(time*6)*.04;ctx.translate(W/2,Math.max((narrow?120:96)+(window.GB&&GB.isTouch?26:0),H*.15));ctx.scale(k,k);ctx.lineWidth=7;ctx.strokeStyle='#3a0a12';ctx.strokeText(cap,0,0);ctx.fillStyle='#fff3a0';ctx.fillText(cap,0,0);ctx.restore();
  if(showHand){const hx=W/2,hy=H-110;if(!narrow)keycap(hx-80,hy,80,'SPACE',down);hand(narrow?hx:hx+20,hy,down,1.1)}
  if(tutStep===1&&A.rot>.3){ctx.save();ctx.strokeStyle='rgba(255,243,160,.8)';ctx.lineWidth=4;ctx.setLineDash([6,8]);ctx.beginPath();ctx.arc(ax,ay,70*sc,-PI/2,-PI/2-Math.min(TAU,A.rot),true);ctx.stroke();ctx.restore()}}
 

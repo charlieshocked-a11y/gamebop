@@ -2,7 +2,9 @@
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Pinquake</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Boom Bowl</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a0b18;color:#fff;font-family:"Trebuchet MS","Avenir Next","Segoe UI",system-ui,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
@@ -93,6 +95,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a0b18;col
       <button class="btn neon" id="bHow">How to play</button>
       <button class="btn neon" id="bLanes">Lanes</button>
       <button class="btn neon" id="bShop">Pro Shop</button>
+      <button class="btn neon" id="bBoard">🏆 Leaderboard</button>
     </div>
   </div>
   <a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
@@ -111,6 +114,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a0b18;col
       <button class="btn neon sm" id="rMenu">Menu</button>
       <button class="btn big" id="rNext">Next ▸</button>
       <button class="btn neon sm" id="rRetry">Retry</button>
+      <button class="btn neon sm" id="rBoard" title="Leaderboard">🏆</button>
     </div>
   </div>
 </div>
@@ -486,7 +490,7 @@ function levelEnd(){
       if(stars>0&&lv.idx===19&&save.skins.indexOf(8)<0){save.skins.push(8);res.unlocks.push(8)}
       if(stars>0&&lv.idx===29&&save.skins.indexOf(9)<0){save.skins.push(9);res.unlocks.push(9)}
       if(stars>0&&lv.idx===39&&save.skins.indexOf(13)<0){save.skins.push(13);res.unlocks.push(13)}
-    }else{res.prevBest=save.endBest||0;if(stars>0)G.endN++;else{save.endBest=Math.max(save.endBest||0,G.endN);G.endN=0}}
+    }else{res.prevBest=save.endBest||0;if(stars>0)G.endN++;else{save.endBest=Math.max(save.endBest||0,G.endN);res.endRun=G.endN;G.endN=0}}
     if(perfectGame&&save.skins.indexOf(12)<0){save.skins.push(12);res.unlocks.push(12)}
     res.coins=coins;save.coins+=coins;
     save.cur=null;
@@ -1284,7 +1288,7 @@ function drawHUD(){
   const pr=1+(G.coinPulse||0)*.4;ctx.fillStyle='#ffc425';ctx.beginPath();ctx.arc(cx-tw-24,cy,9*pr,0,TAU);ctx.fill();ctx.strokeStyle='#a55f00';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#fff';ctx.fillText(ctext,cx-6,cy+1);ctx.restore();
   if(G.mode!=='play')return;
   // score + star bar
-  const bw=Math.min(W*(W<H?.62:.34),360),bx=W/2-bw/2,by=W<H?22:20;
+  const bw=Math.min(W*(W<H?.62:.34),360),bx=W/2-bw/2,by=(W<H?22:20)+(window.GB&&GB.isTouch?24:0);
   ctx.save();
   if(lv.boss&&G.badger){const b=G.badger;ctx.font='900 14px "Trebuchet MS",sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.fillText('BADGER',W/2,by+2);for(let i=0;i<b.maxhp;i++){const x=W/2+(i-(b.maxhp-1)/2)*26,y=by+22;ctx.fillStyle=i<b.hp?'#ff4f6a':'#3a2148';ctx.beginPath();ctx.moveTo(x,y+8);ctx.bezierCurveTo(x-14,y-2,x-6,y-12,x,y-4);ctx.bezierCurveTo(x+6,y-12,x+14,y-2,x,y+8);ctx.fill()}
     const left=lv.frames*2-G.throwsUsed;ctx.font='800 12px "Trebuchet MS",sans-serif';ctx.fillStyle='#ffe066';ctx.fillText('BALLS LEFT '+left,W/2,by+44)}
@@ -1341,10 +1345,10 @@ function drawTitle(){
   const t=performance.now()/1000;let s=Math.min(W*.14,H*.16,128);const y=Math.max(H*.2,s*1.45+8);
   const g=ctx.createLinearGradient(0,0,0,H*.5);g.addColorStop(0,'rgba(15,3,14,.75)');g.addColorStop(1,'rgba(15,3,14,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H*.5);
   ctx.save();ctx.font=`900 ${s}px Impact,"Arial Black",sans-serif`;ctx.textBaseline='alphabetic';ctx.textAlign='center';
-  const word='PINQUAKE',chars=word.split('');let ws=chars.map(c=>ctx.measureText(c).width*.98);let tw=ws.reduce((a,b)=>a+b,0);const maxw=W*(W<H?.78:.7);if(tw>maxw){const k=maxw/tw;s=s*k;ctx.font=`900 ${s}px Impact,"Arial Black",sans-serif`;ws=chars.map(c=>ctx.measureText(c).width*.98);tw=ws.reduce((a,b)=>a+b,0)}let x=W/2-tw/2;
+  const word='BOOM BOWL',chars=word.split('');let ws=chars.map(c=>ctx.measureText(c).width*.98);let tw=ws.reduce((a,b)=>a+b,0);const maxw=W*(W<H?.78:.7);if(tw>maxw){const k=maxw/tw;s=s*k;ctx.font=`900 ${s}px Impact,"Arial Black",sans-serif`;ws=chars.map(c=>ctx.measureText(c).width*.98);tw=ws.reduce((a,b)=>a+b,0)}let x=W/2-tw/2;
   // glow
   ctx.save();ctx.globalCompositeOperation='lighter';const gl=ctx.createRadialGradient(W/2,y-s*.35,0,W/2,y-s*.35,tw*.7);gl.addColorStop(0,'rgba(255,79,163,.45)');gl.addColorStop(1,'rgba(255,79,163,0)');ctx.fillStyle=gl;ctx.fillRect(0,0,W,y+s);ctx.restore();
-  for(let i=0;i<chars.length;i++){const ch=chars[i],cx=x+ws[i]/2;const q=i>=3?1:0;const jy=Math.sin(t*3+i*.6)*s*.03+(q?Math.sin(t*40+i)*s*.006*(Math.sin(t*1.3)>.6?1:0):0);const rot=Math.sin(t*2+i)*.03-.06;
+  for(let i=0;i<chars.length;i++){const ch=chars[i],cx=x+ws[i]/2;if(ch===' '){x+=ws[i];continue}const q=i>=5?1:0;const jy=Math.sin(t*3+i*.6)*s*.03+(q?Math.sin(t*40+i)*s*.006*(Math.sin(t*1.3)>.6?1:0):0);const rot=Math.sin(t*2+i)*.03-.06;
     ctx.save();ctx.translate(cx,y+jy);ctx.rotate(rot);ctx.transform(1,0,-.12,1,0,0);
     for(let d=8;d>0;d--){ctx.fillStyle=d>6?'#12030e':'#5a1240';ctx.fillText(ch,d*s*.012,d*s*.014)}
     ctx.lineJoin='round';ctx.lineWidth=s*.09;ctx.strokeStyle='#2a0618';ctx.strokeText(ch,0,0);
@@ -1380,6 +1384,7 @@ function playMain(){
 $('bPlay').onclick=playMain;
 $('bHow').onclick=()=>{btnSfx();startLevel(0,{practice:true,tutorial:true})};
 $('bLanes').onclick=()=>{btnSfx();buildLanes();showScr('lanes')};
+$('bBoard').onclick=showBoard;$('rBoard').onclick=showBoard;
 $('bShop').onclick=()=>{btnSfx();buildShop();showScr('shop')};
 $('lBack').onclick=()=>{btnSfx();showScr('title')};
 $('sBack').onclick=()=>{btnSfx();showScr('title')};
@@ -1424,7 +1429,11 @@ function showResults(){
     const newW=ni>=0&&ni<LEVELS.length&&LEVELS[ni].w!==lv.w;$('rPeekTag').textContent=newW?'NEW WORLD: '+WORLDS[nl.w].name.toUpperCase():nl.t==='boss'?'BOSS LANE!':'NEXT: '+nl.cap.toUpperCase();$('rPeekName').textContent=(ni>=0&&ni<LEVELS.length?(ni+1)+'. ':'')+nl.name;
     const pc=$('peekC'),pg=pc.getContext('2d');pg.clearRect(0,0,128,128);const wd=WORLDS[nl.w];const gr=pg.createLinearGradient(0,0,0,128);gr.addColorStop(0,wd.floor);gr.addColorStop(1,wd.lane[1]);pg.fillStyle=gr;pg.beginPath();pg.arc(64,64,62,0,TAU);pg.fill();pg.strokeStyle=wd.n1;pg.lineWidth=4;pg.stroke();drawTwistIcon(pg,nl.t,64,64,96,0)}
   $('rRetry').style.display=r.stars===0?'none':'';
+  const endRun=lv.idx<0&&!G.practice&&r.endRun!=null;$('rBoard').style.display=endRun?'':'none';
+  if(endRun){$('rBest').textContent='Rounds cleared: '+r.endRun;if(r.endRun>0&&window.GBBoard)GBBoard.submit(LB,r.endRun).then(x=>{if(x&&x.best&&G.mode==='results')$('rBest').textContent='New best! '+r.endRun+' round'+(r.endRun===1?'':'s')})}
 }
+const LB='pinquake',LBO={title:'Boom Bowl',label:'Quake Mode',format:v=>Math.round(v)+' round'+(Math.round(v)===1?'':'s')};
+function showBoard(){btnSfx();GBBoard.show(LB,LBO)}
 function buildLanes(){
   const el=$('lList');el.innerHTML='';let total=0;for(const k in save.stars)total+=save.stars[k];$('lStars').textContent='★ '+total+'/'+LEVELS.length*3;
   WORLDS.forEach((w,wi)=>{const d=document.createElement('div');d.className='world';d.innerHTML='<h3>'+w.name+'</h3>';const g=document.createElement('div');g.className='grid';

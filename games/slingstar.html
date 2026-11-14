@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Slingstar</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Planet Hop</title>
 <style>
 :root{--cream:#fff6e6;--gold:#ffd56b;--gold2:#ff9d4a;--ink:#2a1450;--glass:rgba(22,14,64,.58)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -61,6 +63,7 @@ svg{display:block}
 .bar{flex:1;height:8px;border-radius:5px;background:rgba(255,255,255,.14);overflow:hidden;position:relative}
 .bar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:5px;background:linear-gradient(90deg,#8fe9ff,#ffd56b)}
 #top .btn.ico{width:38px;height:38px}
+.gbt #top{top:max(44px,calc(env(safe-area-inset-top) + 40px))}.gbt #tCap,.gbt #banner{margin-top:36px}
 #hint{position:absolute;left:50%;bottom:max(18px,calc(env(safe-area-inset-bottom) + 10px));transform:translateX(-50%);display:flex;gap:8px;align-items:center;font-weight:800;font-size:16px;transition:opacity .5s;text-shadow:0 2px 4px #000}
 .key{display:inline-block;padding:6px 10px;border-radius:7px;background:linear-gradient(#fff,#d8d0f0);color:#2a1450;box-shadow:0 3px 0 #6a5aa0;font-weight:900;font-size:14px;text-shadow:none}
 #banner{position:absolute;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 64px);transform:translateX(-50%);text-align:center;opacity:0;transition:opacity .35s,transform .35s}
@@ -126,12 +129,13 @@ svg{display:block}
 
 <div id="title" class="scr on">
  <div class="logo">
-  <div class="word"><svg class="sw" viewBox="0 0 100 40" preserveAspectRatio="none"><defs><linearGradient id="swg" x1="0" x2="1"><stop offset="0" stop-color="#8fe9ff" stop-opacity="0"/><stop offset=".7" stop-color="#bff4ff" stop-opacity=".8"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path d="M2 34 Q 40 6 96 8" fill="none" stroke="url(#swg)" stroke-width="1.6" stroke-linecap="round"/><circle cx="96" cy="8" r="1.8" fill="#fff"/></svg><span style="--r:-3deg;animation-delay:0s">S</span><span style="--r:2deg;animation-delay:.1s">l</span><span style="--r:-2deg;animation-delay:.2s">i</span><span style="--r:3deg;animation-delay:.3s">n</span><span style="--r:-2deg;animation-delay:.4s">g</span><span style="--r:2deg;animation-delay:.5s">s</span><span style="--r:-3deg;animation-delay:.6s">t</span><span style="--r:2deg;animation-delay:.7s">a</span><span style="--r:-2deg;animation-delay:.8s">r</span></div>
+  <div class="word"><svg class="sw" viewBox="0 0 100 40" preserveAspectRatio="none"><defs><linearGradient id="swg" x1="0" x2="1"><stop offset="0" stop-color="#8fe9ff" stop-opacity="0"/><stop offset=".7" stop-color="#bff4ff" stop-opacity=".8"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><path d="M2 34 Q 40 6 96 8" fill="none" stroke="url(#swg)" stroke-width="1.6" stroke-linecap="round"/><circle cx="96" cy="8" r="1.8" fill="#fff"/></svg><span style="--r:-3deg;animation-delay:0s">P</span><span style="--r:2deg;animation-delay:.1s">l</span><span style="--r:-2deg;animation-delay:.2s">a</span><span style="--r:3deg;animation-delay:.3s">n</span><span style="--r:-2deg;animation-delay:.4s">e</span><span style="--r:2deg;animation-delay:.5s">t</span><span style="width:.28em">&nbsp;</span><span style="--r:-3deg;animation-delay:.6s">H</span><span style="--r:2deg;animation-delay:.7s">o</span><span style="--r:-2deg;animation-delay:.8s">p</span></div>
   <div class="sub">one tap &middot; whip &middot; catch</div>
  </div>
  <div class="menu">
   <button id="bPlay" class="btn big"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M7 4l13 8-13 8z" fill="#43190a"/></svg><span id="playTxt">Play</span></button>
   <div class="row"><button id="bLevels" class="btn sec">Routes</button><button id="bHow" class="btn sec">How to play</button></div>
+  <div class="row"><button id="bBoard" class="btn sec">🏆 Leaderboard</button></div>
   <div id="skins"></div>
  </div>
  <button class="btn sec ico tmute mute" aria-label="mute"></button>
@@ -183,11 +187,12 @@ svg{display:block}
   <div class="unl" id="rUnl"></div>
   <div class="tease" id="rTease"><canvas id="tIco" width="116" height="116"></canvas><div><small>NEXT</small><b id="tTxtN"></b></div></div>
  </div>
- <div class="rbtns"><button id="bRetry" class="btn sec ico" aria-label="retry"><svg viewBox="0 0 24 24"><path d="M12 5a7 7 0 1 1-6.6 4.7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M3 4l2.6 6 5.6-3z" fill="#fff"/></svg></button><button id="bNext" class="btn big"><span id="nextTxt">Next</span><svg viewBox="0 0 24 24" width="24" height="24"><path d="M7 4l13 8-13 8z" fill="#43190a"/></svg></button><button id="bMenu2" class="btn sec ico" aria-label="menu"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg></button></div>
+ <div class="rbtns"><button id="bRetry" class="btn sec ico" aria-label="retry"><svg viewBox="0 0 24 24"><path d="M12 5a7 7 0 1 1-6.6 4.7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M3 4l2.6 6 5.6-3z" fill="#fff"/></svg></button><button id="bNext" class="btn big"><span id="nextTxt">Next</span><svg viewBox="0 0 24 24" width="24" height="24"><path d="M7 4l13 8-13 8z" fill="#43190a"/></svg></button><button id="bBoard2" class="btn sec ico" aria-label="leaderboard" style="font-size:22px">🏆</button><button id="bMenu2" class="btn sec ico" aria-label="menu"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg></button></div>
 </div>
 
 <script>
 'use strict';
+if(window.GB&&GB.isTouch)document.documentElement.classList.add('gbt');
 (function(){
 const $=id=>document.getElementById(id);
 const cv=$('cv');
@@ -1181,6 +1186,7 @@ let resTimers=[];
 function showResults(){
  screen='res';show('res');resTimers.forEach(clearTimeout);resTimers=[];
  const d=L.def,i=L.idx;$('nextTxt').textContent=d.endless?'Again':'Next';
+ $('bBoard2').style.display='none';
  if(d.endless){endlessResults();return}
  const s3=L.time<=d.par,s2=L.whips>=L.whipNeed;const stars=1+(s2?1:0)+(s3?1:0);
  const rec=SAVE.lv[i]||{};const prevStars=totalStars();const newBest=!rec.t||L.time<rec.t;
@@ -1211,6 +1217,7 @@ function endlessResults(){
  $('rwW').style.display='none';$('rTime').textContent=L.score+' planets';$('rPar').textContent='best '+Math.max(best,L.score);$('rDust').textContent=String(C.dust);$('rDustN').textContent='';
  $('rwT').classList.toggle('ok',nb);$('rwD').classList.remove('ok');
  $('rNear').textContent=!nb&&best-L.score<=3?'Only '+(best-L.score+1)+' from a record!':'';$('rUnl').textContent='';
+ $('bBoard2').style.display='';if(L.score>0&&window.GBBoard){const sc=L.score;GBBoard.submit(LB,sc).then(r=>{if(r&&r.best&&!nb&&screen==='res')$('rTitle').textContent='New best!'})}
  $('rTease').style.display='';$('tTxtN').textContent=L.score<10?'Reach 10 for ★':L.score<25?'Reach 25 for ★★':'Reach 45 for ★★★';drawIcon($('tIco'),'endless');
 }
 function endlessOver(){L.won=true;L.winT=0;L.resShown=true;C.state='dead';C.dt=99;setTimeout(()=>{if(L&&L.def.endless)showResults()},700)}
@@ -1291,6 +1298,8 @@ window.addEventListener('pagehide',()=>save());
 window.addEventListener('blur',()=>{pauseGame()});
 const btn=(id,f)=>{$(id).addEventListener('click',e=>{e.stopPropagation();audioInit();f(e)})};
 btn('bPlay',()=>playMain());
+const LB='slingstar',LBO={title:'Planet Hop',label:'Comet Run',format:v=>Math.round(v)+' planets'};
+btn('bBoard',()=>{SFX.ui();GBBoard.show(LB,LBO)});btn('bBoard2',()=>{SFX.ui();GBBoard.show(LB,LBO)});
 btn('bLevels',()=>{SFX.ui();showLevels()});
 btn('bHow',()=>{SFX.ui();startLevel(0,true)});
 btn('bBack',()=>{SFX.ui();toTitle()});
