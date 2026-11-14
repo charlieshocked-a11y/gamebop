@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Neon Serpent</title>
+<title>Portal Snake</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#07041a;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent}
@@ -101,10 +103,10 @@ canvas{position:fixed;left:0;top:0;display:block}
 <div class="ib" id="pauseB" title="Pause"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></div>
 
 <div class="ov on" id="sTitle">
-  <div class="title"><span>NEON</span><span>SERPENT</span></div>
+  <div class="title"><span>PORTAL</span><span>SNAKE</span></div>
   <div class="sub" id="tStars">arcade · portals · power-ups</div>
   <button class="btn big" id="bPlay">PLAY</button>
-  <div class="row"><button class="btn" id="bModes">Modes</button><button class="btn lime" id="bSkins">Skins</button></div>
+  <div class="row"><button class="btn" id="bModes">Modes</button><button class="btn lime" id="bSkins">Skins</button><button class="btn gold" id="bBoardT">🏆 Leaderboard</button></div>
 </div>
 
 <div class="ov dim" id="sModes">
@@ -142,7 +144,7 @@ canvas{position:fixed;left:0;top:0;display:block}
   <div class="goals" id="rGoals"></div>
   <div class="big" id="rScore">0</div>
   <div class="lb" id="rLB"></div>
-  <div class="row"><button class="btn pink" id="bRetry">Retry</button><button class="btn big" id="bNext">Next</button><button class="btn" id="bMenuR">Menu</button></div>
+  <div class="row"><button class="btn pink" id="bRetry">Retry</button><button class="btn big" id="bNext">Next</button><button class="btn" id="bMenuR">Menu</button><button class="btn gold" id="bBoardR">🏆</button></div>
 </div>
 <div class="hint" id="hint"></div>
 
@@ -611,15 +613,16 @@ function showResult(){
   const tOk=won&&G.time<=G.cfg.par,sOk=won&&G.score>=G.cfg.goal;const st=won?1+(tOk?1:0)+(sOk?1:0):0;
   $('rTitle').textContent=won?(st===3?'PERFECT!':'CLEAR!'):'CRASHED';
   goals.innerHTML='<span class="'+(won?'ok':'')+'">✔ '+G.eaten+'/'+G.cfg.target+'</span><span class="'+(tOk?'ok':'')+'">◷ '+fmt(G.time)+' / '+fmt(G.cfg.par)+'</span><span class="'+(sOk?'ok':'')+'">◆ '+G.score+' / '+G.cfg.goal+'</span>';
-  $('rScore').textContent=G.score;lb.style.display='none';
+  $('rScore').textContent=G.score;lb.style.display='none';$('bBoardR').style.display='none';
   if(won){for(let i=0;i<st;i++)setTimeout(()=>{bs[i].classList.add('on');SFX.star(i)},300+i*280);
    const prevS=save.stars[G.stage]||0;if(st>prevS)save.stars[G.stage]=st;if(G.score>(save.best[G.stage]||0))save.best[G.stage]=G.score;
    save.unlocked=Math.max(save.unlocked,Math.min(24,G.stage+1));persist();
    $('bNext').style.display=G.stage<24?'':'none';$('bNext').textContent='Next'}
   else{$('bNext').style.display='none'}
  }else{
-  rs.style.display='none';$('rTitle').textContent='GAME OVER';goals.innerHTML='<span>✔ '+G.eaten+'</span><span>◷ '+fmt(G.time)+'</span>';$('rScore').textContent=G.score;$('bNext').style.display='none';lb.style.display='block';
-  if(G.mode==='endless'){const e={s:G.score,d:new Date().toLocaleDateString(undefined,{month:'short',day:'numeric'}),me:Date.now()};save.endless.push(e);save.endless.sort((a,b)=>b.s-a.s);save.endless=save.endless.slice(0,8);persist();
+  rs.style.display='none';$('rTitle').textContent='GAME OVER';$('bBoardR').style.display=G.mode==='endless'?'':'none';goals.innerHTML='<span>✔ '+G.eaten+'</span><span>◷ '+fmt(G.time)+'</span>';$('rScore').textContent=G.score;$('bNext').style.display='none';lb.style.display='block';
+  if(G.mode==='endless'){if(G.score>0){const sc=G.score;GBBoard.submit('neon-serpent',sc).then(r=>{if(r&&r.best&&screen==='result'&&G&&G.mode==='endless'&&G.score===sc)$('rTitle').textContent='NEW BEST!'})}
+   const e={s:G.score,d:new Date().toLocaleDateString(undefined,{month:'short',day:'numeric'}),me:Date.now()};save.endless.push(e);save.endless.sort((a,b)=>b.s-a.s);save.endless=save.endless.slice(0,8);persist();
    lb.innerHTML=save.endless.map((x,i)=>'<div class="'+(x.me===e.me?'me':'')+'"><span>'+(i+1)+'. '+x.d+'</span><b>'+x.s+'</b></div>').join('')||'';}
   else{const k=todayKey();const pb=save.daily[k]||0;if(G.score>pb)save.daily[k]=G.score;const ks=Object.keys(save.daily).sort().slice(-14);const o={};ks.forEach(x=>o[x]=save.daily[x]);save.daily=o;persist();
    lb.innerHTML='<div class="'+(G.score>=pb?'me':'')+'"><span>today best</span><b>'+(save.daily[k]||0)+'</b></div><div><span>days played</span><b>'+Object.keys(save.daily).length+'</b></div>'}
@@ -640,6 +643,8 @@ $('bRestartP').onclick=()=>{SFX.click();paused=false;newGame(G.mode,G.stage)};
 $('bMenuP').onclick=$('bMenuR').onclick=()=>{SFX.click();const m=G&&G.mode;goTitle();if(m==='campaign')openStages();else openModes()};
 $('bRetry').onclick=()=>{SFX.click();newGame(G.mode,G.stage)};
 $('bNext').onclick=()=>{SFX.click();newGame('campaign',Math.min(24,G.stage+1))};
+const showBoard=()=>{SFX.click();try{document.activeElement.blur()}catch(_){}GBBoard.show('neon-serpent',{title:'Portal Snake',label:'Endless',format:'int'})};
+$('bBoardT').onclick=$('bBoardR').onclick=showBoard;
 $('mute').onclick=e=>{e.stopPropagation();initAudio();setMute(!muted)};
 $('pauseB').onclick=e=>{e.stopPropagation();if(screen==='play')setPause(!paused)};
 function setPause(p){if(screen!=='play'||!G)return;if(G.state==='dead'||G.state==='won')p=false;paused=p;show(p?'sPause':'')}

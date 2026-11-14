@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}#gbSupport{position:fixed;right:calc(8px + env(safe-area-inset-right,0px));bottom:calc(6px + env(safe-area-inset-bottom,0px));z-index:50;font:600 11.5px/1 system-ui,-apple-system,sans-serif;color:inherit;opacity:.55;text-decoration:none;padding:3px 4px;transition:opacity .2s}#gbSupport:hover,#gbSupport:focus-visible{opacity:1}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><script src="lib/gb.js"></script><script src="lib/board.js"></script><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}#gbSupport{position:fixed;right:calc(8px + env(safe-area-inset-right,0px));bottom:calc(6px + env(safe-area-inset-bottom,0px));z-index:50;font:600 11.5px/1 system-ui,-apple-system,sans-serif;color:inherit;opacity:.55;text-decoration:none;padding:3px 4px;transition:opacity .2s}#gbSupport:hover,#gbSupport:focus-visible{opacity:1}</style></head><body>
 <title>Skybolt Roadster</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Russo+One&display=swap">
@@ -127,6 +127,9 @@ body.touch .speed{min-width:58px}
 body.touch .speed b{font-size:24px}
 body.touch .bars{width:76px}
 body.touch .tc{top:calc(env(safe-area-inset-top,0px) + 64px)}
+/* keep the Gamebop ⚙ settings tab (top centre) clear of the dash */
+body.touch .dash{top:calc(env(safe-area-inset-top,0px) + 44px)}
+body.touch .tc{top:calc(env(safe-area-inset-top,0px) + 98px)}
 body.touch #mini{width:94px;height:94px}
 body.touch .keys{display:none}
 body.touch .goal{font-size:14px;padding:5px 10px;gap:7px}
@@ -270,8 +273,8 @@ body.touch #tut{bottom:calc(env(safe-area-inset-bottom,0px) + 230px)}
   <div id="tut" hidden><div id="tutCap"></div><div id="tutSub"></div><div id="tutDots"><i></i><i></i><i></i></div></div>
   <button class="btn" id="tutSkip" hidden>SKIP ▸</button>
   <div id="touch" hidden>
-    <div class="pad left"><button data-k="left" aria-label="Steer left">◀</button><button data-k="right" aria-label="Steer right">▶</button></div>
-    <div class="pad right">
+    <div class="pad left" data-gbctl="steer"><button data-k="left" aria-label="Steer left">◀</button><button data-k="right" aria-label="Steer right">▶</button></div>
+    <div class="pad right" data-gbctl="pedals">
       <button data-k="emp" class="k-ab k-emp" hidden>EMP</button><button data-k="nitro" class="k-ab k-nitro" hidden>NITRO</button>
       <button data-k="fly" class="k-fly">FLY</button><button data-k="boost" class="k-boost">BOOST</button>
       <button data-k="brake" class="k-brake">BRAKE</button><button data-k="gas">GO</button>
@@ -292,7 +295,7 @@ body.touch #tut{bottom:calc(env(safe-area-inset-bottom,0px) + 230px)}
       <button class="mbtn" data-act="garage"><b>GARAGE</b><small>Upgrades</small></button>
     </div>
     <div class="meta"><span class="rank"><b id="rkN">RANK 1</b> <small id="rkT">ROOKIE</small><i class="rkb"><i id="rkFill"></i></i></span><span>BANK <b id="mCash">$0</b></span><span>STARS <b id="mStars">0</b></span><span>BEST CHASE <b id="mBest">0:00</b></span>
-      <button class="lnk" data-act="howto">HOW TO PLAY</button><button class="lnk" data-act="music" id="musBtn">MUSIC</button><button class="lnk" data-act="sound" id="sndBtn2">SOUND ON</button></div>
+      <button class="lnk" data-act="board">🏆 LEADERBOARD</button><button class="lnk" data-act="howto">HOW TO PLAY</button><button class="lnk" data-act="music" id="musBtn">MUSIC</button><button class="lnk" data-act="sound" id="sndBtn2">SOUND ON</button></div>
     <div class="keys">WASD DRIVE · SHIFT BOOST · SPACE FLY · Q NITRO · E EMP · R RESTART · ESC PAUSE</div>
   </div>
   <a id="gbSupport" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener" style="color:#fff">Support ♥</a>
@@ -354,6 +357,7 @@ body.touch #tut{bottom:calc(env(safe-area-inset-bottom,0px) + 230px)}
     <div class="btns">
       <button class="btn" data-act="menu">MENU</button>
       <button class="btn" data-act="garage">GARAGE</button>
+      <button class="btn" data-act="board">🏆</button>
       <button class="btn pri" data-act="again">AGAIN</button>
     </div>
   </div>
@@ -2662,10 +2666,16 @@ function startGame(m){
   if (m==='chase') pop(DIFF[save.diff].name+' · WANTED '+'★'.repeat(run.level),'red'); else pop('CRUISE','big');
   updateHud();
 }
+const BOARD_DIFF={n:'normal',h:'hard',i:'insane'};
+let boardSub=Promise.resolve({best:false});
+function boardId(d){ return 'skybolt-roadster:'+BOARD_DIFF[d||save.diff]; }
+function showBoard(d){ d=d||save.diff; try{document.activeElement.blur();}catch(_){} GBBoard.show(boardId(d),{title:'Skybolt Roadster · Chase',label:DIFF[d].name,format:'time'}); }
 function bankChase(){
   if (mode!=='chase') return false;
   const c=Math.round(run.cash); save.cash+=c; gainXP(c+run.t*2); const d=save.diff, nb=run.t>save.bestD[d];
-  if (nb) save.bestD[d]=run.t; if (d==='n'&&run.t>save.best) save.best=run.t; run.cash=0; persist(); return nb;
+  if (nb) save.bestD[d]=run.t; if (d==='n'&&run.t>save.best) save.best=run.t; run.cash=0; persist();
+  boardSub=run.t>0?GBBoard.submit(boardId(d),Math.round(run.t*10)/10):Promise.resolve({best:false});
+  return nb;
 }
 function gameOver(kind){
   if (state!=='play') return;
@@ -2674,6 +2684,7 @@ function gameOver(kind){
   $('overT').textContent=kind; $('rTime').textContent=fmtT(run.t); $('rTd').textContent=run.td; $('rCash').textContent=fmt(earned);
   $('rBest').textContent=(nb&&run.t>5?'NEW BEST!':'BEST '+fmtT(save.bestD[save.diff])+(save.bestD[save.diff]-run.t<10&&!nb?' — SO CLOSE!':''))+(run.escapes?' · ESCAPES '+run.escapes:'');
   resReady=performance.now()+700;
+  const nEsc=run.escapes, rt=run.t; boardSub.then(r=>{ if (r&&r.best&&rt>5&&state==='over') $('rBest').textContent='NEW BEST!'+(nEsc?' · ESCAPES '+nEsc:''); });
   show('over');
 }
 function pauseGame(){ state='paused'; for (const k in touch) touch[k]=0; show('pause'); }
@@ -2776,6 +2787,7 @@ document.addEventListener('click',e=>{
   else if (a==='again') startGame('chase');
   else if (a==='cruise') startGame('cruise');
   else if (a==='howto') startTut('menu');
+  else if (a==='board') showBoard();
   else if (a==='garage') openGarage();
   else if (a==='gback'){ state='menu'; refreshMenu(); show('menu'); }
   else if (a==='back'){ state='menu'; mode='cruise'; refreshMenu(); show('menu'); }

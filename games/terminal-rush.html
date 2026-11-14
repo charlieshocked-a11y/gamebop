@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Terminal Rush</title>
+<title>Fast Hacker</title>
 <style>
 :root{--g:#39ff7a;--gd:#1c9c48;--gdd:#0d4a24;--bg:#020a05;--amber:#ffb000;--red:#ff3b3b;--mono:"DejaVu Sans Mono","Cascadia Mono",Consolas,Menlo,"Liberation Mono","Courier New",monospace}
 *{box-sizing:border-box}
@@ -108,6 +110,7 @@ button.ico{width:42px;height:42px;padding:0;font-size:18px;display:flex;align-it
 #kb{position:fixed;left:-9999px;top:0;opacity:0;width:10px;height:10px}
 .tapkb{display:none;margin-top:8px;font-size:13px;color:var(--amber);text-align:center}
 @media (hover:none) and (pointer:coarse){.tapkb{display:block}}
+@media (pointer:coarse){#gName{max-width:calc(50vw - 98px)}} /* keep the server name clear of the Gamebop ⚙ tab */
 @media (max-width:520px){.nodes{gap:5px}.node{font-size:11px;padding:6px 2px}.node b{font-size:17px}button{font-size:16px;padding:9px 12px}button.big{font-size:20px}.stats{gap:10px;font-size:12px}}
 </style></head>
 <body>
@@ -115,10 +118,11 @@ button.ico{width:42px;height:42px;padding:0;font-size:18px;display:flex;align-it
 <div id="alarm"></div>
 <!-- TITLE -->
 <div id="title" class="scr on">
- <div class="logo glow"><span data-t="TERMINAL">TERMINAL</span><span class="r" data-t="RUSH">RUSH</span></div>
+ <div class="logo glow"><span data-t="FAST">FAST</span><span class="r" data-t="HACKER">HACKER</span></div>
  <div class="prompt">root@ghost:~$ ./breach --all <span class="cur"></span></div>
  <button class="big" id="bPlay">&gt; PLAY</button>
  <button id="bHow">? HOW TO PLAY</button>
+ <button id="bBoardT">🏆 LEADERBOARD</button>
  <div class="hint">Type exactly · Enter to start</div>
  <a class="gbsup" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
 </div>
@@ -491,7 +495,8 @@ function wpm(){const m=G.elapsed/60;return m>0.02?Math.round(G.correct/5/m):0}
 function acc(){return G.keys?Math.round(G.correct/(G.correct+G.miss)*1000)/10:100}
 function finish(win){G.done=true;const w=wpm(),a=acc();const ov=$('ovRes'),box=$('resBox');box.classList.toggle('bad',!win);
  let rank='',cr=0;
- if(G.endless){cr=Math.round(G.endLines*6+w*0.5);const best=G.endLines>S.endBest;if(best)S.endBest=G.endLines;$('rT').textContent=best?'NEW RECORD':'CONNECTION LOST';$('rRank').textContent=String(G.endLines);win=true}
+ if(G.endless){cr=Math.round(G.endLines*6+w*0.5);const best=G.endLines>S.endBest;if(best)S.endBest=G.endLines;$('rT').textContent=best?'NEW RECORD':'CONNECTION LOST';$('rRank').textContent=String(G.endLines);win=true;
+  if(G.endLines>0){const g0=G;GBBoard.submit('terminal-rush',G.endLines).then(r=>{if(r&&r.best&&G===g0)$('rT').textContent='NEW BEST'})}}
  else if(win){const t=G.trace;rank=a>=98&&t<60?'S':a>=95?'A':a>=90?'B':'C';const base=Math.round(25*(G.ci+1)*(1+G.si*0.25));const rm={S:1.6,A:1.3,B:1.1,C:1}[rank];const first=!S.done[G.i];cr=Math.round(base*rm*(first?1:0.6));
   const order='CBAS';if(!S.done[G.i]||order.indexOf(rank)>order.indexOf(S.done[G.i]))S.done[G.i]=rank;$('rT').textContent='ACCESS GRANTED';$('rRank').textContent=rank}
  else{$('rT').textContent='TRACED';$('rRank').textContent='✕';cr=Math.round(G.li*2*(G.ci+1))}
@@ -499,10 +504,13 @@ function finish(win){G.done=true;const w=wpm(),a=acc();const ov=$('ovRes'),box=$
  $('rKV').innerHTML='<span>WPM</span><b>'+w+'</b><span>ACC</span><b>'+a+'%</b><span>LINES</span><b>'+(G.endless?G.endLines:G.li+'/'+G.lines.length)+'</b><span>CREDITS</span><b style="color:var(--amber)">+'+cr+'</b><span>BEST WPM</span><b>'+S.bestWpm+'</b>';
  const bt=$('rBtns');bt.innerHTML='';const mk=(t,f,dim)=>{const b=document.createElement('button');b.textContent=t;if(dim)b.className='dim';b.onclick=()=>{SFX.click();f()};bt.appendChild(b);return b};
  mk('MAP',()=>{ov.classList.remove('on');show('map')},true);
+ if(G.endless)mk('🏆',showBoard,true);
  if(!G.endless&&win&&G.i<24)mk('NEXT ›',()=>startServer(G.i+1)).focus();else mk('RETRY',()=>startServer(G.i)).focus();
  if(win)SFX.win();else SFX.lose();setTimeout(()=>ov.classList.add('on'),win?500:900);if(!win){document.body.classList.remove('shake');void document.body.offsetWidth;document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),300)}
  $('alarm').style.boxShadow='none'}
 // ---------- input ----------
+function showBoard(){try{$('kb').blur();document.activeElement.blur()}catch(e){}GBBoard.show('terminal-rush',{title:'Fast Hacker',label:'Overflow ∞',format:v=>Math.round(v)+' lines'})}
+$('bBoardT').onclick=()=>{SFX.click();showBoard()};
 function focusKb(){try{$('kb').focus({preventScroll:true})}catch(e){}}
 $('tapkb').onclick=focusKb;$('term').addEventListener('click',focusKb);
 addEventListener('keydown',e=>{ensureAudio();const k=e.key;

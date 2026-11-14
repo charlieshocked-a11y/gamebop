@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Ghost Typer</title>
+<title>Beat Your Ghost</title>
 <style>
 :root{--cy:#3ff0ff;--mg:#ff3fd2;--yl:#ffe14a;--bg:#120a24}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
@@ -17,7 +19,7 @@ canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 .logo .a{display:block;color:#fff;text-shadow:0 0 .08em var(--cy),0 0 .25em var(--cy),0 .06em 0 #0a5a7a}
 .logo .b{display:block;background:linear-gradient(#fff 10%,#ff9aea 45%,#c020ff 90%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 .12em rgba(255,63,210,.8)) drop-shadow(0 .05em 0 #5a0a5a);margin-left:.4em}
 #title .btn{font-size:min(6vw,5vh,30px);padding:.45em 1.6em}
-#title #howBtn{font-size:min(4.2vw,3.4vh,17px);padding:.55em 1.4em}
+#title #howBtn,#title #boardBtn{font-size:min(4.2vw,3.4vh,17px);padding:.55em 1.4em}
 #support{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));font-size:11.5px;color:#cfe;opacity:.55;text-decoration:none;text-shadow:0 1px 2px rgba(0,0,0,.8);transition:opacity .2s}
 #support:hover{opacity:1}
 .hint{font-size:13px;background:rgba(0,0,0,.45);padding:4px 12px;border-radius:20px;color:#cfe}
@@ -75,7 +77,7 @@ canvas.hm,canvas.gr{width:100%;display:block;border-radius:12px;background:rgba(
 </style></head><body>
 <canvas id="c"></canvas>
 <input id="kb" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-<div id="title"><div class="logo"><span class="a">GHOST</span><span class="b">TYPER</span></div><button class="btn" id="playBtn">PLAY</button><button class="btn cy" id="howBtn">HOW TO PLAY</button><div class="hint">Type to drive · race your ghosts · top 2 advance</div><a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a></div>
+<div id="title"><div class="logo"><span class="a" style="font-size:.56em;margin-bottom:.08em">BEAT YOUR</span><span class="b">GHOST</span></div><button class="btn" id="playBtn">PLAY</button><button class="btn cy" id="howBtn">HOW TO PLAY</button><button class="btn mg" id="boardBtn">🏆 LEADERBOARD</button><div class="hint">Type to drive · race your ghosts · top 2 advance</div><a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a></div>
 <div id="lobby" class="hidden"><div class="panel">
  <div class="lg"><button class="arrow" id="lPrev">‹</button><canvas id="badge" width="168" height="168"></canvas><div style="flex:1;min-width:0"><div class="nm" id="lName"></div><div class="w" id="lW"></div><div class="pipz" id="lPips"></div></div><button class="arrow" id="lNext">›</button></div>
  <div id="rivals"></div>
@@ -261,6 +263,7 @@ function finish(){R.done=true;R.samples.push(R.pos);const t=R.t,len=R.text.lengt
  const cps=R.samples.map(v=>v);const gh={w:wpm,s:cps,l:R.l};G.last=gh;let newBest=false;if(!G.ghosts[R.l]||wpm>G.ghosts[R.l].w){G.ghosts[R.l]=gh;newBest=true}
  if(wpm>G.best)G.best=wpm;
  let promoted=false;if(place<=2&&R.l===G.top){G.wins++;if(G.wins>=2&&G.top<LEAGUES.length-1){G.top++;G.wins=0;promoted=true;viewLeague=G.top}}
+ boardNew=false;if(wpm>0){const thisRace=R;GBBoard.submit('ghost-typer',wpm).then(r=>{if(r&&r.best&&R===thisRace){boardNew=true;const el=document.getElementById('gbNew');if(el)el.style.display=''}})}
  save();SFX.fin(place);state='results';setTimeout(()=>showResults({wpm,acc,t,place,gdelta,newBest,promoted}),700)}
 // ---------- UI ----------
 function showOnly(id){['title','lobby','race'].forEach(k=>$(k).classList.toggle('hidden',k!==id));$('pauseBtn').classList.toggle('hidden',id!=='race')}
@@ -286,12 +289,14 @@ $('mClose').onclick=()=>{SFX.click();goLobby()};
 function chip(v,l){return'<div class="chip"><b>'+v+'</b><small>'+l+'</small></div>'}
 function showResults(r){const d=document.createElement('div');const pc=['#ffe14a','#d8d8e8','#cd7f32','#ff8aa0'][r.place-1];
  d.innerHTML='<div class="place" style="color:'+pc+';text-shadow:0 0 20px '+pc+'">'+r.place+(['st','nd','rd','th'][r.place-1])+'</div><div style="text-align:center;font-weight:900;margin-top:4px;color:'+(r.place<=2?'#7cf08a':'#ff8aa0')+'">'+(r.place<=2?(R.l===G.top||r.promoted?'QUALIFIED':'TOP 2'):'TOP 2 NEEDED')+'</div>'+
- '<div class="stats">'+chip(r.wpm,'WPM')+chip(r.acc+'%','ACC')+chip(r.t.toFixed(1)+'s','TIME')+(r.gdelta!==null?chip('<span style="color:'+(r.gdelta>0?'#7cf08a':'#ff8aa0')+'">'+(r.gdelta>0?'-':'+')+Math.abs(r.gdelta).toFixed(1)+'s</span>','VS GHOST'):'')+'</div>'+(r.newBest?'<div style="text-align:center;color:#3ff0ff;font-weight:900">👻 NEW GHOST SAVED</div>'.replace('👻 ',''):'')+'<div class="sub">KEY ERRORS · THIS RACE</div>';
+ '<div class="stats">'+chip(r.wpm,'WPM')+chip(r.acc+'%','ACC')+chip(r.t.toFixed(1)+'s','TIME')+(r.gdelta!==null?chip('<span style="color:'+(r.gdelta>0?'#7cf08a':'#ff8aa0')+'">'+(r.gdelta>0?'-':'+')+Math.abs(r.gdelta).toFixed(1)+'s</span>','VS GHOST'):'')+'</div>'+(r.newBest?'<div style="text-align:center;color:#3ff0ff;font-weight:900">👻 NEW GHOST SAVED</div>'.replace('👻 ',''):'')+'<div id="gbNew" style="text-align:center;color:#ffe14a;font-weight:900;font-style:italic;letter-spacing:1px;text-shadow:0 0 12px rgba(255,225,74,.7);margin-top:6px'+(boardNew?'':';display:none')+'">★ NEW BEST: '+r.wpm+' WPM ★</div><div class="sub">KEY ERRORS · THIS RACE</div>';
  const hm=document.createElement('canvas');hm.className='hm';d.appendChild(hm);
- const row=document.createElement('div');row.className='row';const b1=document.createElement('button');b1.className='btn cy';b1.textContent='LOBBY';b1.onclick=goLobby;const b2=document.createElement('button');b2.className='btn';b2.textContent=r.place<=2?'NEXT RACE':'RETRY';b2.onclick=()=>{$('modal').classList.add('hidden');startRace()};row.appendChild(b1);row.appendChild(b2);d.appendChild(row);
+ const row=document.createElement('div');row.className='row';const b1=document.createElement('button');b1.className='btn cy';b1.textContent='LOBBY';b1.onclick=goLobby;const b2=document.createElement('button');b2.className='btn';b2.textContent=r.place<=2?'NEXT RACE':'RETRY';b2.onclick=()=>{$('modal').classList.add('hidden');startRace()};const b3=document.createElement('button');b3.className='btn mg';b3.textContent='🏆';b3.onclick=showBoard;row.appendChild(b1);row.appendChild(b3);row.appendChild(b2);d.appendChild(row);
  openModal('Results',d);requestAnimationFrame(()=>drawHeat(hm,R.keys));resultsOpen=true;
  if(r.promoted){setTimeout(()=>{banner('PROMOTED!');SFX.promo()},400)}else if(r.gdelta>0)SFX.ghost()}
-let resultsOpen=false;
+let resultsOpen=false,boardNew=false;
+function showBoard(){SFX.click();try{kb.blur();document.activeElement.blur()}catch(e){}GBBoard.show('ghost-typer',{title:'Beat Your Ghost',label:'Best WPM',format:v=>Math.round(v)+' WPM'})}
+$('boardBtn').onclick=showBoard;
 function banner(t){const b=$('banner');b.textContent=t;b.style.opacity=1;setTimeout(()=>b.style.opacity=0,1800)}
 const KROWS=['1234567890-=','qwertyuiop[]','asdfghjkl;\'','zxcvbnm,./'];const SHIFT={'!':'1','@':'2','#':'3','$':'4','%':'5','^':'6','&':'7','*':'8','(':'9',')':'0','_':'-','+':'=','{':'[','}':']',':':';','"':"'",'<':',','>':'.','?':'/'};
 function keyOf(c){if(c===' ')return' ';if(SHIFT[c])return SHIFT[c];return c.toLowerCase()}

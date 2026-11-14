@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Sky Hopper</title>
+<title>Lava Climb</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#7fd4ff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent}
@@ -91,17 +93,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:#7fd4ff;font-family:
 <div class="ib" id="mute"><svg viewBox="0 0 24 24" id="muteI"></svg></div>
 <div class="ib" id="pauseB"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></div>
 <div id="touch">
- <div class="tb" id="tL" style="left:16px"><svg viewBox="0 0 24 24"><path d="M15 5l-8 7 8 7z"/></svg></div>
- <div class="tb" id="tR" style="left:104px"><svg viewBox="0 0 24 24"><path d="M9 5l8 7-8 7z"/></svg></div>
- <div class="tb" id="tD" style="right:110px;width:64px;height:64px;bottom:30px"><svg viewBox="0 0 24 24"><path d="M3 12h11l-3-4M14 12l-3 4M16 6l5 6-5 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
- <div class="tb" id="tJ" style="right:16px;width:84px;height:84px"><svg viewBox="0 0 24 24"><path d="M5 15l7-8 7 8z"/></svg></div>
+ <div id="tLR" data-gbctl="move" style="position:absolute;left:16px;bottom:22px;width:162px;height:74px">
+ <div class="tb" id="tL" style="left:0;bottom:0"><svg viewBox="0 0 24 24"><path d="M15 5l-8 7 8 7z"/></svg></div>
+ <div class="tb" id="tR" style="left:88px;bottom:0"><svg viewBox="0 0 24 24"><path d="M9 5l8 7-8 7z"/></svg></div>
+ </div>
+ <div class="tb" id="tD" data-gbctl="dash" style="right:110px;width:64px;height:64px;bottom:30px"><svg viewBox="0 0 24 24"><path d="M3 12h11l-3-4M14 12l-3 4M16 6l5 6-5 6" stroke="#fff" stroke-width="2" fill="none"/></svg></div>
+ <div class="tb" id="tJ" data-gbctl="jump" style="right:16px;width:84px;height:84px"><svg viewBox="0 0 24 24"><path d="M5 15l7-8 7 8z"/></svg></div>
 </div>
 
 <div class="ov on" id="sTitle">
- <div class="title"><span>SKY</span><span>HOPPER</span></div>
+ <div class="title"><span>LAVA</span><span>CLIMB</span></div>
  <div class="coins" id="tBest" style="font-size:20px"></div>
  <button class="btn big" id="bPlay">PLAY</button>
- <button class="btn pink" id="bShop">Shop</button>
+ <div class="row"><button class="btn pink" id="bShop">Shop</button><button class="btn" id="bBoardT">🏆 Leaderboard</button></div>
 </div>
 <div class="ov dim" id="sShop">
  <div class="panel">
@@ -115,6 +119,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#7fd4ff;font-family:
  <div class="h2" id="oT">OUCH!</div>
  <div class="stat"><div class="hh" id="oH">0m</div><div id="oNew"></div><div class="coins" style="justify-content:center"><i class="coin"></i><span id="oC">+0</span></div><div id="oB" style="font-size:16px"></div></div>
  <div class="row"><button class="btn pink" id="bOShop">Shop</button><button class="btn big" id="bAgain">Again</button></div>
+ <button class="btn" id="bBoardO">🏆 Leaderboard</button>
 </div>
 
 <a id="gbSup" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
@@ -445,7 +450,8 @@ function drawGame(){
 function stroked(t,x,y,size,col,align){cx.font='900 '+size+'px system-ui,sans-serif';cx.textAlign=align||'center';cx.lineWidth=Math.max(3,size/6);cx.strokeStyle='#2a1a5a';cx.lineJoin='round';cx.strokeText(t,x,y);cx.fillStyle=col||'#fff';cx.fillText(t,x,y)}
 function drawHUD(){
  cx.textBaseline='middle';
- stroked(G.height+'m',VW/2,32,38,'#fff');stroked('★ '+Math.max(S.best,G.height)+'m',VW/2,62,14,'#ffe14d');
+ const gbY=document.getElementById('gbbar')?36:0; // clear the Gamebop ⚙ tab on touch screens
+ stroked(G.height+'m',VW/2,32+gbY,38,'#fff');stroked('★ '+Math.max(S.best,G.height)+'m',VW/2,62+gbY,14,'#ffe14d');
  cx.fillStyle='#ffd23d';cx.strokeStyle='#2a1a5a';cx.lineWidth=2.5;cx.beginPath();cx.arc(24,28,11,0,7);cx.fill();cx.stroke();stroked(''+G.coinsRun,42,29,22,'#ffe14d','left');
  for(let i=0;i<G.p.shield;i++){cx.fillStyle='rgba(158,232,255,.8)';cx.strokeStyle='#2a1a5a';cx.lineWidth=2;cx.beginPath();cx.arc(24+i*24,58,9,0,7);cx.fill();cx.stroke()}
  if(S.up.dash>0){const x=isTouch?VW-142:VW-36,y=isTouch?VH-62-30:VH-36;const f=clamp(1-G.p.dashCD/DASHCD[S.up.dash],0,1);if(!isTouch||true){cx.strokeStyle='rgba(42,26,90,.4)';cx.lineWidth=5;cx.beginPath();cx.arc(x,y,isTouch?36:16,0,7);cx.stroke();cx.strokeStyle=f>=1?'#7af08a':'#fff';cx.beginPath();cx.arc(x,y,isTouch?36:16,-1.57,-1.57+6.283*f);cx.stroke()}}
@@ -494,6 +500,7 @@ function gameOver(){
  const h=G.height,nb=h>S.best;if(nb)S.best=h;G.coinsRun+=Math.floor(h/10);S.coins+=G.coinsRun;S.total+=G.coinsRun;persist();
  $('oT').textContent=nb?'NEW BEST!':['OUCH!','TOASTY!','SO CLOSE!'][Math.random()*3|0];$('oH').textContent=h+'m';$('oNew').innerHTML='';$('oC').textContent='+'+G.coinsRun;$('oB').textContent='★ '+S.best+'m  ·  '+S.coins;
  show('sOver');
+ if(h>0)GBBoard.submit('sky-hopper',h).then(r=>{if(r&&r.best&&screen==='over'&&G.height===h)$('oT').textContent='NEW BEST!'});
 }
 let tab='u';
 function openShop(){screen='shop';show('sShop');renderShop()}
@@ -516,6 +523,7 @@ $('bPlay').onclick=()=>{SFX.click();start()};$('bPlay2').onclick=()=>{SFX.click(
 $('bShop').onclick=()=>{SFX.click();openShop()};$('bOShop').onclick=()=>{SFX.click();openShop()};
 $('bBack').onclick=()=>{SFX.click();toTitle()};
 $('bAgain').onclick=()=>{SFX.click();start()};
+$('bBoardT').onclick=$('bBoardO').onclick=()=>{SFX.click();try{document.activeElement.blur()}catch(_){}GBBoard.show('sky-hopper',{title:'Lava Climb',format:v=>Math.round(v)+'m'})};
 $('bResume').onclick=()=>setPause(false);$('bQuit').onclick=()=>{paused=false;toTitle()};
 $('pauseB').onclick=e=>{e.stopPropagation();setPause(!paused)};
 $('mute').onclick=e=>{e.stopPropagation();initAudio();setMute(!muted)};
