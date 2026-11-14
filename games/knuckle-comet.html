@@ -225,6 +225,9 @@ const SFX={
   secret(){[0,7,12,16,19,24,28].forEach((n,i)=>tone(523*Math.pow(2,n/12),0.45,'sine',0.12,null,i*0.08));},
   bosshit(){tone(110,0.4,'sawtooth',0.18,40);noise(0.3,0.5,1500,'lowpass',200);tone(70,0.5,'sine',0.6,30);},
   reflect(){tone(400,0.12,'square',0.08,1400);noise(0.08,0.3,3000,'highpass');},
+  apex(){tone(1760,0.05,'sine',0.05);},
+  superp(){noise(0.8,0.7,1800,'lowpass',80);tone(140,0.7,'sawtooth',0.3,40);[0,7,12,19,24].forEach((n,i)=>tone(523*Math.pow(2,n/12),0.22,'square',0.07,null,0.05+i*0.05));},
+  rush(){[0,4,7,12,7,12,16].forEach((n,i)=>tone(784*Math.pow(2,n/12),0.12,'square',0.06,null,i*0.06));},
 };
 const PROG=[[0,4,7],[-3,0,4],[5,9,12],[7,11,14]];
 function schedMusic(){
@@ -490,7 +493,9 @@ function onHit(e){
   const nx=Math.cos(R.dir),ny=Math.sin(R.dir);
   const perf=R.perfect&&G.mode!=='demo';R.perfect=false;G.hits=(G.hits||0)+1;
   G.combo+=perf?2:1;G.comboT=comboTime();G.comboPop=1;if(G.combo>G.maxCombo)G.maxCombo=G.combo;G.lastHitT=G.t;
-  if(perf){G.perfects=(G.perfects||0)+1;e.perf=true;SFX.perfect();txt(e.x,e.y-52,'PERFECT!',24,'#ffe14d');ring(e.x,e.y,70,'#ffe14d',0.35);burstStars(e.x,e.y,8,520);}
+  if(perf){G.perfects=(G.perfects||0)+1;G.pstreak=(G.pstreak||0)+1;e.perf=true;SFX.perfect();txt(e.x,e.y-52,G.pstreak>1?'PERFECT x'+G.pstreak:'PERFECT!',24+Math.min(10,G.pstreak*2),'#ffe14d');ring(e.x,e.y,70,'#ffe14d',0.35);burstStars(e.x,e.y,8,520);
+    if(G.pstreak%3===0&&G.mode==='play')G.superNext=true;}
+  else if(G.mode==='play')G.pstreak=0;
   const big=e.type==='weak'||e.type==='ship'||e.type==='bell';
   G.hitstop=(big?0.12:0.05+Math.min(0.045,G.combo*0.003))+(perf?0.03:0);
   addShake(big?14:5+Math.min(9,G.combo*0.35),nx,ny);
@@ -510,6 +515,15 @@ function onHit(e){
   G.pendHit={e,nx,ny};e.hitting=true;e.flash=G.hitstop+0.03;e.sq=1;
   if(G.combo>=10&&G.combo%10===0)milestone();
   if(G.mode==='tut')tutHit(e);
+}
+function superPunch(x,y){
+  SFX.superp();addShake(22);G.flash=0.3;G.flashCol='#fff3a0';G.slow=Math.max(G.slow,0.7);G.zoomV+=1.1;
+  G.pops.push({text:'SUPER PUNCH!',t:0,col:'#ff9a3c',big:1});
+  ring(x,y,260,'#ffe14d',0.5);ring(x,y,170,'#fff',0.35);burstStars(x,y,24,800);
+  let n=0;for(const e of G.ents){if(!e.alive||e.hitting||!targetable(e))continue;if(['weak','ship','castle','bell','ball','drop','gull'].includes(e.type))continue;
+    const dx=e.x-x,dy=e.y-y,d=Math.hypot(dx,dy);if(d>280)continue;const nx=dx/(d||1),ny=dy/(d||1);n++;
+    G.combo++;G.comboT=comboTime();if(G.combo>G.maxCombo)G.maxCombo=G.combo;e.perf=true;damage(e,nx,ny);}
+  if(n)txt(x,y-90,'+'+n+' SMASHED!',22,'#fff');
 }
 function milestone(){
   const c=G.combo;SFX.milestone();
@@ -682,6 +696,7 @@ function updateRocko(dt){
   }
   // next target preview
   if(!R.dashing){G.nextTgt=pickTarget(heldBias());if(G.nextTgt){R.recent=G.nextTgt;R.recentT=0.15;}}else G.nextTgt=null;
+  {const iw=G.mode==='play'&&!!G.nextTgt&&!G.nextBlocked&&!G.hover&&!R.dashing&&Math.abs(R.vy)<perfWin()&&G.t-G.lastHitT>0.15;if(iw&&!G.inWin)SFX.apex();G.inWin=iw;}
   G.soonTgt=null;if(!G.nextTgt&&!R.dashing){let bd=reach()*2.1;for(const e of G.ents){if(!targetable(e))continue;const dx=e.x-R.x;if(dx*R.facing<-20)continue;const d=Math.hypot(dx,e.y-R.y);if(d<bd){bd=d;G.soonTgt=e;}}}
   animRocko(R,dt,G.windF);
 }
@@ -1249,6 +1264,7 @@ function spawnFormation(){
   const C=G.cfg,rc=reach(),n=C.n||1;
   if(G.mode==='play'&&!G.introDone){G.introDone=true;const w=spawnIntro(C.newT);if(w>=0)return{w,sp:170};}
   if(G.mode==='play'&&C.castle&&!G.castle&&G.smashed>=G.goal*0.35){G.castle=true;return spawnCastle();}
+  if(G.mode==='play'&&!C.bonus&&!C.boss&&G.goal&&!G.rushDone&&G.smashed>=G.goal*0.45){G.rushDone=true;SFX.rush();G.pops.push({text:'COIN RUSH!',t:0,col:'#ffd34a',big:1});return spawnBonusForm();}
   if(C.bonus){return spawnBonusForm();}
   const shapes=n<=2?['arc','line','stairUp','arc','stairDown']:['arc','line','stairUp','stairDown','zig','tower','ring','arc'];
   const shape=pick(shapes);
@@ -1317,7 +1333,7 @@ function startWave(n){
   save.started=true;persist();showUI();
 }
 function waveClear(){
-  if(G.ending)return;G.ending=true;G.endT=1.5;G.failed=false;G.slow=Math.max(G.slow,0.8);
+  if(G.ending)return;G.ending=true;G.endT=1.7;G.failed=false;G.slow=Math.max(G.slow,1.2);G.zoomV+=1.4;addShake(18);G.flash=0.25;G.flashCol='#ffffff';burstStars(G.R.x,G.R.y,30,900);ring(G.R.x,G.R.y,220,'#ffe14d',0.6);if(!G.cfg.bonus&&G.mode==='play'){txt(G.R.x,G.R.y-70,'FINISH!',36,'#ff9a3c',1.3);dropCoins(G.R.x,G.R.y-20,10);}
   SFX.fanfare();confetti(G.R.x,G.R.y-40,60);G.pops.push({text:G.cfg.bonus?'TIME!':'CLEAR!',t:0,col:'#ffe14d',big:1});
   G.R.mood='joy';G.R.moodT=3;
   for(const e of G.ents)if(e.type==='ball'||e.type==='drop'||e.type==='spike')e.alive=false;
@@ -1495,7 +1511,7 @@ function stepWorld(rdt){
   for(const p of g.pops)p.t+=rdt;g.pops=g.pops.filter(p=>p.t<1.6);
   if(g.banner){g.banner.t+=rdt;if(g.banner.t>2.6)g.banner=null;}
   if(g.hitstop>0){g.hitstop-=rdt;if(g.hitstop>0)return;}
-  if(g.pendHit){const h=g.pendHit;g.pendHit=null;h.e.hitting=false;damage(h.e,h.nx,h.ny);}
+  if(g.pendHit){const h=g.pendHit;g.pendHit=null;h.e.hitting=false;damage(h.e,h.nx,h.ny);if(g.superNext){g.superNext=false;superPunch(h.e.x,h.e.y)}}
   let dt=rdt;if(g.slow>0){g.slow-=rdt;dt*=0.3;}
   g.t+=dt;
   if(g.mode==='demo')demoAI(dt);
@@ -1516,6 +1532,7 @@ function stepWorld(rdt){
   // bonus timer
   if(g.mode==='play'&&g.cfg.bonus&&!g.ending){g.timer-=dt;if(g.timer<=0){g.timer=0;waveClear();}}
   // goal
+  if(g.mode==='play'&&!g.ending&&!g.cfg.boss&&!g.cfg.bonus&&g.goal&&!g.last3&&g.goal-g.smashed<=3&&g.goal-g.smashed>0){g.last3=true;g.pops.push({text:'LAST '+(g.goal-g.smashed)+'!',t:0,col:'#ff7ad1'});SFX.warn();}
   if(g.mode==='play'&&!g.ending&&!g.cfg.boss&&!g.cfg.bonus&&g.smashed>=g.goal)waveClear();
   if(g.ending){g.endT-=rdt;if(g.endT<=0&&!g.res&&scene==='play')showResults();}
   // rain

@@ -253,7 +253,10 @@ const sfx={
   blip(){osc('sine',660,880,0.06,0.15)},
   goal(){[659,784,988,1319].forEach((f,i)=>osc('square',f,null,0.12,0.08,i*0.07));nz(1.2,0.18,'bandpass',1200,1600,0.6)},
   zzz(){osc('sine',200,180,0.3,0.04)},
-  rumble(){osc('sawtooth',55,48,0.5,0.15)}
+  rumble(){osc('sawtooth',55,48,0.5,0.15)},
+  ding(){osc('triangle',1568,null,0.12,0.18);osc('sine',2349,null,0.1,0.08,0.03)},
+  perfect(){[1047,1319,1568,2093].forEach((f,i)=>osc('square',f,null,0.09,0.07,i*0.04));nz(0.25,0.25,'highpass',4000)},
+  sputter(){osc('square',70,60,0.07,0.06)}
 };
 let revLevel=0;
 function revSet(v){if(!AC)return;revLevel=v;const t=AC.currentTime;revG.gain.setTargetAtTime(v>0?0.05+0.09*v:0,t,0.03);revO.frequency.setTargetAtTime(60+260*v,t,0.04);revF.frequency.setTargetAtTime(300+2200*v,t,0.05)}
@@ -614,9 +617,9 @@ function makeEntity(kind,o){
 function rivalStats(kind){
   const L=G.level,f=clamp((L-1)/30,0,1),ex=Math.max(0,L-30)/30,d=save.diff,st=stats(),U=st.U;
   const us=1+0.024*U,um=1+0.02*U;
-  const B={sleepy:{m:0.9,cruise:0,dash:0,ct:1,cool:99},basic:{m:1,cruise:3.6,dash:10.5,ct:0.8,cool:2.0},dodger:{m:0.95,cruise:4.0,dash:10.5,ct:0.75,cool:2.0},pack:{m:0.62,cruise:4.4,dash:9.5,ct:0.65,cool:1.6},tank:{m:2.7,cruise:2.5,dash:11.5,ct:1.05,cool:2.9},boss:{m:6.5,cruise:2.3,dash:17,ct:1.1,cool:2.7}}[kind]||{m:1,cruise:3,dash:9,ct:1,cool:2.6};
+  const B={sleepy:{m:0.9,cruise:0,dash:0,ct:1,cool:99},basic:{m:1,cruise:3.8,dash:11,ct:0.75,cool:1.5},dodger:{m:0.95,cruise:4.2,dash:11,ct:0.7,cool:1.5},pack:{m:0.62,cruise:4.6,dash:10,ct:0.6,cool:1.2},tank:{m:2.7,cruise:2.6,dash:12,ct:1.0,cool:2.3},boss:{m:6.5,cruise:2.4,dash:17.5,ct:1.05,cool:2.1}}[kind]||{m:1,cruise:3,dash:9,ct:1,cool:2.6};
   const ds=[0.95,1.2,1.42][d];
-  const o={m:B.m*(1+0.18*f+0.2*ex)*([1,1.15,1.3][d])*um,cruise:B.cruise*(1+0.3*f+0.1*ex)*(1+0.12*d)*(1+0.012*U),dashSpd:B.dash*(1+0.28*f+0.15*ex)*ds*Math.sqrt(us),push:B.dash*(kind==='boss'?0.62:0.8)*(1+0.3*f+0.2*ex)*ds*us,chargeTime:B.ct*(1-0.3*f-0.1*Math.min(1,ex))*(1-0.16*d),coolT:B.cool*(1-0.4*f-0.15*Math.min(1,ex))*(1-0.2*d),smart:d>=1||L>=8,dodgeP:Math.min(0.95,0.72+0.1*d+0.12*f),dodgeBase:Math.min(0.85,(DIFF.dodge[d]+0.18*f)*(kind==='pack'?0.7:1)),turnRate:2.6+1.0*f+0.6*d,range:7.5+1.5*d};
+  const o={m:B.m*(1+0.18*f+0.2*ex)*([1,1.15,1.3][d])*um,cruise:B.cruise*(1+0.3*f+0.1*ex)*(1+0.12*d)*(1+0.012*U),dashSpd:B.dash*(1+0.28*f+0.15*ex)*ds*Math.sqrt(us),push:B.dash*(kind==='boss'?0.66:0.9)*(1+0.3*f+0.2*ex)*ds*us,chargeTime:B.ct*(1-0.3*f-0.1*Math.min(1,ex))*(1-0.16*d),coolT:B.cool*(1-0.4*f-0.15*Math.min(1,ex))*(1-0.2*d),smart:d>=1||L>=4,dodgeP:Math.min(0.95,0.72+0.1*d+0.12*f),dodgeBase:Math.min(0.85,(DIFF.dodge[d]+0.18*f)*(kind==='pack'?0.7:1)),turnRate:2.6+1.0*f+0.6*d,range:7.5+1.5*d};
   if(kind==='boss'){o.turnRate=1.5+0.4*d}
   return o;
 }
@@ -726,7 +729,7 @@ function finishTut(){const first=!save.started;endTut();if(first)startLevel(1);e
 $('skipB').addEventListener('click',e=>{e.stopPropagation();sfx.blip();if(G.mode==='play'&&G.tut)finishTut();else endTut()});
 
 // ================= physics =================
-const STEP=1/120,GRAV=24;
+const STEP=1/120,GRAV=24,PERF_W=0.3;
 const TURN=3.1,CHARGE_T=0.85;
 function nearestRival(c,cone,refH){let best=null,bs=1e9;const h=refH===undefined?c.h:refH;for(const r of G.cars){if(r===c||r.isPlayer||!r.alive||r.state==='fall'||r.state==='sunk')continue;if((r.kind==='ball'&&!G.cfg.bonus)||r.kind==='keeper')continue;const dx=r.x-c.x,dz=r.z-c.z,d=Math.hypot(dx,dz);const da=Math.abs(wrapA(Math.atan2(dx,dz)-h));if(da>cone)continue;const s=d*(1+da*0.9);if(s<bs){bs=s;best=r}}return best}
 function goalPos(g){if(island.shape==='c'){const a=g.a+island.ang;return[Math.sin(a)*island.r,Math.cos(a)*island.r]}return[g.nx*w2(),0]}
@@ -750,16 +753,18 @@ function playerControl(dt){
     else{const t=nearestRival(c,PI);if(t&&!(G.tut&&G.tut.step===0)){const dh=Math.atan2(t.x-c.x,t.z-c.z);c.h+=clamp(wrapA(dh-c.h),-2.3*dt,2.3*dt)}}
   }
   if(c.state==='dash'&&c.lock&&c.lock.alive&&c.lock.state!=='fall'){let tx=c.lock.x,tz=c.lock.z;if(c.lockU){const o=(c.lock.r+c.r)*0.55;tx-=c.lockU[0]*o;tz-=c.lockU[1]*o}const dh=Math.atan2(tx-c.x,tz-c.z);c.h+=clamp(wrapA(dh-c.h),-(c.lockU?5:3.5)*dt,(c.lockU?5:3.5)*dt)}
-  if(held&&(c.state==='drive'||c.state==='charge')&&!(c.recover>0)){if(c.state!=='charge'){c.state='charge';c.charge=0;c.sqv-=3;sfx.blip()}c.charge=Math.min(1,c.charge+dt/CHARGE_T);revSet(c.charge)}
+  if(held&&(c.state==='drive'||c.state==='charge')&&!(c.recover>0)){if(c.state!=='charge'){c.state='charge';c.charge=0;c.fullT=0;c.sqv-=3;sfx.blip()}c.charge=Math.min(1,c.charge+dt/CHARGE_T);if(c.charge>=1){if(!c.fullT&&!G.attract){sfx.ding();if(save.maxLvl<=6&&!G.tut)popText('NOW!',c.x,2.6,c.z,'sm',0.45)}c.fullT=(c.fullT||0)+dt;if(c.fullT>PERF_W&&Math.random()<dt*14){sfx.sputter();c.sqv+=4}}revSet(c.fullT>PERF_W?0.8+0.2*Math.sin(G.vt*40):c.charge)}
   else if(c.state==='charge'&&!held){release(c)}
   else if(revLevel&&c.state!=='charge')revSet(0);
 }
 function release(c){
-  const st=stats();const pw=Math.max(0.2,c.charge);let t=null;c.lockU=null;
+  const st=stats();let pw=Math.max(0.2,c.charge);let t=null;c.lockU=null;const ft=c.fullT||0;c.fullT=0;
+  const perfect=!G.attract&&!G.tut&&ft>0&&ft<=PERF_W;if(ft>PERF_W)pw*=Math.max(0.72,1-(ft-PERF_W)*0.45);c.perfRam=perfect;
+  if(perfect){G.perfStreak=(G.perfStreak||0)+1;sfx.perfect();popText(G.perfStreak>1?'PERFECT x'+G.perfStreak:'PERFECT!',c.x,2.8,c.z,'big',0.8);flash(0.12);fxStars(c.x,1,c.z,14,true)}else if(!G.attract&&!G.tut)G.perfStreak=0;
   const A=G.cfg.bonus?ballAim(c):null;
   if(A){const o=(A.b.r+c.r)*0.55;const tx=A.b.x-A.ux*o,tz=A.b.z-A.uz*o;c.h=Math.atan2(tx-c.x,tz-c.z);c.lock=A.b;c.lockU=[A.ux,A.uz]}
   else{t=nearestRival(c,G.tut?PI:1.9);if(t){const lead=0.12;const tx=t.x+t.vx*lead,tz=t.z+t.vz*lead;c.h=Math.atan2(tx-c.x,tz-c.z);c.lock=t}else c.lock=null}
-  c.state='dash';c.dashT=0.26+0.2*pw;c.dashV=(8+14*pw)*st.spd;c.dashPow=(4.5+16.5*Math.pow(pw,1.5))*st.ram*(c.mega>0?1.5:1);c.dashCh=pw;c.charge=0;
+  c.state='dash';c.dashT=0.26+0.2*pw;c.dashV=(8+14*pw)*st.spd;c.dashPow=(4.5+16.5*Math.pow(pw,1.5))*st.ram*(c.mega>0?1.5:1)*(perfect?1.3+Math.min(0.15,0.05*(G.perfStreak-1)):1);if(perfect){c.dashT+=0.06;c.dashV*=1.1}c.dashCh=pw;c.charge=0;
   const fx=Math.sin(c.h),fz=Math.cos(c.h);c.vx=fx*c.dashV*0.8;c.vz=fz*c.dashV*0.8;
   c.sq=1.35;c.sqv=0;sfx.whoosh(0.6+pw);revSet(0);fxDust(c.x-fx,0,c.z-fz,6+pw*10|0);G.shake=Math.max(G.shake,0.12*pw);G.kick=Math.max(G.kick,0.35*pw);
   G.hintUsed++;if(G.hintUsed>=3)$('hint').classList.add('fade');
@@ -778,6 +783,8 @@ function keeperAI(k,dt){if(k.state==='fall'||k.state==='sunk'||k.state==='stun'|
   const tx=gp[0]-nx*inset-nz*along,tz=gp[1]-nz*inset+nx*along;const vx=clamp((tx-k.x)*5,-7,7),vz=clamp((tz-k.z)*5,-7,7);k.vx=vx;k.vz=vz;k.h=Math.atan2(-nx,-nz)}
 function doDodge(r){const P=G.player;const dx=r.x-P.x,dz=r.z-P.z,d=Math.hypot(dx,dz)||1;let px=-dz/d,pz=dx/d;const e=edgeInfo(r.x,r.z);if(px*-e.nx+pz*-e.nz<0){px=-px;pz=-pz}r.vx+=px*10.5;r.vz+=pz*10.5;r.vy=5;r.y=Math.max(r.y,0.01);r.spinV=(Math.random()<0.5?-1:1)*14;r.dodgeCool=r.kind==='dodger'?1.6:2.6;r.state='hop';r.stun=0.45;r.cool=Math.min(r.cool,0.5);r.happy=0.8;if(P.lock===r)P.lock=null;popText(pick(['hop!','nope!','missed!','too slow!']),r.x,2.2,r.z,'sm blue',0.8);sfx.bonk(1.5);G.dodges=(G.dodges||0)+1}
 function ai(c,dt){
+  if(c.wobble>0){c.wobble-=dt;if(Math.random()<dt*12)c.sqv=(c.sqv||0)+4}
+  if(!G.attract&&!G.tut&&G.player){const P=G.player;if(c.state==='dash'){c.wasDash=1;c.dmin=Math.min(c.dmin===undefined?99:c.dmin,Math.hypot(P.x-c.x,P.z-c.z))}else if(c.wasDash){c.wasDash=0;const hitMe=P.hitBy===c&&G.t-P.lastHitT<1.2;if(!hitMe&&c.dmin<c.r+P.r+1.5&&P.state!=='fall'&&P.state!=='sunk'&&c.alive){c.wobble=1.1;popText('DODGE!',P.x,2.8,P.z,'sm blue',0.8);addCoins(1);sfx.whoosh(1.2);G.slowmo=Math.max(G.slowmo,0.25)}c.dmin=99}}
   if(c.dodgeCool>0)c.dodgeCool-=dt;if(c.dodgeQ>0){c.dodgeQ-=dt;if(c.dodgeQ<=0){c.dodgeQ=0;if(c.state!=='stun'&&c.state!=='fall'&&c.state!=='sunk')doDodge(c)}}
   if(c.state==='fall'||c.state==='sunk'||c.state==='teeter'||c.state==='stun'||c.state==='hop'||c.state==='dizzy'||c.state==='dash')return;
   if(c.kind==='sleepy'){c.state='drive';return}
@@ -884,6 +891,8 @@ function hit(att,vic,nx,nz,pow,rv){
   if(vic.kind==='tank'&&vic.state!=='dizzy'){if(att.dashCh<0.82){armor=0.18;clank=true}}
   if(vic.kind==='boss'&&vic.state!=='dizzy'){armor=att.dashCh>0.95?0.35:0.22;clank=true}
   if(vic.inv>0)armor*=0.25;
+  if(att.isPlayer&&vic.wobble>0&&!vic.isPlayer){pow*=1.35;vic.wobble=0;popText('COUNTER!',vic.x,3.4,vic.z,'big',1);addCoins(3,vic.x,1,vic.z)}
+  if(att.isPlayer&&att.perfRam){att.perfRam=false;G.hitstop=Math.max(G.hitstop,0.09);G.slowmo=Math.max(G.slowmo,0.3);fxConfetti(vic.x,1.5,vic.z,30,7)}
   const imp=pow*armor;const vm=vic.state==='dizzy'?vic.m*0.35:vic.m;
   if(clank){vic.vx+=nx*imp/vm;vic.vz+=nz*imp/vm;att.vx=-nx*4;att.vz=-nz*4;att.dashT=Math.min(att.dashT,0.02);att.sq=0.62;att.lock=null;vic.sq=0.8;vic.flash=0.6;if(G.attract)return;sfx.clank();popText('CLANK!',vic.x,2.2,vic.z,'sm',0.7);G.hitstop=0.03;G.shake=Math.max(G.shake,0.12);fxStars((att.x+vic.x)/2,0.9,(att.z+vic.z)/2,8);if(att.isPlayer)popText(vic.kind==='tank'?'FULL charge!':'Wait till dizzy!',vic.x,3.2,vic.z,'sm red',1.1);return}
   let locked=false;if(vic.kind==='ball'&&att.lockU&&att.lock===vic){const u=att.lockU;if(u[0]*nx+u[1]*nz>Math.cos(0.85)){nx=u[0];nz=u[1];locked=true}}
@@ -1087,7 +1096,7 @@ function updAim(){const p=G.player;if(!p||G.attract||p.state==='fall'||p.state==
   updAimLine(p);
   chargeRing.visible=p.state==='charge';const gy=groundY(p.x);chargeRing.position.set(p.x,gy+0.06,p.z);ringMat.uniforms.p.value=p.charge;ringMat.uniforms.t.value=G.vt;
   const hasTank=G.rivals.some(r=>r.kind==='tank'&&r.alive);ringMat.uniforms.mark.value=hasTank?0.82:-1;
-  const s=1+(p.state==='charge'?p.charge*0.15:0);chargeRing.scale.set(s,s,s);
+  const fw=p.state==='charge'&&p.fullT>0;const s=(fw?(p.fullT<=PERF_W?1.12+0.08*Math.sin(G.vt*30):0.95+0.05*Math.sin(G.vt*55)):1)+(p.state==='charge'?p.charge*0.15:0);chargeRing.scale.set(s,s,s);
   if(p.state==='charge'){const t=G.cfg.bonus&&G.aim?G.aim.b:nearestRival(p,G.tut?PI:1.9);if(t){reticle.visible=true;reticle.position.set(t.x,groundY(t.x)+0.07,t.z);const rs=t.r*(1+0.08*Math.sin(G.vt*14));reticle.scale.set(rs,1,rs);reticle.rotation.y=G.vt*2;arrow.position.set(0,(t.kind==='boss'?4.2:2.9)/1+Math.sin(G.vt*10)*0.2,0);arrow.scale.set(0.35/rs*1.5,0.7,0.35/rs*1.5)}else reticle.visible=false}else reticle.visible=false}
 function updCamera(dt){
   const asp=innerWidth/innerHeight;const vf=camera.fov*PI/180/2;const hf=Math.atan(Math.tan(vf)*asp);
@@ -1184,7 +1193,7 @@ function renderGarage(){const sk=SKINS[garSel];const own=save.cars.includes(garS
 const STAR_SVG='<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z" fill="#ffd23f" stroke="#2b1d3a" stroke-width="1.8" stroke-linejoin="round"/></svg>';
 const STAR_OFF='<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z" fill="#e3d8ee" stroke="#2b1d3a" stroke-width="1.8" stroke-linejoin="round"/></svg>';
 let resShownT=0,resWin=false;
-function parTime(list){let p=2;for(const k of list||[])p+=k==='boss'?14:k==='tank'?6:k==='pack'?2.2:k==='sleepy'?2:k==='dodger'?3.6:2.6;return p}
+function parTime(list){let p=1.5;for(const k of list||[])p+=k==='boss'?11:k==='tank'?5:k==='pack'?1.8:k==='sleepy'?1.6:k==='dodger'?3:2.1;return p}
 function showResult(){
   G.mode='result';resShownT=performance.now();revSet(0);keys.space=false;ptr.down=false;$('tut').classList.remove('on');
   const cfg=G.cfg,L=G.level;let stars=0,bonus=0,title,sub,near='';const mult=[1,1.5,2.5][save.diff];
