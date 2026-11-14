@@ -1,7 +1,10 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Laser Lab</title>
+<script src="lib/gb.js"></script>
+<script>if(GB.isTouch)document.documentElement.classList.add("gbtouch")</script>
+<style>html.gbtouch #gbTutP{top:calc(94px + env(safe-area-inset-top))!important}</style>
+<title>Laser Bounce</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#10142e;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 canvas{display:block;width:100vw;height:100vh}
@@ -103,7 +106,9 @@ function simulate(lv,pieces){const w=lv.w,h=lv.h,at={};pieces.forEach(p=>{if(p.x
 // ---------- canvas ----------
 const cv=document.getElementById('c'),cx=cv.getContext('2d');let W=0,H=0,DPR=1,L={};
 function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=Math.max(200,innerWidth);H=Math.max(200,innerHeight);cv.width=W*DPR|0;cv.height=H*DPR|0;layout()}
-function layout(){L.hud=54;L.land=W>H*1.1;if(!G)return;const lv=G.lv;
+// keep the play HUD clear of the Gamebop settings tab on touch screens
+function HY(){return window.GB&&GB.isTouch?30:0}
+function layout(){L.hud=54+HY();L.land=W>H*1.1;if(!G)return;const lv=G.lv;
  const trayN=G.pieces.filter(p=>p.f===2).length;
  if(L.land){const tw=trayN?Math.min(150,W*0.16):0;const aw=W-tw-40,ah=H-L.hud-24;const cs=Math.floor(Math.min(aw/lv.w,ah/lv.h,84));
   L.cs=cs;L.bx=(W-tw-cs*lv.w)/2;L.by=L.hud+(H-L.hud-cs*lv.h)/2;
@@ -233,7 +238,7 @@ function drawTitle(){drawBg();const g=cx;
  g.fillStyle='rgba(16,20,46,.55)';g.fillRect(0,0,W,H);
  const s=Math.min(W/5.4,H/4.2,150);const cy=H*0.38;
  // neon title
- const words=[['LASER',[1,3,2,6,4]],['LAB',[5,1,6]]];
+ const words=[['LASER',[1,3,2,6,4]],['BOUNCE',[5,1,6,2,3,4]]];
  words.forEach((wd,wi)=>{const y=cy+(wi-0.5)*s*1.0;g.font='900 '+s+'px '+FONT;const letters=wd[0].split('');const ws=letters.map(l=>g.measureText(l).width+s*0.06);const tot=ws.reduce((a,b)=>a+b,0);let x=W/2-tot/2;
   letters.forEach((l,i)=>{const c=COL[wd[1][i]];const flick=(Math.sin(T*17+i*5+wi*3)>0.985)?0.4:1;g.save();g.translate(x+ws[i]/2,y);g.font='900 '+s+'px '+FONT;g.textAlign='center';g.textBaseline='middle';
    g.globalAlpha=flick;g.shadowColor=c;g.shadowBlur=s*0.35;g.lineWidth=s*0.07;g.strokeStyle=c;g.strokeText(l,0,0);g.shadowBlur=s*0.15;g.strokeText(l,0,0);g.shadowBlur=0;g.lineWidth=s*0.025;g.strokeStyle='#fff';g.strokeText(l,0,0);g.restore();x+=ws[i]})});
@@ -282,10 +287,10 @@ function drawPlay(dt){const g=cx;drawBg();const lv=G.lv,cs=L.cs;
   G.trayList.forEach((p,i)=>{const [x,y]=trayPos(i);g.fillStyle='rgba(0,0,0,.25)';rr(g,x-t.slot/2,y-t.slot/2,t.slot,t.slot,12);g.fill();if(p.x<0&&!(drag&&drag.moved&&drag.p===p))drawPiece(g,p,x,y,t.slot*0.95)})}
  if(drag&&drag.moved){const p=drag.p;drawPiece(g,p,drag.x,drag.y-cs*0.15,cs*1.12)}
  // hud
- iconBtn(10,8,42,'pause',()=>{paused=true});txt(String(G.i+1),62,30,24,LABS[Math.floor(G.i/9)].col,'left','800');
- const mx=W<520?(96+W-156)/2:W/2;const pw=W<520?Math.min(130,W-262):140;g.fillStyle=UI.panel;rr(g,mx-pw/2,8,pw,42,21);g.fill();txt(String(G.moves),mx-pw*0.2,30,24,'#fff');
- const st=starsFor(G.moves,G.lv.par);for(let s=0;s<3;s++)drawStar(mx+pw*0.08+s*18,29,7.5,s<st);
- iconBtn(W-150,8,42,'undo',undo);iconBtn(W-102,8,42,'reset',reset);iconBtn(W-54,8,42,'mute',toggleMute);
+ const hy=HY();iconBtn(10,8+hy,42,'pause',()=>{paused=true});txt(String(G.i+1),62,30+hy,24,LABS[Math.floor(G.i/9)].col,'left','800');
+ const mx=W<520?(96+W-156)/2:W/2;const pw=W<520?Math.min(130,W-262):140;g.fillStyle=UI.panel;rr(g,mx-pw/2,8+hy,pw,42,21);g.fill();txt(String(G.moves),mx-pw*0.2,30+hy,24,'#fff');
+ const st=starsFor(G.moves,G.lv.par);for(let s=0;s<3;s++)drawStar(mx+pw*0.08+s*18,29+hy,7.5,s<st);
+ iconBtn(W-150,8+hy,42,'undo',undo);iconBtn(W-102,8+hy,42,'reset',reset);iconBtn(W-54,8+hy,42,'mute',toggleMute);
  // tutorial hint for lvl 1-3
  if(G.solvedT<0&&!drag&&!G.tut){let target=null;if(G.i<=2&&G.moves<4){const wrong=G.pieces.find(p=>p.f===1&&p.o!==p.so);const trayP=G.pieces.find(p=>p.f===2&&p.x<0&&p.sx>=0);
    if(trayP&&G.i===2){const i=G.trayList.indexOf(trayP);const [x1,y1]=trayPos(i);const [x2,y2]=cellCenter(trayP.sx,trayP.sy);const k=(T%1.8)/1.4;if(k<1){const e=k<0.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;hand(x1+(x2-x1)*e,y1+(y2-y1)*e)}}

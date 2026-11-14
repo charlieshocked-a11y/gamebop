@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Noodle Rush</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Ramen Rush</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;background:#1a1230;touch-action:none;user-select:none;-webkit-user-select:none}
@@ -108,6 +110,7 @@ h2{font-size:24px;font-weight:900;color:#ffe3ad;text-shadow:0 3px 0 #3e1d0c}
    <button id="bPlay" class="btn red big">Play</button>
    <div class="row">
     <button id="bEndless" class="btn teal">Endless Rush</button>
+    <button id="bBoard" class="btn teal">🏆 Leaderboard</button>
    </div>
    <div class="row">
     <button id="bBook" class="btn sm">Recipes</button>
@@ -1672,7 +1675,8 @@ function drawHeld() {
 }
 function drawHUD() {
   const hs = L.mode === 'port' ? 1.3 : 1;
-  X.save(); X.translate(L.x0 + 10, L.y0 + 8); X.scale(hs, hs);
+  // phones in portrait: drop the HUD below the shared settings tab (top centre)
+  X.save(); X.translate(L.x0 + 10, L.y0 + 8 + (L.mode === 'port' && window.GB && GB.isTouch ? 34 / L.s : 0)); X.scale(hs, hs);
   if (G.mode === 'endless') {
     for (let i = 0; i < 3; i++) { X.save(); X.translate(22 + i * 30, 26); X.scale(i < G.lives ? 1 : .8, i < G.lives ? 1 : .8); X.globalAlpha = i < G.lives ? 1 : .25; drawFeatIcon('heart'); X.restore(); }
     X.translate(96, 0);
@@ -1704,7 +1708,7 @@ function drawBanner() {
   X.restore();
 }
 function drawTitleText(t) {
-  const port = L.mode === 'port', lines = port ? ['Noodle', 'Rush'] : ['Noodle Rush'], size = port ? 104 : 124, cy0 = port ? 118 : 138;
+  const port = L.mode === 'port', lines = port ? ['Ramen', 'Rush'] : ['Ramen Rush'], size = port ? 104 : 124, cy0 = port ? 118 : 138;
   const intro = clamp(t / .9, 0, 1);
   lines.forEach((ln, li) => {
     X.font = `900 ${size}px "Arial Rounded MT Bold","Trebuchet MS","Segoe UI",sans-serif`;
@@ -2022,11 +2026,11 @@ function showResults() {
   const nextLoc = LOCS[Math.floor(G.day / 8)];
   const canNext = !endless && stars >= 1 && G.day < 40 && (G.day % 8 !== 0 || (nextLoc && S.locs[nextLoc.id]));
   p.innerHTML = `<h2>${endless ? 'Endless Rush' : 'Day ' + G.day}</h2>` + (endless ? '' : `<div class="bigstars">${[0, 1, 2].map(i => SVG_STAR(i < stars, 58)).join('')}</div>`) +
-    `<div class="earn" id="earnN">$0</div>${!endless && stars === 0 ? `<div style="font-weight:900;display:flex;align-items:center;gap:4px">${SVG_STAR(true, 20)} $${G.def.goals[0]}</div>` : ''}${newBest ? '<div style="font-weight:900;color:#d3352a">New best!</div>' : ''}` +
+    `<div class="earn" id="earnN">$0</div>${!endless && stars === 0 ? `<div style="font-weight:900;display:flex;align-items:center;gap:4px">${SVG_STAR(true, 20)} $${G.def.goals[0]}</div>` : ''}${newBest ? '<div style="font-weight:900;color:#d3352a">New best!</div>' : endless ? '<div id="gbNew" style="font-weight:900;color:#d3352a"></div>' : ''}` +
     `<div class="stats"><span><img src="${iconFor('dish', 'ramen')}" alt="">${G.served}</span><span><img src="${iconFor('feat', 'heart')}" alt="">${G.perfects}</span><span><img src="${iconFor('feat', 'fire')}" alt="">x${G.bestCombo}</span><span><img src="${iconFor('feat', 'angry')}" alt="">${G.angry}</span></div>`;
   const row = document.createElement('div'); row.className = 'btnrow';
   const mk = (t, cls, fn) => { const b = document.createElement('button'); b.className = 'btn ' + cls; b.textContent = t; b.onclick = () => { AU.init(); AU.play('click'); fn(); }; row.appendChild(b); return b; };
-  if (endless) { mk('Menu', '', goTitle); mk('Again', 'red', () => startShift('endless', G.day)); }
+  if (endless) { mk('Menu', '', goTitle); mk('🏆', 'teal', showBoard).title = 'Leaderboard'; mk('Again', 'red', () => startShift('endless', G.day)); }
   else {
     mk('Map', '', goHub); mk('Retry', '', () => startShift('campaign', G.day));
     if (canNext) mk('Next ›', 'red', () => { S.sel = G.day + 1; save(); startShift('campaign', G.day + 1); });
@@ -2034,6 +2038,7 @@ function showResults() {
     if (stars >= 1 && UPG.some(u => U(u.id) < u.max && S.money >= u.cost[U(u.id)])) mk('Shop', 'teal', () => { shopFrom = 'hub'; makeDemo(); showScreen('shop'); buildShop(); });
   }
   p.appendChild(row);
+  if (endless && G.money > 0 && window.GBBoard) GBBoard.submit(LB, G.money).then(r => { const n = $('gbNew'); if (r && r.best && n) n.textContent = 'New best!'; });
   $('res').classList.remove('hidden'); scene = 'res'; $('hud').classList.add('hidden');
   const svgs = p.querySelectorAll('.bigstars svg'); svgs.forEach((s, i) => { if (i < stars) setTimeout(() => { s.classList.add('in'); AU.play('star', 1 + i * .25); }, 350 + i * 380); else setTimeout(() => s.classList.add('in'), 350 + i * 380); });
   const target = G.money, t0 = performance.now(); const en = $('earnN'); (function cnt() { const k = Math.min(1, (performance.now() - t0) / 1100); en.textContent = '$' + Math.round(target * easeOutCubic(k)); if (k < 1) requestAnimationFrame(cnt); })();
@@ -2052,6 +2057,9 @@ function toast(img, text) {
 }
 // wire buttons
 $('bPlay').onclick = () => { AU.init(); AU.play('click'); if (!hasSave()) startShift('campaign', 1, store.get('tut', 0) ? null : 'first'); else goHub(); };
+const LB = 'noodle-rush', LBO = { title: 'Ramen Rush', label: 'Endless', format: v => '$' + Math.round(v).toLocaleString() };
+function showBoard() { GBBoard.show(LB, LBO); }
+$('bBoard').onclick = () => { AU.init(); AU.play('click'); showBoard(); };
 $('bEndless').onclick = () => { AU.init(); AU.play('click'); startShift('endless', clamp(S.maxDay - 1, 1, 40)); };
 $('bNew').onclick = () => { AU.init(); const p = $('confP'); p.innerHTML = '<h2>Start a new stall?</h2><div style="font-weight:900">All progress resets.</div>'; const row = document.createElement('div'); row.className = 'btnrow'; const n = document.createElement('button'); n.className = 'btn'; n.textContent = 'Back'; n.onclick = () => $('confirm').classList.add('hidden'); const y = document.createElement('button'); y.className = 'btn red'; y.textContent = 'Reset'; y.onclick = () => { S = DEF_SAVE(); save(); $('confirm').classList.add('hidden'); goTitle(); }; row.appendChild(n); row.appendChild(y); p.appendChild(row); $('confirm').classList.remove('hidden'); };
 $('bBook').onclick = () => { AU.init(); AU.play('click'); openBook(false, 'title'); };

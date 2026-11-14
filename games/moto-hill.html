@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Moto Hill</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Dirt Bike Hills</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#1a1a2a;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent}
 canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
@@ -29,6 +31,7 @@ canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 #mute{right:10px}#pauseBtn{right:56px}
 #hud{position:fixed;inset:0;pointer-events:none}
 #dist{position:absolute;top:8px;left:50%;transform:translateX(-50%);font-weight:900;font-size:34px;text-shadow:0 3px 0 rgba(0,0,0,.4)}
+.gbt #dist{top:82px}.gbt #bestTag{top:122px}
 #bestTag{position:absolute;top:48px;left:50%;transform:translateX(-50%);font-size:13px;opacity:.85;font-weight:900}
 #fuel{position:absolute;top:58px;left:10px;width:150px;height:18px;border-radius:10px;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.3);overflow:hidden}
 #fuel i{display:block;height:100%;background:linear-gradient(90deg,#ff3b3b,#ffd23f 35%,#7cf08a 70%);background-size:150px 100%}
@@ -85,26 +88,27 @@ canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="top"><div class="pill"><i class="coin"></i><span id="coins">0</span></div></div>
-<div id="title"><div class="logo"><span>MOTO</span><span>HILL</span></div><button class="btn" id="playBtn">PLAY</button><button class="btn blue" id="howBtn" style="font-size:min(4.4vw,3.4vh,19px);padding:.5em 1.2em">? HOW TO PLAY</button><a class="sup" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a><div class="hint" style="position:absolute;bottom:14px">↑ gas · ↓ brake · ← → lean · flip for bonus!</div></div>
+<div id="title"><div class="logo"><span style="font-size:.6em">DIRT BIKE</span><span>HILLS</span></div><button class="btn" id="playBtn">PLAY</button><button class="btn blue" id="howBtn" style="font-size:min(4.4vw,3.4vh,19px);padding:.5em 1.2em">? HOW TO PLAY</button><button class="btn gray" id="lbBtn" style="font-size:min(4.4vw,3.4vh,19px);padding:.5em 1.2em">🏆 LEADERBOARD</button><a class="sup" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a><div class="hint" style="position:absolute;bottom:14px">↑ gas · ↓ brake · ← → lean · flip for bonus!</div></div>
 <div id="mapTag" class="hidden"></div>
 <div id="garage" class="hidden">
  <div class="row">
   <button class="btn blue ibtn" id="bUp" title="Upgrades"><svg viewBox="0 0 24 24"><path d="M12 3l8 8h-5v9H9v-9H4z" fill="#fff"/></svg><span class="badge hidden" id="upBadge">!</span></button>
   <button class="btn blue ibtn" id="bBike" title="Vehicles"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="16" r="3.5" fill="none" stroke="#fff" stroke-width="2.2"/><circle cx="18.5" cy="16" r="3.5" fill="none" stroke="#fff" stroke-width="2.2"/><path d="M5.5 16l4-6h6l3 6M12 10l-2-3h-2M15 10l1-3h3" stroke="#fff" stroke-width="2.2" fill="none" stroke-linejoin="round"/></svg></button>
   <button class="btn" id="goBtn">GO!</button>
-  <button class="btn blue ibtn" id="bMap" title="Maps"><svg viewBox="0 0 24 24"><path d="M2 20l7-12 4 6 3-4 6 10z" fill="#fff"/><circle cx="17" cy="6" r="2.5" fill="#ffd23f"/></svg></button>
+  <button class="btn gray ibtn" id="bBoard" title="Leaderboard" style="font-size:30px;padding:0">🏆</button><button class="btn blue ibtn" id="bMap" title="Maps"><svg viewBox="0 0 24 24"><path d="M2 20l7-12 4 6 3-4 6 10z" fill="#fff"/><circle cx="17" cy="6" r="2.5" fill="#ffd23f"/></svg></button>
  </div>
 </div>
 <div id="hud" class="hidden"><div id="dist">0m</div><div id="bestTag"></div><div id="fuel"><i id="fuelBar"></i></div><svg id="fuelIc" viewBox="0 0 24 26"><path d="M5 4h10l3 3v16H5z" fill="#ff3b3b" stroke="#fff" stroke-width="1.5"/><path d="M8 9h7" stroke="#fff" stroke-width="2"/></svg></div>
-<div id="pedals" class="hidden"><div class="pedal" id="pBrake"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="3" fill="#ff5a5a"/><path d="M8 9h8M8 13h8" stroke="#fff" stroke-width="2"/></svg></div><div class="pedal" id="pGas"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3" fill="#7cf08a"/><path d="M9 7h6M9 11h6M9 15h6" stroke="#fff" stroke-width="2"/></svg></div></div>
+<div id="pedals" class="hidden"><div class="pedal" id="pBrake" data-gbctl="brake"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="3" fill="#ff5a5a"/><path d="M8 9h8M8 13h8" stroke="#fff" stroke-width="2"/></svg></div><div class="pedal" id="pGas" data-gbctl="gas"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3" fill="#7cf08a"/><path d="M9 7h6M9 11h6M9 15h6" stroke="#fff" stroke-width="2"/></svg></div></div>
 <div id="toast"></div>
-<div id="res" class="hidden"><div class="rs"><div class="why" id="rWhy"></div><div class="big" id="rDist"></div><div id="rRec" class="rec"></div><div style="margin:12px 0" id="rLines"></div><div class="row"><button class="btn blue" id="rGarage">GARAGE</button><button class="btn" id="rRetry">RETRY</button></div></div></div>
+<div id="res" class="hidden"><div class="rs"><div class="why" id="rWhy"></div><div class="big" id="rDist"></div><div id="rRec" class="rec"></div><div style="margin:12px 0" id="rLines"></div><div class="row"><button class="btn blue" id="rGarage">GARAGE</button><button class="btn gray" id="rBoard" title="Leaderboard">🏆</button><button class="btn" id="rRetry">RETRY</button></div></div></div>
 <div id="modal" class="hidden"><div class="card"><h2><span id="mTitle"></span><button class="x" id="mClose">✕</button></h2><div class="body" id="mBody"></div></div></div>
 <div id="pause" class="hidden"><div class="t">PAUSED</div><button class="btn" id="resumeBtn">RESUME</button><button class="btn green" id="restartBtn">RESTART</button><button class="btn blue" id="quitBtn">GARAGE</button></div>
 <button id="pauseBtn" class="hidden" title="Pause"><svg viewBox="0 0 24 24"><path d="M7 5h3v14H7zM14 5h3v14h-3z" fill="#fff"/></svg></button>
 <button id="mute" title="Sound"><svg viewBox="0 0 24 24" id="muteIc"></svg></button>
 <script>
 'use strict';
+if(window.GB&&GB.isTouch)document.documentElement.classList.add('gbt');
 const SLUG='moto-hill',TAU=Math.PI*2,PXM=12,SEG=16,START=1400;
 const ST={get(k,d){try{const v=localStorage.getItem('gamebop.'+SLUG+'.'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('gamebop.'+SLUG+'.'+k,JSON.stringify(v))}catch(e){}}};
 const $=id=>document.getElementById(id);
@@ -280,6 +284,7 @@ function endRun(why){if(state!=='run')return;state='end';engStop();const d=dist(
  $('pedals').classList.add('hidden');$('pauseBtn').classList.add('hidden');
  $('rWhy').textContent={head:'CRASHED',fuel:'OUT OF FUEL',lava:'BURNED',fall:'FELL',stuck:'STUCK'}[why]||'';
  $('rDist').textContent=d+'m';$('rRec').textContent=rec&&d>0?'NEW RECORD!':'';
+ if(d>0&&window.GBBoard)GBBoard.submit(LB,d).then(r=>{if(r&&r.best)$('rRec').textContent='NEW BEST!'});
  $('rLines').innerHTML=line('Coins',runCoins-flipCoins)+(flipCoins?line('Tricks',flipCoins):'')+line('Distance',distBonus)+'<div class="ln" style="font-size:24px;border:0"><span>Total</span><span style="display:flex;align-items:center;gap:6px"><i class="coin"></i>+'+tot+'</span></div>';
  setTimeout(()=>{$('res').classList.remove('hidden');if(rec&&d>0)SFX.rec()},500)}
 function line(a,v){return'<div class="ln"><span>'+a+'</span><span style="display:flex;align-items:center;gap:6px"><i class="coin" style="width:16px;height:16px"></i>'+v+'</span></div>'}
@@ -520,8 +525,12 @@ window.addEventListener('keydown',e=>{audioInit();const k=KM[e.key];if(k){keys[k
 window.addEventListener('keyup',e=>{const k=KM[e.key];if(k)keys[k]=false;if(e.key===' ')keys.up=false});
 function pedal(id,k){const el=$(id);const on=v=>{touch[k]=v;el.classList.toggle('on',v)};el.addEventListener('pointerdown',e=>{e.preventDefault();audioInit();on(true)});['pointerup','pointercancel','pointerleave'].forEach(t=>el.addEventListener(t,()=>on(false)))}
 pedal('pGas','gas');pedal('pBrake','brake');
-// canvas touch fallback: right half gas, left half brake
-cv.addEventListener('pointerdown',e=>{if(state==='run'&&e.pointerType!=='mouse'){touch[e.clientX>W/2?'gas':'brake']=true}});
+const LB='moto-hill',LBO={title:'Dirt Bike Hills',format:v=>Math.round(v)+'m'};
+function showBoard(e){if(e)e.stopPropagation();SFX.click();GBBoard.show(LB,LBO)}
+$('lbBtn').onclick=showBoard;$('rBoard').onclick=showBoard;$('bBoard').onclick=showBoard;
+// canvas touch fallback: nearest pedal (follows swapped/moved pedals)
+function nearPedal(x,y){const c=id=>{const r=$(id).getBoundingClientRect();return Math.hypot(x-(r.left+r.width/2),y-(r.top+r.height/2))};return c('pGas')<=c('pBrake')?'gas':'brake'}
+cv.addEventListener('pointerdown',e=>{if(state==='run'&&e.pointerType!=='mouse'){touch[nearPedal(e.clientX,e.clientY)]=true}});
 cv.addEventListener('pointerup',()=>{if(!isTouch)return;touch.gas=touch.brake=false});
 function togglePause(f){if(state!=='run')return;paused=f!==undefined?f:!paused;$('pause').classList.toggle('hidden',!paused);if(eng)eng.g.gain.value=paused?0:.05}
 $('pauseBtn').onclick=()=>togglePause(true);$('resumeBtn').onclick=()=>togglePause(false);

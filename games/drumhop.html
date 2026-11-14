@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Drumhop</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Bongo Bounce</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;background:#1b5a3e;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#fff4dc;user-select:none;-webkit-user-select:none;touch-action:none}
@@ -144,6 +146,7 @@ button{font:inherit;cursor:pointer;border:0;color:inherit;background:none}
    <button id="bSongs" class="btn sm" style="--r:-2deg"><svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="M9 18V5l12-2v13"/></svg>Songs</button>
    <button id="bShop" class="btn sm green" style="--r:1.5deg"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>Shop</button>
    <button id="bHow" class="btn sm" style="--r:-1deg"><svg viewBox="0 0 24 24"><path d="M9 11V5a2 2 0 0 1 4 0v6"/><path d="M13 10a2 2 0 0 1 4 0v4a6 6 0 0 1-6 6h-1a5 5 0 0 1-4-2l-3-4a2 2 0 0 1 3-2l2 2"/></svg>How to play</button>
+   <button id="bBoard" class="btn sm" style="--r:2deg">🏆 Leaderboard</button>
   </div>
  </div>
  <a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
@@ -181,7 +184,7 @@ button{font:inherit;cursor:pointer;border:0;color:inherit;background:none}
   <div class="stat"><div><small>PERFECT</small><b id="rP">0</b></div><div><small>GOOD</small><b id="rG">0</b></div><div><small>MISS</small><b id="rM">0</b></div><div><small>COMBO</small><b id="rC">0</b></div></div>
   <div id="rNotes"></div>
   <div class="peek" id="peek"><canvas id="peekC" width="168" height="112"></canvas><div><small id="peekL">NEXT</small><b id="peekN"></b></div></div>
-  <div class="row"><button id="rMap" class="btn sm green" title="Songs"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><button id="rRe" class="btn sm" title="Retry"><svg viewBox="0 0 24 24" style="margin:0"><path d="M4 12a8 8 0 1 0 3-6.3"/><path d="M4 4v5h5"/></svg></button><button id="bNext" class="btn play" style="font-size:24px">NEXT ▶</button></div>
+  <div class="row"><button id="rMap" class="btn sm green" title="Songs"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><button id="rRe" class="btn sm" title="Retry"><svg viewBox="0 0 24 24" style="margin:0"><path d="M4 12a8 8 0 1 0 3-6.3"/><path d="M4 4v5h5"/></svg></button><button id="rBoard" class="btn sm" title="Leaderboard">🏆</button><button id="bNext" class="btn play" style="font-size:24px">NEXT ▶</button></div>
  </div>
 </div>
 
@@ -612,8 +615,10 @@ function fail(){G.over='fail';G.overT=songT();stopHold();if(AC)S.fail(AC.current
 
 // ================= results =================
 let resInfo=null;
+const BOARD_OPTS={title:'Bongo Bounce',label:'Total score',format:'int'};
+function boardTotal(){let t=0;for(const k in save.songs){const r=save.songs[k];t+=(r.best|0)+(r.wbest|0)}return t}
 function endSong(cleared){
- const g=G;stopHold();
+ const g=G;stopHold();const t0b=performance.now();
  if(g.tut){lsSet('tut',1);tutDone=true;if(tutFromHow){tutFromHow=false;toMenu()}else startSong(0);return}
  const acc=g.judged?(g.P+.6*g.Gd)/g.judged:0;
  const stars=cleared?(acc>=.93?3:acc>=.8?2:1):0;
@@ -627,6 +632,7 @@ function endSong(cleared){
  notes=Math.round(notes*(1+upL('magnet')*.08)*(g.wild?2:1));
  if(cleared){rec.clr=(rec.clr|0)+1;if(g.wild){rec.wst=Math.max(rec.wst|0,stars);rec.wbest=Math.max(rec.wbest|0,g.score)}else{rec.stars=Math.max(rec.stars|0,stars);rec.best=Math.max(rec.best|0,g.score)}}
  save.notes+=notes;save.earned+=notes;persist();
+ if(newBest){const tot=boardTotal();GBBoard.submit('drumhop',tot).then(r=>{if(r.best&&mode==='results'&&resInfo&&resInfo.at>=t0b){$('#rTag').textContent='NEW BEST! TOTAL '+tot.toLocaleString();$('#rTag').className='b'}})}
  const idx=g.idx;let nx=null;
  if(cleared){for(let j=idx+1;j<SONGS.length;j++){if(SONGS[j].bonus&&!save.bought[SONGS[j].id])continue;nx=j;break}}
  resInfo={cleared,idx,nx,wild:g.wild,at:performance.now()};
@@ -710,6 +716,7 @@ btn('#tutSkip',()=>{lsSet('tut',1);tutDone=true;stopHold();if(tutFromHow){tutFro
 btn('#bPause',()=>pause(true));btn('#pRes',()=>pause(false));
 btn('#pRe',()=>{const i=G.idx,w=G.wild;startSong(i,{wild:w})});btn('#pMap',()=>{stopHold();if(AC)AC.resume();G=null;openMap()});
 btn('#bNext',resNext);btn('#rRe',resRetry);btn('#rMap',openMap);
+btn('#bBoard',()=>GBBoard.show('drumhop',BOARD_OPTS));btn('#rBoard',()=>GBBoard.show('drumhop',BOARD_OPTS));
 btn('#bMute',()=>setMute(!muted));btn('#bSync',openCal);
 btn('#mBack',toMenu);btn('#sBack',toMenu);
 btn('#mN',()=>{save.wild=false;persist();buildMap()});btn('#mW',()=>{save.wild=true;persist();buildMap()});
@@ -1240,7 +1247,7 @@ function stepParts(dt){for(const p of parts){p.life+=dt;p.vy+=p.g*dt;if(p.type==
  for(const p of pops)p.life-=dt;for(let i=pops.length-1;i>=0;i--)if(pops[i].life<=0)pops.splice(i,1)}
 
 // ================= title / menu scene =================
-const TITLE='DRUMHOP';
+const TITLE='BONGO BOUNCE';
 function renderMenu(){
  const w=WORLDS[0];const fake={x:T*40,y:-150};const bd=60/100;
  drawSky(w,fake,1,T,bd);const tl=getTiles(0);const gy=H*groundFrac();
@@ -1249,18 +1256,22 @@ function renderMenu(){
  drawFG(w,fake,gy,T);
  if(mode!=='title'){cx.fillStyle='rgba(20,10,4,.25)';cx.fillRect(0,0,W,H);return}
  // title letters with ball hopping across
- const sm=W<560;const fs=Math.min(W/(sm?5.3:6.2),H/5.2,120);const ty=H*(H>W?.25:.3);cx.font='900 '+fs+'px "Trebuchet MS","Arial Black",sans-serif';
- const ws=[];let tot=0;for(const ch of TITLE){const m=cx.measureText(ch).width*.92;ws.push(m);tot+=m}
- let x0=W/2-tot/2;const ct=T/bd;const hopI=Math.floor(ct)%(TITLE.length+2)-1;const u=ct-Math.floor(ct);
+ const sm=W<560,port=H>W*1.1,LINES=port?TITLE.split(' '):[TITLE];const maxLen=Math.max(...LINES.map(l=>l.length));
+ let fs=Math.min(W/(sm?5.3:6.2)*7/Math.max(7,maxLen),H/5.2,120);const ty=H*(port?.22:.3);
+ cx.font='900 '+fs+'px "Trebuchet MS","Arial Black",sans-serif';
+ {let mw=0;for(const l of LINES){let t=0;for(const ch of l)t+=cx.measureText(ch).width*.92;mw=Math.max(mw,t)}if(mw>W*.9){fs*=W*.9/mw;cx.font='900 '+fs+'px "Trebuchet MS","Arial Black",sans-serif'}}
+ const ct=T/bd;const hopI=Math.floor(ct)%(TITLE.length+2)-1;const u=ct-Math.floor(ct);
  const intro=clamp((performance.now()-BOOT)/550,0,1);
- const pos=[];let xx=x0;for(let i=0;i<TITLE.length;i++){pos.push(xx+ws[i]/2);xx+=ws[i]}
+ const ws=[],pos=[],lys=[],chars=[];
+ LINES.forEach((l,li)=>{let tot=0;const lw=[];for(const ch of l){const m=cx.measureText(ch).width*.92;lw.push(m);tot+=m}let xx=W/2-tot/2;for(let k=0;k<l.length;k++){chars.push(l[k]);ws.push(lw[k]);pos.push(xx+lw[k]/2);lys.push(ty+(li-(LINES.length-1)/2)*fs*1.02);xx+=lw[k]}});
+ const lastY=lys[lys.length-1];
  // drums under letters
- for(let i=0;i<TITLE.length;i++){const land=hopI===i?Math.exp(-u*7):0;const di=clamp(intro*TITLE.length*1.2-i,0,1);const dy=(1-easeBack(di))*-H*.6;
-  const lx=pos[i],ly=ty+dy+land*fs*.08;
+ for(let i=0;i<chars.length;i++){if(chars[i]===' ')continue;const land=hopI===i?Math.exp(-u*7):0;const di=clamp(intro*chars.length*1.2-i,0,1);const dy=(1-easeBack(di))*-H*.6;
+  const lx=pos[i],ly=lys[i]+dy+land*fs*.08;
   cx.save();cx.translate(lx,ly);cx.rotate(Math.sin(T*2+i)*.04);cx.scale(1+land*.12,1-land*.15);
-  cx.textAlign='left';cx.textBaseline='middle';cx.fillStyle='rgba(40,16,4,.35)';cx.fillText(TITLE[i],-ws[i]*.5+fs*.05,fs*.1);
+  cx.textAlign='left';cx.textBaseline='middle';cx.fillStyle='rgba(40,16,4,.35)';cx.fillText(chars[i],-ws[i]*.5+fs*.05,fs*.1);
   const g=cx.createLinearGradient(0,-fs*.5,0,fs*.4);const cols=[['#fff07a','#ff9a1f'],['#ffb0c0','#ff4a6a'],['#bff7a0','#3fbf4a'],['#a8e8ff','#2f8fd6']][i%4];g.addColorStop(0,cols[0]);g.addColorStop(1,cols[1]);
-  cx.textAlign='left';cx.textBaseline='middle';cx.lineJoin='round';cx.lineWidth=fs*.14;cx.strokeStyle='#4a1d08';cx.strokeText(TITLE[i],-ws[i]*.5,0);cx.fillStyle=g;cx.fillText(TITLE[i],-ws[i]*.5,0);
+  cx.textAlign='left';cx.textBaseline='middle';cx.lineJoin='round';cx.lineWidth=fs*.14;cx.strokeStyle='#4a1d08';cx.strokeText(chars[i],-ws[i]*.5,0);cx.fillStyle=g;cx.fillText(chars[i],-ws[i]*.5,0);
   cx.fillStyle='rgba(255,255,255,.45)';cx.beginPath();cx.ellipse(-ws[i]*.1,-fs*.22,ws[i]*.18,fs*.05,-.3,0,TAU);cx.fill();
   cx.restore()}
  // ball
@@ -1272,7 +1283,7 @@ function renderMenu(){
   for(let i=0;i<3;i++){const land=(seq[from]===i)?Math.exp(-bu*8):0;post(cx,xs[i],dy-30*Z,gy+4,7*Z,'#8a5a2c');cx.save();cx.translate(xs[i],dy-70*Z);cx.scale(Z,Z);cyl(cx,0,0,74,46,'#e2532f','#a3301a','#fff0c2','#ffe7a8',land,land*.6);cx.restore()}
   const bx=lerp(xs[a],xs[b2],bu),by=dy-70*Z-R*Z-Math.sin(bu*Math.PI)*90*Z;const sq=Math.exp(-bu*10)*.22;drawBall(cx,bx,by+sq*R*Z,R*Z*1.15,SK(),1+sq,1-sq,T*3,bu<.25?1:0,0,(T%3.3)<.12,b2>a?1:-1)}
  // subtitle tagline
- txt('tap the beat · hop the drums',W/2,ty+fs*.75,sm?15:20,'#fff6e0');
+ txt('tap the beat · hop the drums',W/2,lastY+fs*.75,sm?15:20,'#fff6e0');
  drawParts(true);
 }
 

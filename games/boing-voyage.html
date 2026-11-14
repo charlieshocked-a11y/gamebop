@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Boing Voyage</title>
+<script src="lib/gb.js"></script><script src="lib/board.js"></script>
+<title>Boing!</title>
 <style>
 :root{--ink:#3d2433;--paper:#fff3dc;--paperD:#e6c79c}
 *{box-sizing:border-box}
@@ -52,8 +53,8 @@ body{font-family:"Trebuchet MS","Avenir Next","Nunito","Segoe UI",system-ui,sans
 #card .icons svg{width:20px;height:20px}
 #card .info{flex:1;min-width:0}
 #mapside{position:absolute;left:calc(12px + env(safe-area-inset-left));bottom:calc(100px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
-.panel{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);background:var(--paper);border-radius:30px 36px 28px 34px;padding:22px 22px 20px;box-shadow:0 9px 0 var(--paperD),0 26px 50px rgba(0,0,0,.45);pointer-events:auto;max-width:94vw;max-height:90vh;overflow:auto;text-align:center}
-.show .panel{animation:panelin .45s cubic-bezier(.2,.9,.3,1.15) backwards}
+.panel:where(:not(#gbbar *,#gbedit *)){position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);background:var(--paper);border-radius:30px 36px 28px 34px;padding:22px 22px 20px;box-shadow:0 9px 0 var(--paperD),0 26px 50px rgba(0,0,0,.45);pointer-events:auto;max-width:94vw;max-height:90vh;overflow:auto;text-align:center}
+.show .panel:where(:not(#gbbar *,#gbedit *)){animation:panelin .45s cubic-bezier(.2,.9,.3,1.15) backwards}
 @keyframes panelin{0%{transform:translate(-50%,-30%) scale(.7) rotate(-4deg);opacity:0}100%{transform:translate(-50%,-50%)}}
 .ribbon{display:inline-block;margin:-38px auto 10px;background:linear-gradient(#ff8b57,#f0603a);color:#fff;font-weight:900;font-size:24px;padding:8px 28px;border-radius:12px 16px 10px 14px;box-shadow:0 5px 0 #a73c25;text-shadow:0 2px 0 rgba(0,0,0,.2);transform:rotate(-2deg)}
 .ribbon.blue{background:linear-gradient(#7fd2ff,#3f96e8);box-shadow:0 5px 0 #24589a}
@@ -106,7 +107,7 @@ body{font-family:"Trebuchet MS","Avenir Next","Nunito","Segoe UI",system-ui,sans
 #toast svg{width:30px;height:30px}
 #toast small{display:block;font-size:11px;opacity:.7}
 .big2{font-size:44px;font-weight:900;line-height:1;margin:4px 0;color:#ff6b3f;text-shadow:0 3px 0 #ffd3a8}
-.lbl{font-weight:800;opacity:.65;font-size:14px}
+.lbl:where(:not(#gbbar *,#gbedit *)){font-weight:800;opacity:.65;font-size:14px}
 @media (max-height:460px){#title .menu{gap:10px;bottom:calc(30px + env(safe-area-inset-bottom))}.btn.big{font-size:24px;padding:12px 30px}.btn{font-size:17px;padding:10px 16px}.btn.ico{width:46px;height:46px}}
 @media (max-width:520px){.btn.big{font-size:26px;padding:14px 30px}.btn{font-size:18px;padding:11px 18px}#card{min-width:0;width:94vw}#tut .cap{font-size:18px;top:calc(124px + env(safe-area-inset-top))}.star{width:62px}.star svg{width:54px;height:54px}#mapside{bottom:calc(112px + env(safe-area-inset-bottom))}#mapside .btn.ico{width:48px;height:48px}}
 </style>
@@ -125,6 +126,7 @@ body{font-family:"Trebuchet MS","Avenir Next","Nunito","Segoe UI",system-ui,sans
       <button id="bSkinsT" class="btn ico cream pop" style="animation-delay:.4s" aria-label="Skins"></button>
       <button id="bAchT" class="btn ico cream pop" style="animation-delay:.46s" aria-label="Awards"></button>
       <button id="bMuteT" class="btn ico cream pop" style="animation-delay:.52s" aria-label="Sound"></button>
+      <button id="bLbT" class="btn cream pop" style="animation-delay:.58s;font-size:17px;padding:0 18px;height:54px">🏆 Leaderboard</button>
     </div>
   </div>
   <a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
@@ -148,8 +150,8 @@ body{font-family:"Trebuchet MS","Avenir Next","Nunito","Segoe UI",system-ui,sans
 
 <div id="hud" class="ov">
   <div id="hudbtns"><button id="bPause" class="btn ico cream" aria-label="Pause"></button></div>
-  <div id="tPound" class="tbtn"></div>
-  <div id="tSquish" class="tbtn"></div>
+  <div id="tPound" class="tbtn" data-gbctl="pound"></div>
+  <div id="tSquish" class="tbtn" data-gbctl="squish"></div>
 </div>
 
 <div id="tut" class="ov">
@@ -177,6 +179,7 @@ body{font-family:"Trebuchet MS","Avenir Next","Nunito","Segoe UI",system-ui,sans
     <div class="lbl">Score</div><div class="big2" id="goScore">0</div>
     <div class="stats" id="goStats"></div>
     <div class="prow"><button id="bGoMenu" class="btn ico cream" aria-label="Menu"></button><button id="bGoAgain" class="btn purple big"></button></div>
+    <div class="prow" style="margin-top:12px"><button id="bGoLb" class="btn cream sm">🏆 Leaderboard</button></div>
   </div>
 </div>
 
@@ -334,6 +337,7 @@ function setKey(name, v) {
   K[name] = v;
 }
 addEventListener('keydown', e => {
+  if (GBBoard.isOpen()) return;
   initAudio();
   const n = keymap[e.code];
   if (n) { e.preventDefault(); if (!e.repeat) setKey(n, true); KE.any = true; }
@@ -1252,7 +1256,9 @@ function gameOver() {
   if (!save.days.includes(d)) save.days.push(d); if (save.days.length > 30) save.days.shift();
   if (save.days.length >= 3) unlock('days3'); if (score >= 1000) unlock('g1k'); if (score >= 5000) unlock('g5k');
   checkAch(); persist(); showGameOver(score, newBest, newDaily);
+  const g0 = G; GBBoard.submit(BOARD, score).then(x => { if (x.best && score > 0 && G === g0 && modal === 'gover') { const s = $('goStats').firstChild; if (s) s.innerHTML = IC.trophy + 'New best!'; } });
 }
+const BOARD = 'boing-voyage', BOPT = { title: 'Boing!', label: 'Gauntlet', format: 'int' };
 function gauntScore() { return Math.floor(G.dist) * 5 + G.score; }
 function totalStars() { let n = 0; for (const k in save.lv) n += save.lv[k].s.reduce((a, b) => a + b, 0); return n; }
 function totalBolts() { let n = 0; for (const k in save.lv) n += save.lv[k].b.reduce((a, b) => a + b, 0); return n; }
@@ -1810,9 +1816,10 @@ function drawHUD(t) {
   if (G.mode === 'level' && G.l < 8) for (let i = 0; i < 3; i++) { ctx.save(); ctx.translate(sx + 18 + i * 26, sy + 84); ctx.globalAlpha = G.bolts[i] ? 1 : .35; ctx.fillStyle = G.bolts[i] ? '#ffd34d' : '#fff'; ctx.beginPath(); for (let k = 0; k < 6; k++) ctx.lineTo(Math.cos(k * PI / 3) * 9, Math.sin(k * PI / 3) * 9); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#3a1830'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#3a1830'; circle(ctx, 0, 0, 3); ctx.restore(); }
   ctx.globalAlpha = 1; ctx.restore();
   const cx = VW / 2;
-  if (G.mode === 'gaunt') { hudText(String(gauntScore()), cx, sy + 20, 30, '#fff', 'center'); hudText('best ' + save.gBest, cx, sy + 46, 13, '#ffe9b0', 'center'); }
-  else if (G.mode === 'level') { hudText(fmtTime(G.time), cx, sy + 16, 18, G.time <= G.L.par ? '#fff' : '#ffc0a0', 'center'); }
-  if (G.combo >= 2) { const s = 1 + G.comboShow * .35, y = sy + (G.mode === 'gaunt' ? 84 : 58); ctx.save(); ctx.translate(cx, y); ctx.scale(s, s); ctx.rotate(Math.sin(t * 8) * .04); hudText('x' + mult(), 0, 0, 34, comboColor(), 'center'); ctx.restore(); hudText(G.combo + ' chain', cx, y + 26, 13, '#fff', 'center'); }
+  const syc = sy + (document.getElementById('gbbar') ? 30 : 0);
+  if (G.mode === 'gaunt') { hudText(String(gauntScore()), cx, syc + 20, 30, '#fff', 'center'); hudText('best ' + save.gBest, cx, syc + 46, 13, '#ffe9b0', 'center'); }
+  else if (G.mode === 'level') { hudText(fmtTime(G.time), cx, syc + 16, 18, G.time <= G.L.par ? '#fff' : '#ffc0a0', 'center'); }
+  if (G.combo >= 2) { const s = 1 + G.comboShow * .35, y = syc + (G.mode === 'gaunt' ? 84 : 58); ctx.save(); ctx.translate(cx, y); ctx.scale(s, s); ctx.rotate(Math.sin(t * 8) * .04); hudText('x' + mult(), 0, 0, 34, comboColor(), 'center'); ctx.restore(); hudText(G.combo + ' chain', cx, y + 26, 13, '#fff', 'center'); }
   if (G.boss) { const B = G.boss, w = Math.min(320, VW * .6), x = cx - w / 2, y = sy + 58 + (G.combo >= 2 ? 50 : 0);
     hudText(WORLDS[B.w].boss, cx, y - 12, 15, '#fff', 'center'); ctx.fillStyle = 'rgba(40,20,40,.6)'; rrect(ctx, x - 3, y - 3, w + 6, 18, 9); ctx.fill();
     for (let i = 0; i < B.max; i++) { ctx.fillStyle = i < B.hp ? '#ff5a7a' : 'rgba(255,255,255,.15)'; rrect(ctx, x + i * w / B.max + 2, y, w / B.max - 4, 12, 6); ctx.fill(); } }
@@ -1936,8 +1943,8 @@ function demoTick(dt) {
 let _mt = 0, _mtT = -1;
 function menuTop() { if (T - _mtT > .5 || !_mt) { _mtT = T; const el = document.querySelector('#title .menu'); const r = el && el.getBoundingClientRect(); _mt = r && r.height ? r.top : VH * .55; } return _mt; }
 function drawTitleText(t) {
-  const mt = menuTop(), size = Math.min(VW * .16, (mt - 8) / 2.45, 124), cx = VW / 2, y1 = Math.max(size * 1.05, Math.min(VH * .13, mt - size * 1.6)) + 4;
-  const words = [['Boıng', '#fff6c8', '#ffd34d', '#ff7a3d', 0], ['Voyage', '#e6fcff', '#7fe0ff', '#3f8fe8', 1]];
+  const mt = menuTop(), size = Math.min(VW * .2, (mt - 8) / 1.75, 150), cx = VW / 2, y1 = Math.max(size * 1.05, Math.min(VH * .2, mt - size * .75)) + 4;
+  const words = [['Boıng!', '#fff6c8', '#ffd34d', '#ff7a3d', 0]];
   ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
   words.forEach(([word, c0, c1, c2, wi]) => {
     const sz = wi ? size * .82 : size, y = y1 + wi * size * .95; ctx.font = '900 ' + sz + 'px "Arial Rounded MT Bold","Trebuchet MS","Verdana",sans-serif';
@@ -2183,6 +2190,7 @@ function onKeyDownUI(e) {
 $('bGaunt').innerHTML = IC.gaunt + 'Daily Gauntlet'; $('bHow').innerHTML = 'How to play'; $('bSkinsT').innerHTML = IC.ball; $('bAchT').innerHTML = IC.trophy;
 $('bMapBack').innerHTML = IC.back; $('bSkinsM').innerHTML = IC.ball; $('bAchM').innerHTML = IC.trophy; $('bGauntM').innerHTML = IC.gaunt; $('bGo').innerHTML = 'Play ' + IC.play;
 $('bPause').innerHTML = IC.pause; $('bResume').innerHTML = IC.play + 'Resume'; $('bRestart').innerHTML = IC.retry + 'Restart'; $('bQuit').innerHTML = IC.map + 'Map';
+$('bLbT').addEventListener('click', () => { SFX.click(); GBBoard.show(BOARD, BOPT); }); $('bGoLb').addEventListener('click', () => { SFX.click(); GBBoard.show(BOARD, BOPT); });
 $('bResMap').innerHTML = IC.map; $('bResRetry').innerHTML = IC.retry; $('bGoMenu').innerHTML = IC.back; $('bGoAgain').innerHTML = IC.retry.replace(/#3d2433/g, '#fff') + 'Again';
 $('tSquish').innerHTML = IC.squish; $('tPound').innerHTML = IC.pound; refreshMuteIcons();
 on('bPlay', () => { if (!store.get('tutorial', false)) playTutorial('title'); else goMap(); });

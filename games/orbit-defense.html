@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Orbit Defense</title>
+<script src="lib/gb.js"></script>
+<title>Spin Defense</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#05060f;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#e8f0ff;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent}
@@ -92,12 +93,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#05060f;font-family:
 <canvas id="c"></canvas>
 <div class="ib" id="mute"><svg viewBox="0 0 24 24" id="muteI"></svg></div>
 <div class="ib" id="pauseB"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></div>
-<div class="ib" id="spdB">▶</div>
-<div class="ib" id="waveB"><svg viewBox="0 0 24 24"><path d="M5 5l7 7-7 7M12 5l7 7-7 7"/></svg><span id="waveT"></span></div>
+<div class="ib" id="spdB" data-gbctl="speed">▶</div>
+<div class="ib" id="waveB" data-gbctl="wave"><svg viewBox="0 0 24 24"><path d="M5 5l7 7-7 7M12 5l7 7-7 7"/></svg><span id="waveT"></span></div>
 <div id="menu"></div>
 
 <div class="ov on" id="sTitle">
- <div class="title"><span>ORBIT</span><span>DEFENSE</span></div>
+ <div class="title"><span>SPIN</span><span>DEFENSE</span></div>
  <button class="btn big" id="bPlay">PLAY</button>
  <div class="row"><button class="btn" id="bSectors">Sectors</button><button class="btn amber" id="bResearch">Research</button></div>
  <div class="cry" id="tCry"></div>
@@ -408,7 +409,7 @@ function drawHUD(){
  const cxp=VW<480?90:110;cx.fillStyle='#4de1ff';cx.beginPath();cx.moveTo(cxp+4,14);cx.lineTo(cxp-4,28);cx.lineTo(cxp+1,28);cx.lineTo(cxp-2,39);cx.lineTo(cxp+7,24);cx.lineTo(cxp+2,24);cx.closePath();cx.fill();
  cx.fillStyle='#bfefff';cx.fillText(Math.floor(G.cred),cxp+14,27);
  // wave
- cx.textAlign='center';cx.font='900 '+(VW<480?16:20)+'px system-ui,sans-serif';cx.fillStyle='#ffb84d';cx.fillText((VW<480?'':'SECTOR '+SECT[G.sector-1].n+' · ')+'W '+G.wave+'/30',VW<480?VW*.62:VW/2,27);
+ const gbT=window.GB&&GB.isTouch;cx.textAlign=gbT&&VW<480?'right':'center';cx.font='900 '+(VW<480?16:20)+'px system-ui,sans-serif';cx.fillStyle='#ffb84d';cx.fillText((VW<480?'':'SECTOR '+SECT[G.sector-1].n+' · ')+'W '+G.wave+'/30',VW<480?(gbT?VW-112:VW*.62):VW/2,gbT&&VW>=480?54:27);cx.textAlign='center';
  if(G.banner){const a=clamp(G.banner.l,0,1);cx.globalAlpha=a;cx.font='900 40px system-ui,sans-serif';cx.fillStyle='#fff';cx.shadowColor='#4de1ff';cx.shadowBlur=20;cx.fillText(G.banner.t,CX,CY-.12*U-46);cx.shadowBlur=0;cx.globalAlpha=1}
  if(G.wave===0&&!anyTurret()){cx.font='800 15px system-ui,sans-serif';cx.fillStyle='rgba(255,255,255,'+(.6+.4*Math.sin(time*4))+')';cx.fillText('tap a slot to build · drag a ring to rotate',CX,VH-30-(VW<560?44:0))}
  $('waveT').textContent=G.state==='build'?Math.ceil(G.cd):'';
@@ -445,7 +446,7 @@ function closeMenu(){sel=null;const m=$('menu');if(m)m.classList.remove('on')}
 // ---------- screens ----------
 const SCR=['sTitle','sSectors','sResearch','sPause','sEnd'];
 function show(id){for(const s of SCR)$(s).classList.toggle('on',s===id);if(document.activeElement&&document.activeElement.blur)document.activeElement.blur()}
-function hudBtns(on){for(const id of ['pauseB','spdB','waveB'])$(id).style.display=on?'flex':'none'}
+function hudBtns(on){for(const id of ['pauseB','spdB','waveB'])$(id).style.display=on?'flex':'none';if(window.GB)GB.refresh()}
 function startSector(s,resume){initAudio();closeMenu();newGame(s,false,resume);screen='play';paused=false;show('');hudBtns(true);S.played++;persist();setSpeed(1)}
 function setSpeed(v){speed=v;$('spdB').textContent=['','▶','▶▶','▶▶▶'][v]}
 function setPause(p){if(screen!=='play')return;paused=p;show(p?'sPause':'');if(p)closeMenu()}

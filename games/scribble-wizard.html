@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><script src="lib/gb.js"></script><script src="lib/board.js"></script><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Scribble Wizard</title>
 <style>
   :root { color-scheme: light; }
@@ -2987,7 +2987,9 @@ function drawTitle() {
   }
   const iy = L.safeT + 12, ix = L.VW - L.safeR - 54;
   button('sound', ix, iy, 44, 42, '', { icon: Sfx.on ? 'sound' : 'mute', onClick: () => Sfx.toggle() });
-  if (document.fullscreenEnabled && canvas.requestFullscreen) button('full', ix - 52, iy, 44, 42, '', { icon: 'full', onClick: toggleFullscreen });
+  const hasFull = document.fullscreenEnabled && canvas.requestFullscreen;
+  if (hasFull) button('full', ix - 52, iy, 44, 42, '', { icon: 'full', onClick: toggleFullscreen });
+  button('tboard', ix - (hasFull ? 104 : 52), iy, 44, 42, '\u{1F3C6}', { size: 20, onClick: showBoard });
   const infoY = by + bh + 16 + (L.portrait ? 2 * sh + 40 : sh + 28);
   if (G.best > 0) text(`Best: wave ${G.best}${G.best >= MAX_WAVE ? ' - champion!' : ''}`, cx, infoY, 20, { color: '#4a4c7a', seed: 6 });
   const tipY = Math.min(L.VH - L.safeB - 20, sceneG + 46);
@@ -3076,15 +3078,18 @@ function drawGameOver() {
   const reached = G.wave;
   text(`You reached wave ${reached} of ${MAX_WAVE}`, cx, top + 192, 24, { seed: 161 });
   text(`Score ${G.score}   ·   Best wave ${G.best}${G.newBest ? '  (new record!)' : ''}`, cx, top + 226, 18, { color: '#4a4c7a', seed: 162, wobble: 0.4 });
+  if (G.boardNew) text('\u2605 NEW BEST score! \u2605', cx + 70, top + 20 + Math.sin(G.t * 3) * 2, 22, { color: COL.magic, outline: '#fff', outlineW: 5, seed: 163, align: 'left' });
   const w = L.portrait ? Math.min(300, L.VW - 120) : 230, h = 54, by = top + 262;
   if (L.portrait) {
     button('retry', cx - w / 2, by, w, h, `Retry wave ${reached}`, { primary: true, icon: 'retry', onClick: retryWave });
     button('new', cx - w / 2, by + h + 14, w, h, 'New game', { icon: 'play', onClick: () => startGame(1) });
     button('menu', cx - w / 2, by + 2 * (h + 14), w, h, 'Menu', { icon: 'home', onClick: () => toTitle() });
+    button('oboard', cx - w / 2, by + 3 * (h + 14), w, h, '\u{1F3C6} Leaderboard', { onClick: showBoard });
   } else {
     button('retry', cx - w - 130, by, w, h, `Retry wave ${reached}`, { primary: true, icon: 'retry', onClick: retryWave });
     button('new', cx - 115 + 10, by, 210, h, 'New game', { icon: 'play', onClick: () => startGame(1) });
     button('menu', cx + 120 + 10, by, 170, h, 'Menu', { icon: 'home', onClick: () => toTitle() });
+    button('oboard', cx - 115 + 10, by + h + 14, 210, h, '\u{1F3C6} Leaderboard', { onClick: showBoard });
   }
 }
 function drawVictory() {
@@ -3106,6 +3111,8 @@ function drawVictory() {
   const w = L.portrait ? 190 : 220, h = 54, by = top + 156;
   button('again', cx - w - 10, by, w, h, 'Play again', { primary: true, icon: 'play', onClick: () => startGame(1) });
   button('vmenu', cx + 10, by, w, h, 'Menu', { icon: 'home', onClick: () => toTitle() });
+  button('vboard', cx - w / 2, by + h + 14, w, h, '\u{1F3C6} Leaderboard', { onClick: showBoard });
+  if (G.boardNew) text('\u2605 NEW BEST score! \u2605', cx, by + 2 * h + 48, 22, { color: COL.magic, outline: '#fff', outlineW: 5, seed: 173 });
 }
 
 // ---------- PRACTICE overlay ----------
@@ -3310,14 +3317,22 @@ function updateDeath(dt) {
   if (G.deathT > 2.5) {
     if (G.score > G.bestScore) { G.bestScore = G.score; store.set('bestScore', G.score); }
     G.newBest = G.wave >= G.best && G.wave > 1;
+    submitBoard();
     startFlip(); G.screen = 'over';
   }
 }
 function winGame() {
   if (G.score > G.bestScore) { G.bestScore = G.score; store.set('bestScore', G.score); }
   G.best = Math.max(G.best, MAX_WAVE); store.set('bestWave', G.best); store.set('champion', true);
+  submitBoard();
   startFlip(); G.screen = 'win'; Sfx.victory(); clearField();
 }
+// ---------- leaderboard ----------
+function submitBoard() {
+  G.boardNew = false; const sc = G.score;
+  if (sc > 0) GBBoard.submit('scribble-wizard', sc).then(r => { if (r && r.best) G.boardNew = true; });
+}
+function showBoard() { pen.down = false; pen.btn = null; pointer.pressId = null; GBBoard.show('scribble-wizard', { title: 'Scribble Wizard', format: 'int' }); }
 function toggleFullscreen() {
   try {
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});

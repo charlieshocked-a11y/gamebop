@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Ice Slide</title>
+<script src="lib/gb.js"></script>
+<script>if(GB.isTouch)document.documentElement.classList.add("gbtouch")</script>
+<title>Frozen Pond</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#0b2a5a;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent}
 canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
@@ -36,6 +38,7 @@ canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 .chip{background:rgba(11,42,90,.6);border:2px solid rgba(255,255,255,.35);border-radius:14px;padding:3px 12px;text-align:center;font-weight:900;min-width:52px}
 .chip b{display:block;font-size:22px;line-height:1.1}.chip small{font-size:10px;letter-spacing:1px;opacity:.8}
 @media (max-width:520px){#hud{justify-content:flex-start;padding-left:10px}.chip{min-width:38px;padding:2px 8px}.chip b{font-size:18px}.chip small{font-size:9px}}
+html.gbtouch #hud{padding-top:40px}
 #ctl{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:10px}
 .cb{width:54px;height:54px;border-radius:16px;border:0;background:linear-gradient(#ffffff,#cdeeff);box-shadow:0 4px 0 #5a9ad8;cursor:pointer;padding:12px}
 .cb:active{transform:translateY(3px);box-shadow:0 1px 0 #5a9ad8}
@@ -72,11 +75,11 @@ canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 #title .btn.how{font-size:min(4.4vw,3.4vh,19px);padding:.5em 1.3em}
 </style></head><body>
 <canvas id="c"></canvas>
-<div id="title"><div class="logo"><span>ICE</span><span>SLIDE</span></div><div style="display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap"><button class="btn go" id="playBtn">PLAY</button><button class="btn how" id="howBtn">? HOW TO PLAY</button></div><div class="hint">Slide until you bump · land every pal on a nest</div><a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a></div>
+<div id="title"><div class="logo"><span>FROZEN</span><span>POND</span></div><div style="display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap"><button class="btn go" id="playBtn">PLAY</button><button class="btn how" id="howBtn">? HOW TO PLAY</button></div><div class="hint">Slide until you bump · land every pal on a nest</div><a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a></div>
 <div id="map" class="hidden"><div id="chName"></div><div id="tabs"></div><div id="lvls"></div></div>
 <div id="totStars" class="hidden"></div>
 <div id="hud" class="hidden"><div class="chip"><b id="hLv">1</b><small>LEVEL</small></div><div class="chip"><b id="hMv">0</b><small>MOVES</small></div><div class="chip"><b id="hPar">0</b><small>★★★</small></div></div>
-<div id="ctl" class="hidden">
+<div id="ctl" class="hidden" data-gbctl="buttons">
  <button class="cb" id="bMenu" title="Levels"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2" fill="#2a6fd8"/><rect x="14" y="3" width="7" height="7" rx="2" fill="#2a6fd8"/><rect x="3" y="14" width="7" height="7" rx="2" fill="#2a6fd8"/><rect x="14" y="14" width="7" height="7" rx="2" fill="#2a6fd8"/></svg></button>
  <button class="cb" id="bUndo" title="Undo (Z)"><svg viewBox="0 0 24 24"><path d="M9 5L3 10l6 5" fill="none" stroke="#2a6fd8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 10h10a6 6 0 010 12h-3" fill="none" stroke="#2a6fd8" stroke-width="3" stroke-linecap="round"/></svg></button>
  <button class="cb" id="bRestart" title="Restart (R)"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 11-3-6.2" fill="none" stroke="#2a6fd8" stroke-width="3" stroke-linecap="round"/><path d="M18 2v5h-5" fill="none" stroke="#2a6fd8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -227,7 +230,7 @@ function showWin(){const st=stars(moves,LV.par);const prev=G.done[cur]||0;G.done
 function burstWin(){for(let i=0;i<60;i++)particles.push({x:W/2,y:H/2,vx:rnd(-300,300),vy:rnd(-400,100),life:1.5,col:['#ffc21a','#7fd3ff','#ff8ab0','#fff'][i%4],r:rnd(3,6),scr:1,g:1})}
 // ---------- layout & drawing ----------
 let ts=40,ox=0,oy=0;
-function layoutBoard(){if(!LV)return;const top=74,bot=82;ts=Math.floor(Math.min((W-16)/LV.w,(H-top-bot)/LV.h,78));ox=Math.round((W-ts*LV.w)/2);oy=Math.round(top+(H-top-bot-ts*LV.h)/2)}
+function layoutBoard(){if(!LV)return;const top=window.GB&&GB.isTouch?112:74,bot=82;ts=Math.floor(Math.min((W-16)/LV.w,(H-top-bot)/LV.h,78));ox=Math.round((W-ts*LV.w)/2);oy=Math.round(top+(H-top-bot-ts*LV.h)/2)}
 function burstCell(cx,cy,n,col,sp,up){for(let i=0;i<n;i++){const a=Math.random()*TAU,v=rnd(.3,1)*sp;particles.push({x:cx,y:cy,vx:Math.cos(a)*v,vy:Math.sin(a)*v+(up||0)*1.5,life:rnd(.4,.8),col,r:rnd(.04,.1)})}}
 function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 function drawBg(){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#7fd3ff');g.addColorStop(.55,'#cfefff');g.addColorStop(1,'#e8f8ff');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
