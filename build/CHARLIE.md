@@ -98,5 +98,5 @@ Charlie: "some games that are like timed, like, oh, you have to go grab this and
 - Controls follow Rule 3 (move plus one action button, auto-grab when you touch the item).
 - Each level adds a new twist: farther targets, guards, collapsing floors, carrying something heavy that slows you, several items in one run, shortcuts you unlock.
 
-## Rule 12 (Charlie, 2026-11-14): game names must sound human, not AI
-No two-fancy-words mashups ("Neon Serpent", "Ember Drift", "Quiver Peak") and no made-up compound words ("Glowburst", "Tetherdrift"). Name games the way a kid or an indie dev would: plain, funny, or a little sentence that says what you do. Good: "Don't Crash the Trains", "Type or Die", "Gone Fishing", "Punch Goblins in the Sky", "Giant Snowball". The slug can stay short; the title is what players see.
+## Rule 12 (Charlie, 2026-11-14): game names must sound like real web games, not AI
+No fancy two-word mashups ("Neon Serpent", "Ember Drift", "Quiver Peak"), no made-up compound words ("Glowburst", "Tetherdrift"), and no long sentences. Name it like a real CrazyGames/Poki hit: short, punchy, concrete, says what you do, often a little funny. Think "Drift Boss", "Moto X3M", "Crossy Road", "Fruit Ninja". Good examples from Gamebop: "Lava Climb", "Goblin Puncher", "Choo Choo Chaos", "Horsey", "Swish!", "Digger Dan", "Boom Bowl". The title must also be what the game shows on its own title screen.
