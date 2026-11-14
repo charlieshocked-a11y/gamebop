@@ -2,7 +2,9 @@
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Knuckle Comet</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Goblin Puncher</title>
 <style>
 :root{--ol:#2a1840}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -77,6 +79,7 @@ canvas{position:fixed;left:0;top:0;display:block}
       <button class="btn sm blue d1" id="bHow">HOW TO PLAY</button>
       <button class="btn sm pink d2" id="bShop">UPGRADES</button>
     </div>
+    <button class="btn sm d3" id="bBoard">🏆 TOP COMBOS</button>
   </div>
   <a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
 </div>
@@ -90,6 +93,7 @@ canvas{position:fixed;left:0;top:0;display:block}
       <button class="btn sm blue d1" id="bRetry">↻ RETRY</button>
       <button class="btn sm pink d2" id="bShop2">UPGRADES</button>
       <button class="btn sm blue d3" id="bMenu2">MENU</button>
+      <button class="btn sm d3" id="bBoard2" aria-label="Leaderboard">🏆</button>
     </div>
   </div>
 </div>
@@ -1340,6 +1344,7 @@ function showResults(){
   if(win&&!C.bonus&&medal<3){near=G.dmg>0?'GOLD: NO HITS + 55% PERFECT':'GOLD: 55% PERFECT';}
   if(!win&&G.goal)near=G.smashed>=G.goal*0.7?'SO CLOSE!':'';
   G.res={win,medal,run,clear,mb,total,t:0,near,smashed:G.smashed,goal:G.goal,combo:G.maxCombo,best:save.bestCombo,perf:G.perfects||0,hits:G.hits||0,next:waveCfg(win?n+1:n)};
+  const res=G.res;if(G.mode==='play'&&G.maxCombo>0)GBBoard.submit(BOARD,G.maxCombo).then(b=>{if(b.best)res.nb=true;});
   scene='results';showUI();
 }
 
@@ -1391,10 +1396,12 @@ function showUI(){
 function toTitle(){scene='title';paused=false;G=makeG('demo',0);G.R.charges=99;musInt=0;showUI();}
 function playPressed(){audioInit();SFX.click();if(!tutDone)startTut(false);else startWave(save.wave||1);}
 function setPaused(p){if(p&&scene!=='play'&&scene!=='tut')return;paused=p;showUI();}
+const BOARD='knuckle-comet',BOPT={title:'Goblin Puncher',format:n=>'x'+Math.round(n),label:'Best combo'};
 function bindBtn(id,fn){const b=$(id);b.addEventListener('pointerdown',e=>{e.stopPropagation();touchMode=e.pointerType==='touch';});b.addEventListener('click',e=>{e.stopPropagation();audioInit();SFX.click();fn();});}
 bindBtn('bPlay',()=>{if(!tutDone)startTut(false);else startWave(save.wave||1);});
 bindBtn('bHow',()=>startTut(true));
 bindBtn('bShop',()=>{shopFrom='title';scene='shop';showUI();});
+bindBtn('bBoard',()=>GBBoard.show(BOARD,BOPT));bindBtn('bBoard2',()=>GBBoard.show(BOARD,BOPT));
 bindBtn('bShop2',()=>{shopFrom='results';scene='shop';showUI();});
 bindBtn('bShopX',()=>{scene=shopFrom;showUI();});
 bindBtn('bNext',()=>{const r=G.res;startWave(r.win?G.n+1:G.n);});
@@ -1630,7 +1637,7 @@ function drawHUD(min){
       const s=11*u*(full?1+Math.sin(RT*4+i)*0.04:0.85);heartPath(c,x,y,s);fs(c,full?'#ff4a5a':'rgba(40,20,60,0.45)',2.2);
       if(full){ell(c,x-s*0.35,y-s*0.35,s*0.22,s*0.14,-0.6);c.fillStyle='rgba(255,255,255,0.8)';c.fill();}}
     // goal pill
-    const pw=150*u,ph=34*u,px=W/2-pw/2,py=pad;
+    const pw=150*u,ph=34*u,px=W/2-pw/2,py=pad+(window.GB&&GB.isTouch?30:0);
     c.save();c.translate(W/2,py+ph/2);c.rotate(-0.015);c.translate(-W/2,-(py+ph/2));
     rrect(c,px,py+3,pw,ph,ph/2);c.fillStyle=OL;c.fill();rrect(c,px,py,pw,ph,ph/2);fs(c,'#fff6e0',2.5);
     let frac=G.goal?clamp(G.smashed/G.goal,0,1):0;let label=Math.min(G.smashed,G.goal)+' / '+G.goal;
@@ -1773,7 +1780,7 @@ function drawResults(){
   const sx=px+Math.min(190,pw*0.42),sw=px+pw-24-sx;const lh=Math.min(44,ph*0.13);let sy=py+ph*0.22;
   const ct=k=>Math.floor(easeOutCubic(clamp((t-0.3-k*0.25)/0.7,0,1))*1000)/1000;
   const rows=[[ 'gob',G.cfg.boss?(r.smashed+' / '+r.goal):(''+Math.round(Math.min(r.goal||999,r.smashed)*ct(0))+(r.goal&&!G.cfg.bonus?' / '+r.goal:'')) ],
-             [ 'combo','x'+Math.round(r.combo*ct(1))+(r.combo>=r.best&&r.combo>=5?'  BEST!':'') ],
+             [ 'combo','x'+Math.round(r.combo*ct(1))+(r.nb&&ct(1)>=1?'  NEW BEST!':r.combo>=r.best&&r.combo>=5?'  BEST!':'') ],
              [ 'perf',(G.cfg.bonus?'':'PERFECT '+Math.round(r.perf*ct(1.5))+' / '+r.hits) ],
              [ 'coin','+'+Math.round(r.total*ct(2)) ]].filter(x=>x[1]!=='');
   rows.forEach((row,i)=>{const yy=sy+i*lh;c.save();c.translate(sx+14,yy);
@@ -1817,8 +1824,8 @@ function drawTitle(){
   c.fillStyle=gr;c.beginPath();c.moveTo(-sw/2,-fz*0.06);c.quadraticCurveTo(0,-fz*0.55,sw*0.5,-fz*0.18);c.lineTo(sw*0.5,fz*0.25);c.quadraticCurveTo(0,fz*0.5,-sw/2,fz*0.06);c.fill();
   for(let i=0;i<7;i++){const a=(RT*0.5+i/7)%1;const x=lerp(sw*0.45,-sw*0.5,a);starPath(c,x,Math.sin(i*2+RT)*fz*0.25,fz*0.07*(1-a)+2,RT*3+i);c.fillStyle='#fff6c0';c.fill();}
   c.restore();
-  fancyWord('KNUCKLE',W/2,y1,fz*0.86,['#fff8c8','#ffe14d','#ffb020','#ff7a1a'],0);
-  fancyWord('COMET',W/2,y2,fz*1.08,['#e8fbff','#8fe3ff','#4fa8ff','#5a5cff'],3);
+  fancyWord('GOBLIN',W/2,y1,fz*0.86,['#fff8c8','#ffe14d','#ffb020','#ff7a1a'],0);
+  fancyWord('PUNCHER',W/2,y2,fz*0.98,['#e8fbff','#8fe3ff','#4fa8ff','#5a5cff'],3);
   // mascot
   if(!mascot){mascot=newRocko(0,0);mascot.jab=1.5;}
   const M=mascot;const portrait=W<H*0.9;
