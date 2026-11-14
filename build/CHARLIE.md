@@ -90,3 +90,10 @@ Charlie's feedback on Skybolt Roadster: he bought every upgrade fast, and even o
 - **Hard means hard:** the top difficulty should beat a skilled player most of the time at first. Enemies must keep up with a fully upgraded player, so scale enemy speed and smarts to the player's upgrades or heat level. Late levels should need mastery, not just patience.
 - **Playtest as a good player:** test with a fully upgraded save and a skilled bot or script. If the max-upgrade player still wins easily on the hardest setting, it is too easy, so tune it up.
 - **Big world, real graphics:** a world should feel large and varied (several distinct areas and landmarks), with lighting, shadows or fake shadows, detail props and animation, not flat boxes.
+
+## Game idea Charlie asked for (2026-11-13)
+Charlie: "some games that are like timed, like, oh, you have to go grab this and run back to the spot... they're like challenging and they're like thrilling and they're pretty fun." Include one or two of these in the next drop, as action games:
+- The core loop is a race against the clock: dash out, grab the thing, get back to the drop-off spot before time runs out. The return trip should be the tense part (the path changes, something chases you, the clock is ticking loudly).
+- Make every run feel close: a big countdown, a heartbeat or ticking sound that speeds up, slow-mo when you make it with a split second left, and "SO CLOSE!" when you just miss.
+- Controls follow Rule 3 (move plus one action button, auto-grab when you touch the item).
+- Each level adds a new twist: farther targets, guards, collapsing floors, carrying something heavy that slows you, several items in one run, shortcuts you unlock.
