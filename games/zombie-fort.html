@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Zombie Fort</title>
+<script src="lib/gb.js"></script>
+<title>Zombie Night</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#141a10;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-tap-highlight-color:transparent}
 canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block;cursor:crosshair}
@@ -66,7 +67,7 @@ canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block;cursor:cr
 .gbsup:hover{opacity:1}
 </style></head><body>
 <canvas id="c"></canvas>
-<div id="title"><div class="logo"><span>ZOMBIE</span><span>FORT</span></div><div class="row"><button class="btn green" id="playBtn">PLAY</button><button class="btn blue" id="titleUp">UPGRADES</button></div><button class="btn how" id="howBtn">HOW TO PLAY</button><div class="hint">WASD move · mouse aim &amp; shoot · build by day, survive the night</div><a class="gbsup" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a></div>
+<div id="title"><div class="logo"><span>ZOMBIE</span><span>NIGHT</span></div><div class="row"><button class="btn green" id="playBtn">PLAY</button><button class="btn blue" id="titleUp">UPGRADES</button></div><button class="btn how" id="howBtn">HOW TO PLAY</button><div class="hint">WASD move · mouse aim &amp; shoot · build by day, survive the night</div><a class="gbsup" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a></div>
 <div id="hud" class="hidden">
  <div id="bars"><div class="bar"><svg viewBox="0 0 24 24"><path d="M12 21s-8-5-8-11a4.5 4.5 0 018-3 4.5 4.5 0 018 3c0 6-8 11-8 11z" fill="#ff4a5a"/></svg><div class="b"><i id="hpBar" style="background:linear-gradient(#ff8a8a,#e8202a)"></i></div></div>
  <div class="bar"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v10H3z" fill="#ffb43b"/><rect x="10" y="14" width="4" height="7" fill="#5a2a0a"/></svg><div class="b"><i id="coreBar" style="background:linear-gradient(#ffd27a,#e88a1a)"></i></div></div></div>
@@ -203,7 +204,10 @@ window.addEventListener('keyup',e=>{const k=KM[e.key];if(k)keys[k]=false});
 function cycleW(){for(let k=1;k<=5;k++){const i=(curW+k)%5;if(weapUnlocked(i)){curW=i;break}}SFX.click();buildToolbar()}
 cv.addEventListener('wheel',e=>{if(state==='game')cycleW()},{passive:true});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
-cv.addEventListener('pointerdown',e=>{audioInit();if(e.pointerType==='touch'){touchMode=true;const side=e.clientX<W/2?'L':'R';sticks[side]={id:e.pointerId,ox:e.clientX,oy:e.clientY,x:e.clientX,y:e.clientY,t:performance.now()};return}
+// floating twin sticks are canvas-drawn: Gamebop bar Swap flips which half moves / aims, size scales the sticks
+if(window.GB)GB.manual=true;
+function gbFlip(){return !!(window.GB&&GB.settings.flip)}function stickR(){return 50*(window.GB?GB.settings.size||1:1)}
+cv.addEventListener('pointerdown',e=>{audioInit();if(e.pointerType==='touch'){touchMode=true;let side=e.clientX<W/2?'L':'R';if(gbFlip())side=side==='L'?'R':'L';sticks[side]={id:e.pointerId,ox:e.clientX,oy:e.clientY,x:e.clientX,y:e.clientY,t:performance.now()};return}
  mouse.x=e.clientX;mouse.y=e.clientY;if(e.button===2){selBuild=-1;buildToolbar();return}if(state==='game'&&phase==='day'&&selBuild>=0){tryBuild(scrToWorld(e.clientX,e.clientY));return}mouse.down=true});
 window.addEventListener('pointermove',e=>{if(e.pointerType==='touch'){for(const s of ['L','R'])if(sticks[s]&&sticks[s].id===e.pointerId){sticks[s].x=e.clientX;sticks[s].y=e.clientY}return}mouse.x=e.clientX;mouse.y=e.clientY});
 window.addEventListener('pointerup',e=>{if(e.pointerType==='touch'){for(const s of ['L','R'])if(sticks[s]&&sticks[s].id===e.pointerId){const st=sticks[s];if(performance.now()-st.t<250&&Math.hypot(st.x-st.ox,st.y-st.oy)<12&&state==='game'&&phase==='day'&&selBuild>=0)tryBuild(scrToWorld(st.x,st.y));sticks[s]=null}return}mouse.down=false});
@@ -251,8 +255,8 @@ function killZ(z){z.dead=true;kills++;G.kills++;SFX.die();burst(z.x,z.y,14,'rgba
 function update(dt){sndBudget=Math.max(0,sndBudget-dt*30);
  // player movement
  let mx=(keys.right?1:0)-(keys.left?1:0),my=(keys.down?1:0)-(keys.up?1:0);let aimFromStick=false,shoot=mouse.down;
- if(sticks.L){const dx=sticks.L.x-sticks.L.ox,dy=sticks.L.y-sticks.L.oy,d=Math.hypot(dx,dy);if(d>6){mx=dx/Math.max(d,50);my=dy/Math.max(d,50)}}
- if(sticks.R){const dx=sticks.R.x-sticks.R.ox,dy=sticks.R.y-sticks.R.oy,d=Math.hypot(dx,dy);if(d>10){P.ang=Math.atan2(dy,dx);aimFromStick=true;shoot=d>22}else shoot=false}
+ if(sticks.L){const dx=sticks.L.x-sticks.L.ox,dy=sticks.L.y-sticks.L.oy,d=Math.hypot(dx,dy);if(d>6){const SR=stickR();mx=dx/Math.max(d,SR);my=dy/Math.max(d,SR)}}
+ if(sticks.R){const dx=sticks.R.x-sticks.R.ox,dy=sticks.R.y-sticks.R.oy,d=Math.hypot(dx,dy);if(d>10){P.ang=Math.atan2(dy,dx);aimFromStick=true;shoot=d>22*stickR()/50}else shoot=false}
  const ml=Math.hypot(mx,my);if(ml>1){mx/=ml;my/=ml}
  const spd=175*(1+upv('spd')*.07);P.vx=lerp(P.vx,mx*spd,Math.min(1,dt*14));P.vy=lerp(P.vy,my*spd,Math.min(1,dt*14));P.x+=P.vx*dt;P.y+=P.vy*dt;P.r=13;collide(P,'p');if(ml>.1)P.walk+=dt*12;
  if(!touchMode||!aimFromStick){if(!touchMode){const w=scrToWorld(mouse.x,mouse.y);mouse.wx=w[0];mouse.wy=w[1];P.ang=Math.atan2(w[1]-P.y,w[0]-P.x)}else if(ml>.2&&!sticks.R)P.ang=Math.atan2(my,mx)}
@@ -516,8 +520,8 @@ function render(){const z=cam.z;ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle=
  // offscreen indicators
  if(phase==='night'){for(const zz of Z){const x=(zz.x-cam.x)*z+W/2,y=(zz.y-cam.y)*z+H/2;if(x>0&&x<W&&y>0&&y<H)continue;const ex=clamp(x,12,W-12),ey=clamp(y,60,H-70);ctx.fillStyle=zz.t==='boss'?'#ffd23f':'rgba(255,70,70,.8)';ctx.beginPath();ctx.arc(ex,ey,zz.t==='boss'?8:4,0,TAU);ctx.fill()}}
  // sticks
- for(const s of ['L','R']){const st=sticks[s];if(!st)continue;ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(st.ox,st.oy,50,0,TAU);ctx.stroke();const dx=st.x-st.ox,dy=st.y-st.oy,d=Math.hypot(dx,dy),k=d>50?50/d:1;ctx.fillStyle=s==='R'?'rgba(255,120,80,.6)':'rgba(255,255,255,.5)';ctx.beginPath();ctx.arc(st.ox+dx*k,st.oy+dy*k,22,0,TAU);ctx.fill()}
- if(touchMode&&state==='game'&&!sticks.L&&!sticks.R&&T%4<2.5){ctx.fillStyle='rgba(255,255,255,.18)';ctx.beginPath();ctx.arc(80,H-130,44,0,TAU);ctx.arc(W-80,H-130,44,0,TAU);ctx.fill()}}
+ for(const s of ['L','R']){const st=sticks[s];if(!st)continue;ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=3;const SR=stickR();ctx.beginPath();ctx.arc(st.ox,st.oy,SR,0,TAU);ctx.stroke();const dx=st.x-st.ox,dy=st.y-st.oy,d=Math.hypot(dx,dy),k=d>SR?SR/d:1;ctx.fillStyle=s==='R'?'rgba(255,120,80,.6)':'rgba(255,255,255,.5)';ctx.beginPath();ctx.arc(st.ox+dx*k,st.oy+dy*k,22*SR/50,0,TAU);ctx.fill()}
+ if(touchMode&&state==='game'&&!sticks.L&&!sticks.R&&T%4<2.5){const hr=44*stickR()/50,f=gbFlip(),om=window.GB?GB.offset('move'):{x:0,y:0},oa=window.GB?GB.offset('aim'):{x:0,y:0};const mxp=f?W-80:80,axp=f?80:W-80;ctx.fillStyle='rgba(255,255,255,.18)';ctx.beginPath();ctx.arc(mxp+om.x,H-130+om.y,hr,0,TAU);ctx.fill();ctx.fillStyle='rgba(255,140,100,.2)';ctx.beginPath();ctx.arc(axp+oa.x,H-130+oa.y,hr,0,TAU);ctx.fill()}}
 // title scene
 const TZ=[];for(let i=0;i<9;i++)TZ.push({x:Math.random(),y:.62+Math.random()*.3,s:.8+Math.random()*.6,t:['walker','runner','brute','walker','spitter','walker','digger','walker','brute'][i],ph:Math.random()*9});
 function renderTitle(){ctx.setTransform(DPR,0,0,DPR,0,0);let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#1a1040');g.addColorStop(.45,'#7a2a6a');g.addColorStop(.62,'#ff7a3a');g.addColorStop(.63,'#3a5a2a');g.addColorStop(1,'#1a2a10');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);

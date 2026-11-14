@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Wild Lens</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Safari Snap</title>
 <style>
 :root{--ink:#3a2414;--paper:#f6ead0;--paper2:#e9d3a8;--leather:#7a4524;--leather2:#9c5d31;--brass:#f0c060;--sun:#ff9a3c;--green:#3f5f2c}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -122,6 +124,7 @@ body.menu #cv{cursor:default}
 #hud .hdr{pointer-events:none}
 #hud .hdr .ib{pointer-events:auto}
 #prog{flex:1;max-width:420px;height:14px;margin:0 6px;position:relative}
+body:has(#gbbar) #prog{align-self:flex-end;margin-top:34px}
 #tools{position:absolute;left:calc(10px + env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));display:flex;gap:8px;pointer-events:auto}
 .tool{width:54px;height:54px;border-radius:50%;border:0;cursor:pointer;position:relative;background:radial-gradient(circle at 35% 30%,#8a5a36,#3e2414);box-shadow:inset 0 2px 0 rgba(255,220,170,.35),0 3px 0 #1d1008,0 6px 12px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;transition:transform .2s cubic-bezier(.34,1.8,.64,1)}
 .tool svg{width:30px;height:30px}
@@ -213,10 +216,10 @@ body.touch #hint{display:none}
   <button class="ib" id="bMute" aria-label="Sound"></button>
   <button class="ib" id="bPause" aria-label="Pause"><span data-ic="pause"></span></button>
  </div>
- <div id="tools"></div>
+ <div id="tools" data-gbctl="tools"></div>
  <div id="touchR">
-  <div id="tRow"><button class="tbtn" id="bGo" aria-label="Faster"><span data-ic="fast"></span></button><button class="tbtn" id="bBrake" aria-label="Stop"><span data-ic="brake"></span></button></div>
-  <button id="bShutter" aria-label="Snap"></button>
+  <div id="tRow" data-gbctl="drive"><button class="tbtn" id="bGo" aria-label="Faster"><span data-ic="fast"></span></button><button class="tbtn" id="bBrake" aria-label="Stop"><span data-ic="brake"></span></button></div>
+  <button id="bShutter" data-gbctl="shutter" aria-label="Snap"></button>
  </div>
  <div id="hint">Mouse aim · Scroll zoom · Click / Space snap · Hold S stop · W faster · 1-4 tools</div>
  <div id="fork" class="hidden"><button class="fsign l" id="forkL"></button><div id="forkT" class="serif">Pick a trail</div><button class="fsign r" id="forkR"></button></div>
@@ -229,6 +232,7 @@ body.touch #hint{display:none}
  <div class="tb">
   <button class="tag sun big" id="bPlay">Play</button>
   <div class="row"><button class="tag" id="bHow">How to play</button><button class="tag" id="bJourT"><span data-ic="book"></span>Journal</button></div>
+  <div class="row"><button class="tag" id="bLBT"><span data-ic="trophy"></span>Leaderboard</button></div>
  </div>
  <a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
 </div>
@@ -257,7 +261,7 @@ body.touch #hint{display:none}
  </div>
 </div>
 <div id="modal" class="scr hidden"><div id="mBox" class="paper"><div id="mHead"><div id="mTitle" class="serif"></div><button class="ib" id="mClose" aria-label="Close"><span data-ic="x"></span></button></div><div id="mTabs"></div><div id="mBody"></div></div></div>
-<div id="results" class="scr hidden"><div id="resBox" class="paper"><div id="resT" class="serif">Safari album</div><div id="album"></div><div id="resSum"></div><button class="tag sun" id="bResOk">Back to camp</button></div></div>
+<div id="results" class="scr hidden"><div id="resBox" class="paper"><div id="resT" class="serif">Safari album</div><div id="album"></div><div id="resSum"></div><div class="row" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="tag" id="bResLB"><span data-ic="trophy"></span>Leaderboard</button><button class="tag sun" id="bResOk">Back to camp</button></div></div></div>
 <div id="pause" class="scr hidden"><div class="paper"><div class="serif" style="font-size:26px;font-weight:700">Paused</div><button class="tag sun" id="bResume">Resume</button><button class="tag" id="bQuit">End safari</button></div></div>
 <div id="toast"><div class="md"><span data-ic="trophy"></span></div><div><b id="toastT"></b><small id="toastS"></small></div></div>
 <script>
@@ -3012,7 +3016,13 @@ function showResults() {
   const sum = $('resSum');
   sum.innerHTML = '<div class="sumc"><b id="rsS">0</b>points</div><div class="sumc"><b id="rsC">0</b>' + IC.coin.replace('<svg', '<svg style="width:16px;height:16px"') + '</div><div class="sumc"><b>' + G.tourNew + '</b>new species</div><div class="sumc"><b>' + G.tourLeg + '</b>legendary</div>';
   countUp($('rsS'), G.tourScore, 1400); countUp($('rsC'), G.tourCoins, 1400);
+  if (window.GBBoard && G.photos.length && G.tourScore > 0) GBBoard.submit(BOARD, G.tourScore).then(r => {
+    if (r && r.best && G.mode === 'results') sum.insertAdjacentHTML('afterbegin', '<div class="sumc" style="color:#c8381a;font-family:Georgia,serif;font-size:15px;font-weight:900;letter-spacing:1px;border:3px solid #c8381a;border-radius:10px;padding:4px 10px;transform:rotate(-6deg)">★ NEW BEST ★</div>');
+  });
 }
+// leaderboard: best safari tour score (sum of the tour's photo points)
+const BOARD = 'wild-lens', BOARD_O = { title: 'Safari Snap', format: 'int' };
+function showBoard() { if (window.GBBoard) { G.keys.go = G.keys.brake = false; GBBoard.show(BOARD, BOARD_O); } }
 function countUp(el, v, ms) { const t0 = performance.now(); const f = () => { const u = clamp((performance.now() - t0) / ms, 0, 1); el.textContent = Math.round(v * ease.out(u)); if (u < 1) requestAnimationFrame(f); }; f(); }
 // ================= tutorial =================
 const TUT = [
@@ -3080,6 +3090,7 @@ function hold(id, k) { const el = $(id); const dn = e => { e.preventDefault(); e
 hold('bBrake', 'brake'); hold('bGo', 'go');
 $('bShutter').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); initAudio(); setTouch(); snap(); });
 window.addEventListener('keydown', e => {
+  if (window.GBBoard && GBBoard.isOpen()) return;
   const c = e.code; initAudio();
   if (c === 'KeyM') { setMute(!settings.mute); return; }
   if (G.mode === 'safari') {
@@ -3109,7 +3120,7 @@ on('bJourT', () => openJournal(0)); on('bJour', () => openJournal(campSel.r)); o
 on('mClose', () => $('modal').classList.add('hidden'));
 on('bBack', goTitle);
 on('bGoSafari', () => startSafari(campSel.r, campSel.tod, false));
-on('bResOk', goCamp); on('bResume', () => setPause(false)); on('bQuit', () => { setPause(false); endTour(); });
+on('bResOk', goCamp); on('bResLB', showBoard); on('bLBT', showBoard); on('bResume', () => setPause(false)); on('bQuit', () => { setPause(false); endTour(); });
 on('bCampNow', endTour);
 on('bPause', () => setPause(true));
 $('bMute').addEventListener('click', e => { e.stopPropagation(); initAudio(); setMute(!settings.mute); });
@@ -3118,11 +3129,11 @@ $('tutSkip').addEventListener('click', e => { e.stopPropagation(); SFX.click(); 
 $('modal').addEventListener('click', e => { if (e.target.id === 'modal') $('modal').classList.add('hidden'); });
 // ================= logo =================
 $('logo').innerHTML = '<svg viewBox="0 0 640 290"><defs><linearGradient id="lgW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8c8"/><stop offset=".42" stop-color="#ffc63a"/><stop offset="1" stop-color="#ee6418"/></linearGradient><linearGradient id="lgS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5030"/><stop offset="1" stop-color="#4a2410"/></linearGradient><radialGradient id="lgG" cx=".38" cy=".35" r=".7"><stop offset="0" stop-color="#bfe8ff"/><stop offset=".45" stop-color="#3a7ab0"/><stop offset="1" stop-color="#0c1c30"/></radialGradient></defs>' +
-  '<g transform="translate(0,4)"><text x="320" y="158" text-anchor="middle" font-family="\'Arial Black\',\'Impact\',\'Trebuchet MS\',sans-serif" font-weight="900" font-size="168" letter-spacing="2" fill="#3a1a08" stroke="#3a1a08" stroke-width="30" stroke-linejoin="round" transform="translate(0,9)"><tspan rotate="-6 4 -3 5">WILD</tspan></text>' +
-  '<text x="320" y="158" text-anchor="middle" font-family="\'Arial Black\',\'Impact\',\'Trebuchet MS\',sans-serif" font-weight="900" font-size="168" letter-spacing="2" fill="url(#lgW)" stroke="#3a1a08" stroke-width="12" stroke-linejoin="round" paint-order="stroke"><tspan rotate="-6 4 -3 5">WILD</tspan></text>' +
-  '<path d="M120 62 q30 -16 60 -6" stroke="#fffbe0" stroke-width="7" fill="none" stroke-linecap="round" opacity=".8"/></g>' +
+  '<g transform="translate(0,4)"><text x="320" y="158" text-anchor="middle" font-family="\'Arial Black\',\'Impact\',\'Trebuchet MS\',sans-serif" font-weight="900" font-size="150" letter-spacing="2" textLength="580" lengthAdjust="spacingAndGlyphs" fill="#3a1a08" stroke="#3a1a08" stroke-width="28" stroke-linejoin="round" transform="translate(0,9)"><tspan rotate="-6 4 -3 5 -4 3">SAFARI</tspan></text>' +
+  '<text x="320" y="158" text-anchor="middle" font-family="\'Arial Black\',\'Impact\',\'Trebuchet MS\',sans-serif" font-weight="900" font-size="150" letter-spacing="2" textLength="580" lengthAdjust="spacingAndGlyphs" fill="url(#lgW)" stroke="#3a1a08" stroke-width="12" stroke-linejoin="round" paint-order="stroke"><tspan rotate="-6 4 -3 5 -4 3">SAFARI</tspan></text>' +
+  '<path d="M56 66 q30 -16 60 -6" stroke="#fffbe0" stroke-width="7" fill="none" stroke-linecap="round" opacity=".8"/></g>' +
   '<g transform="translate(320,226) rotate(-2)"><rect x="-205" y="-38" width="410" height="76" rx="14" fill="url(#lgS)" stroke="#2a1206" stroke-width="5"/><rect x="-195" y="-28" width="390" height="56" rx="9" fill="none" stroke="#e8c088" stroke-width="2.4" stroke-dasharray="7 6" opacity=".75"/>' +
-  '<text x="22" y="20" text-anchor="middle" font-family="Georgia,\'Palatino Linotype\',serif" font-weight="700" font-size="56" letter-spacing="26" fill="#fdebc8">LENS</text>' +
+  '<text x="22" y="20" text-anchor="middle" font-family="Georgia,\'Palatino Linotype\',serif" font-weight="700" font-size="56" letter-spacing="26" fill="#fdebc8">SNAP</text>' +
   '<g transform="translate(-150,0)"><circle r="40" fill="#1a1a1a" stroke="#e8c088" stroke-width="3"/><circle r="31" fill="url(#lgG)"/>' + [0, 1, 2, 3, 4, 5].map(i => '<path d="M0 0 L31 -6 A31 31 0 0 1 22 22 Z" fill="' + (i % 2 ? '#2a2a2a' : '#3a3a3a') + '" opacity=".55" transform="rotate(' + i * 60 + ')"/>').join('') + '<circle r="9" fill="#0c1c30"/><path d="M-18 -16 a24 24 0 0 1 16 -8" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".8"/></g></g></svg>';
 // ================= main loop =================
 let last = performance.now();

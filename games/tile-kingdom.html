@@ -3,14 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Tile Kingdom</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Island Builder</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;background:#1b4f72;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none}
 canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 .scr{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
 .scr.on{display:flex}.scr>*{pointer-events:auto}
-.title{font-size:min(14vw,104px);font-weight:900;line-height:.88;text-align:center;color:#fff;letter-spacing:.02em;text-shadow:0 .05em 0 #2a7fb8,0 .1em 0 #165a8a,0 .18em .25em rgba(0,0,0,.35)}
+.title{font-size:min(14vw,104px,12vh);font-weight:900;line-height:.88;text-align:center;color:#fff;letter-spacing:.02em;text-shadow:0 .05em 0 #2a7fb8,0 .1em 0 #165a8a,0 .18em .25em rgba(0,0,0,.35)}
 .title span{display:block;color:#ffe066;font-size:1.12em;text-shadow:0 .05em 0 #e08a1e,0 .1em 0 #9a4f0a,0 .18em .25em rgba(0,0,0,.35)}
 .btn{font:inherit;font-weight:800;border:0;border-radius:18px;padding:14px 36px;font-size:24px;color:#4a2a00;background:linear-gradient(#ffe98a,#ffb52e);box-shadow:0 6px 0 #c47a10,0 10px 22px rgba(0,0,0,.3);cursor:pointer;margin:6px;transition:transform .08s}
 .btn:hover{transform:translateY(-2px) scale(1.03)}.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c47a10}
@@ -59,6 +61,7 @@ canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 .crowns{font-size:22px;font-weight:900;margin-bottom:8px;text-shadow:0 2px 0 rgba(0,0,0,.3)}
 #hint{position:fixed;top:62px;left:0;right:0;text-align:center;font-size:13px;opacity:.7;pointer-events:none;display:none;text-shadow:0 1px 2px #000}
 #mute{position:fixed;top:10px;right:12px;z-index:9}
+body:has(#gbbar) #hud{padding-top:44px}body:has(#gbbar) #mute{top:44px}body:has(#gbbar) #hint{top:96px}
 .gbsup{position:fixed;right:calc(10px + env(safe-area-inset-right));bottom:calc(8px + env(safe-area-inset-bottom));font-size:12px;font-weight:700;color:#fff;opacity:.55;text-decoration:none;text-shadow:0 1px 3px rgba(0,0,0,.7);transition:opacity .2s}
 .gbsup:hover{opacity:1}
 @media (max-width:560px){.tc{width:70px;height:80px}.tc img{width:54px;height:48px}#score{font-size:22px;min-width:44px}#next{display:none}.grid{grid-template-columns:repeat(2,1fr)}#rules{bottom:100px;font-size:13px;gap:4px;padding:4px 8px}#rules img{width:28px;height:26px}}
@@ -67,10 +70,11 @@ canvas#c{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 <body>
 <canvas id="c"></canvas>
 <div id="sTitle" class="scr on">
-  <div class="title">TILE<span>KINGDOM</span></div>
+  <div class="title">ISLAND<span>BUILDER</span></div>
   <div style="height:6vh"></div>
   <button class="btn" id="bPlay">▶ Play</button>
   <button class="btn alt sm" id="bHow">? How to play</button>
+  <button class="btn alt sm" id="bBoard">🏆 Leaderboard</button>
   <div style="margin-top:12px;font-size:14px;opacity:.85;text-shadow:0 1px 3px #000">Place tiles · combo neighbours · grow your island</div>
   <a class="gbsup" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
 </div>
@@ -274,6 +278,7 @@ function runTut(){if(scene!=="play"||!run||run.over)return;var s0=0,p0=0,spot=nu
    {cap:"Fill the bar for new packs",at:function(){return $("scoreBox")},pad:4,dim:.3,until:function(st){return st>2.6}}],
   onEnd:function(){tutDone=true;sv("tutorialDone",true)}})}
 $("bHow").onclick=function(){audio();SFX.sel();tutForce=true;newRun()};
+$("bBoard").onclick=function(){audio();SFX.sel();showBoard()};
 function openPack(){if(run.packs<=0)return false;run.packs--;run.tray=makePack(run.rnd);selIdx=0;renderTray(true);SFX.pack();return true}
 function place(t){
  var b=run.tray[selIdx];if(!b||!canPlace(t,b)){SFX.bad();if(t&&t.t)t.pop=.25;return}
@@ -296,8 +301,11 @@ function offerPack(){if(!run||run.over)return;if(run.choosing)return;if(!run.pen
  Array.prototype.forEach.call(document.querySelectorAll(".pk"),function(el){el.onclick=function(){run.choosing=false;$("sOver").classList.remove("on");run.packs++;SFX.sel();updHud();if(run.pending)setTimeout(offerPack,250);else if(!run.tray.length)nextOrEnd();run.optPacks=(run.optPacks||[]);run.queue=(run.queue||[]);run.queue.push(opts[+el.dataset.i]);}});
 }
 function nextOrEnd(){if(run.over||run.choosing||run.pending)return;if(run.tray.length)return;if(run.packs>0){run.packs--;run.tray=(run.queue&&run.queue.length)?run.queue.shift():makePack(run.rnd);selIdx=0;renderTray(true);SFX.pack();updHud();return}endRun()}
+var BOARD="tile-kingdom",BOARD_O={title:"Island Builder",format:"int"};
+function showBoard(){if(window.GBBoard)GBBoard.show(BOARD,BOARD_O)}
 function endRun(){run.over=true;SFX.end();var best=save.best[save.isle]||0,nb2=run.score>best;if(nb2)save.best[save.isle]=run.score;var cr=Math.floor(run.score/10)+(nb2?5:0);save.crowns+=cr;persist();
- setTimeout(function(){$("panel").innerHTML='<h3>'+(nb2?"🏆 New Best!":"Kingdom complete")+'</h3><div class="big">'+run.score+'</div><div class="sub">🏝 '+ISLES[save.isle].n+' · best '+Math.max(best,run.score)+'</div><div style="font-size:24px;font-weight:900;margin:6px 0 10px">+'+cr+' 👑</div><div><button class="btn alt sm" id="pM">☰</button><button class="btn" id="pA">⟳ Again</button></div>';$("sOver").classList.add("on");$("pA").onclick=function(){$("sOver").classList.remove("on");newRun()};$("pM").onclick=function(){$("sOver").classList.remove("on");goMenu()}},700)}
+ var gbBest=false;if(window.GBBoard&&run.placed>0)GBBoard.submit(BOARD,run.score).then(function(r){gbBest=!!(r&&r.best)});
+ setTimeout(function(){$("panel").innerHTML='<h3>'+(nb2||gbBest?"🏆 New Best!":"Kingdom complete")+'</h3><div class="big">'+run.score+'</div><div class="sub">🏝 '+ISLES[save.isle].n+' · best '+Math.max(best,run.score)+'</div><div style="font-size:24px;font-weight:900;margin:6px 0 10px">+'+cr+' 👑</div><div><button class="btn alt sm" id="pM">☰</button><button class="btn alt sm" id="pB" aria-label="Leaderboard">🏆</button><button class="btn" id="pA">⟳ Again</button></div>';$("sOver").classList.add("on");$("pB").onclick=showBoard;$("pA").onclick=function(){$("sOver").classList.remove("on");newRun()};$("pM").onclick=function(){$("sOver").classList.remove("on");goMenu()}},700)}
 function dust(t){var p=proj(t);for(var i=0;i<18;i++){var a=Math.random()*6.28;parts.push({x:p.x,y:p.y,vx:Math.cos(a)*90*cam.s,vy:Math.sin(a)*40*cam.s-20,l:.6,ml:.6,c:"rgba(255,250,230,.8)",r:(2+Math.random()*3)*cam.s})}}
 
 // ---------- UI ----------
@@ -330,7 +338,7 @@ function setMuteIco(){$("muteIco").innerHTML=muted?'<path d="M4 9h4l5-4v14l-5-4H
 setMuteIco();$("mute").onclick=function(){audio();muted=!muted;sv("mute",muted);if(master)master.gain.value=muted?0:.45;setMuteIco()};
 var paused=false;
 function togglePause(){if(scene!=="play"||run.over||run.choosing)return;paused=!paused;if(paused){$("panel").innerHTML='<h3>Paused</h3><div class="sub">'+run.score+' pts</div><button class="btn" id="pC">▶</button><button class="btn alt" id="pQ">End run</button>';$("sOver").classList.add("on");$("pC").onclick=togglePause;$("pQ").onclick=function(){paused=false;$("sOver").classList.remove("on");run.tray=[];run.packs=0;run.queue=[];renderTray();endRun()}}else $("sOver").classList.remove("on")}
-addEventListener("keydown",function(e){audio();var k=e.key;if(k==="Escape"||k==="p"||k==="P"){togglePause();return}if(k==="m"||k==="M"){$("mute").click();return}
+addEventListener("keydown",function(e){if(window.GBBoard&&GBBoard.isOpen())return;audio();var k=e.key;if(k==="Escape"||k==="p"||k==="P"){togglePause();return}if(k==="m"||k==="M"){$("mute").click();return}
  if(scene==="title"&&(k==="Enter"||k===" ")){$("bPlay").click();return}
  if(scene==="play"&&!paused&&run&&!run.over){var n=parseInt(k);if(n>=1&&n<=run.tray.length){selIdx=n-1;tutSel++;renderTray();SFX.sel()}if(k==="Tab"||k==="q"||k==="e"){e.preventDefault();selIdx=(selIdx+(k==="q"?-1:1)+run.tray.length)%Math.max(1,run.tray.length);renderTray();SFX.sel()}if((k==="Enter"||k===" ")&&hoverT)place(hoverT)}});
 document.addEventListener("visibilitychange",function(){if(document.hidden&&scene==="play"&&!paused)togglePause()});
