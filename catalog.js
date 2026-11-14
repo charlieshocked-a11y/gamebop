@@ -922,5 +922,95 @@ window.GAMEBOP_GAMES = [
   "added": "2026-11-12",
   "file": "games/drumhop.html",
   "thumb": "thumbs/drumhop.jpg"
+ },
+ {
+  "slug": "hopjack",
+  "title": "Hopjack",
+  "keywords": "pogo stick bounce jump platformer rooftops city combo spring boss stomp",
+  "deep": false,
+  "category": "Platformer",
+  "tags": [
+   "pogo",
+   "platformer",
+   "combo",
+   "bouncy"
+  ],
+  "blurb": "Boing across rooftops on a pogo, bonking heads for combos!",
+  "controls": "←/→ · Space · Mouse/Touch",
+  "added": "2026-11-13",
+  "file": "games/hopjack.html",
+  "thumb": "thumbs/hopjack.jpg"
+ },
+ {
+  "slug": "loopkite",
+  "title": "Loopkite",
+  "keywords": "kite wind flying beach loop sky one button relaxing string storm",
+  "deep": false,
+  "category": "Casual",
+  "tags": [
+   "one-button",
+   "flying",
+   "physics",
+   "relaxing"
+  ],
+  "blurb": "Hold to climb, release to swoop, loop-the-loop your kite!",
+  "controls": "Hold Space / Mouse / Touch",
+  "added": "2026-11-13",
+  "file": "games/loopkite.html",
+  "thumb": "thumbs/loopkite.jpg"
+ },
+ {
+  "slug": "breakshot-bay",
+  "title": "Breakshot Bay",
+  "keywords": "pool billiards snooker trick shot cue balls pockets puzzle sports pier",
+  "deep": false,
+  "category": "Sports",
+  "tags": [
+   "billiards",
+   "trick shots",
+   "puzzle",
+   "physics"
+  ],
+  "blurb": "Pull back, let go, sink wild trick shots on the pier!",
+  "controls": "Drag & release · ←/→ + Space · Touch",
+  "added": "2026-11-13",
+  "file": "games/breakshot-bay.html",
+  "thumb": "thumbs/breakshot-bay.jpg"
+ },
+ {
+  "slug": "bumpaloo",
+  "title": "Bumpaloo",
+  "keywords": "bumper cars sumo 3d island ram push brawl party cars arena boss",
+  "deep": false,
+  "category": "Action",
+  "tags": [
+   "3D",
+   "bumper cars",
+   "sumo",
+   "party"
+  ],
+  "blurb": "Rev, ram and boing rival bumper cars off the island!",
+  "controls": "←/→ + Space · Mouse/Touch hold",
+  "added": "2026-11-13",
+  "file": "games/bumpaloo.html",
+  "thumb": "thumbs/bumpaloo.jpg"
+ },
+ {
+  "slug": "snowbigger",
+  "title": "Snowbigger",
+  "keywords": "snowball snow winter rolling downhill grow smash hop ski avalanche yeti physics",
+  "deep": false,
+  "category": "Arcade",
+  "tags": [
+   "one-button",
+   "physics",
+   "growing",
+   "winter"
+  ],
+  "blurb": "Roll, hop for powder puffs, stomp everything into a mega snowball!",
+  "controls": "Space / Tap (hold = higher hop) · Esc pause",
+  "added": "2026-11-13",
+  "file": "games/snowbigger.html",
+  "thumb": "thumbs/snowbigger.jpg"
  }
 ];
