@@ -3,14 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Beat Tapper</title>
+<script src="lib/gb.js"></script><script src="lib/board.js"></script>
+<title>Tap Tap Beat</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;background:#0d0620;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none}
 canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 .scr{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
 .scr.on{display:flex}.scr>*{pointer-events:auto}
-.title{font-size:min(15vw,116px);font-weight:900;font-style:italic;line-height:.86;text-align:center;letter-spacing:.01em;color:#fff;text-shadow:0 0 18px #ff3fd0,0 0 40px #ff3fd0,.05em .05em 0 #6a1aa8;transform:skewX(-6deg)}
+.title{font-size:min(15vw,116px,14vh);font-weight:900;font-style:italic;line-height:.86;text-align:center;letter-spacing:.01em;color:#fff;text-shadow:0 0 18px #ff3fd0,0 0 40px #ff3fd0,.05em .05em 0 #6a1aa8;transform:skewX(-6deg)}
 .title span{display:block;color:#3ff6ff;text-shadow:0 0 18px #3ff6ff,0 0 40px #2a9dff,.05em .05em 0 #1a3aa8}
 .btn{font:inherit;font-weight:900;border:0;border-radius:40px;padding:14px 40px;font-size:24px;color:#2a0640;background:linear-gradient(90deg,#ff5fd8,#ffd84a);box-shadow:0 0 24px rgba(255,95,216,.6),0 6px 0 #8a2a8a;cursor:pointer;margin:6px;transition:transform .08s;letter-spacing:.04em}
 .btn:hover{transform:scale(1.05)}.btn:active{transform:translateY(4px);box-shadow:0 0 14px rgba(255,95,216,.5),0 2px 0 #8a2a8a}
@@ -46,7 +47,7 @@ canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 #sc{font-size:26px;font-weight:900;text-shadow:0 0 12px #ff5fd8}
 #sn{font-size:13px;opacity:.7}
 .dim{position:fixed;inset:0;background:rgba(8,2,20,.7)}
-.panel{position:relative;background:linear-gradient(160deg,#2a0f4a,#120830);border-radius:28px;padding:22px 28px;text-align:center;box-shadow:0 0 0 2px rgba(255,95,216,.5),0 0 60px rgba(255,95,216,.35);animation:pop .35s cubic-bezier(.2,1.6,.4,1);min-width:min(340px,92vw)}
+.panel:where(:not(#gbbar *,#gbedit *)){position:relative;background:linear-gradient(160deg,#2a0f4a,#120830);border-radius:28px;padding:22px 28px;text-align:center;box-shadow:0 0 0 2px rgba(255,95,216,.5),0 0 60px rgba(255,95,216,.35);animation:pop .35s cubic-bezier(.2,1.6,.4,1);min-width:min(340px,92vw)}
 @keyframes pop{from{transform:scale(.5);opacity:0}}
 .grade{font-size:120px;font-weight:900;font-style:italic;line-height:1;animation:gpop .6s cubic-bezier(.2,1.8,.4,1) .2s backwards}
 @keyframes gpop{from{transform:scale(3) rotate(-20deg);opacity:0}}
@@ -63,10 +64,11 @@ canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 <body>
 <canvas id="c"></canvas>
 <div id="sTitle" class="scr on">
-  <div class="title">BEAT<span>TAPPER</span></div>
+  <div class="title">TAP TAP<span>BEAT</span></div>
   <div style="height:6vh"></div>
   <button class="btn" id="bPlay">▶ PLAY</button>
   <button class="btn alt sm" id="bHow">How to play</button>
+  <button class="btn alt sm" id="bLb" style="background:rgba(26,6,52,.85);margin-top:4px">🏆 Leaderboard</button>
   <div style="margin-top:14px;font-size:15px;opacity:.85;letter-spacing:.15em;font-weight:900">D · F · J · K &nbsp;or&nbsp; TAP</div>
 </div>
 <div id="sSel" class="scr"><div class="wrap">
@@ -227,6 +229,10 @@ $("list").addEventListener("click",function(e){var el=e.target.closest(".song");
 Array.prototype.forEach.call(document.querySelectorAll(".df"),function(b){b.onclick=function(){audio();save.diff=+b.dataset.d;persist();SFX.ui();renderList()}});
 $("bSpd").onclick=function(){save.spd=save.spd>=4?1:save.spd+.5;persist();SFX.ui();renderList()};
 $("bPlay").onclick=function(){audio();SFX.ui();if(!save.calDone&&!save.plays){goSelect()}else goSelect()};
+var DIFFN=["Easy","Normal","Hard"];function boardId(d){return "beat-tapper:"+DIFFN[d].toLowerCase()}
+function boardTotal(d){var s=0;for(var i=0;i<SONGS.length;i++)s+=save.best[i+"_"+d]||0;return s}
+function showBoard(d){GBBoard.show(boardId(d),{title:"Tap Tap Beat · All-song total",format:"int",label:DIFFN[d]})}
+$("bLb").onclick=function(){audio();SFX.ui();showBoard(save.diff)};
 $("bHow").onclick=function(){audio();SFX.ui();tutStart(true)};
 $("tutSkip").onclick=function(){SFX.ui();if(TUT)tutEnd()};
 $("bBack").onclick=function(){SFX.ui();goTitle()};
@@ -266,8 +272,9 @@ function results(){var g=game,tot=Math.max(1,g.cnt.p+g.cnt.g+g.cnt.m),acc=(g.cnt
  if(!prev||GP[gr]>GP[prev])save.grade[key]=gr;var bs=save.best[key]||0,nb=Math.round(g.score)>bs;if(nb)save.best[key]=Math.round(g.score);save.plays++;persist();
  SONGS.forEach(function(s,i){if(!before[i]&&unlocked(i))newly.push(s.n)});
  var col={S:"#ffd84a",A:"#ff5fd8",B:"#3fb8ff",C:"#3fe08a",D:"#a0a0c0"}[gr];
- $("panel").innerHTML='<div class="sub">'+g.S.n+' · '+["EASY","NORMAL","HARD"][g.diff]+'</div><div class="grade" style="color:'+col+';text-shadow:0 0 30px '+col+'">'+gr+'</div>'+(g.fc&&g.cnt.m===0?'<div class="new">FULL COMBO!</div>':'')+'<div style="font-size:30px;font-weight:900">'+Math.round(g.score)+(nb?' <span class="new" style="font-size:16px">BEST</span>':'')+'</div><div class="sub">'+(acc*100).toFixed(1)+'%</div><div class="stat"><div style="color:#ffd84a">'+g.cnt.p+'<small>PERFECT</small></div><div style="color:#3ff6ff">'+g.cnt.g+'<small>GREAT</small></div><div style="color:#ff4f6a">'+g.cnt.m+'<small>MISS</small></div><div>'+g.maxc+'<small>COMBO</small></div></div>'+(newly.length?'<div class="new" style="margin:6px 0">🔓 '+newly.join(", ")+'</div>':'')+'<div><button class="btn alt sm" id="rM">☰</button><button class="btn sm" id="rA">⟳ RETRY</button></div>';
- show("sOver");$("rA").onclick=function(){$("sOver").classList.remove("on");startSong()};$("rM").onclick=function(){game=null;goSelect()};
+ $("panel").innerHTML='<div class="sub">'+g.S.n+' · '+["EASY","NORMAL","HARD"][g.diff]+'</div><div class="grade" style="color:'+col+';text-shadow:0 0 30px '+col+'">'+gr+'</div>'+(g.fc&&g.cnt.m===0?'<div class="new">FULL COMBO!</div>':'')+'<div style="font-size:30px;font-weight:900">'+Math.round(g.score)+(nb?' <span class="new" style="font-size:16px">BEST</span>':'')+'</div><div class="sub">'+(acc*100).toFixed(1)+'%</div><div class="stat"><div style="color:#ffd84a">'+g.cnt.p+'<small>PERFECT</small></div><div style="color:#3ff6ff">'+g.cnt.g+'<small>GREAT</small></div><div style="color:#ff4f6a">'+g.cnt.m+'<small>MISS</small></div><div>'+g.maxc+'<small>COMBO</small></div></div>'+(newly.length?'<div class="new" style="margin:6px 0">🔓 '+newly.join(", ")+'</div>':'')+'<div class="new" id="rNB" style="margin:4px 0;display:none"></div><div><button class="btn alt sm" id="rM">☰</button><button class="btn sm" id="rA">⟳ RETRY</button></div><div><button class="btn alt sm" id="rL">🏆 Leaderboard</button></div>';
+ var bd=g.diff,tsum=boardTotal(bd);GBBoard.submit(boardId(bd),tsum).then(function(x){var e=$("rNB");if(x.best&&tsum>0&&e&&game===g){e.textContent="★ NEW BEST TOTAL: "+tsum.toLocaleString();e.style.display=""}});
+ show("sOver");$("rL").onclick=function(){SFX.ui();showBoard(bd)};$("rA").onclick=function(){$("sOver").classList.remove("on");startSong()};$("rM").onclick=function(){game=null;goSelect()};
  for(var i=0;i<40;i++){var a=Math.random()*6.28,v=200+Math.random()*400;parts.push({x:W/2,y:H*.35,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1.2,ml:1.2,c:[col,"#fff","#ff5fd8"][i%3],r:3+Math.random()*3,g:1})}
  if(AC){var t=AC.currentTime;[0,4,7,12].forEach(function(s,i){synth(t+i*.1,72+s,.4,"square",.1,3000,comp)})}}
 function togglePause(){if(scene!=="play"||!game||game.done)return;paused=!paused;if(paused){if(AC)AC.suspend();$("panel").innerHTML='<div style="font-size:34px;font-weight:900;margin-bottom:10px">PAUSED</div><button class="btn" id="pC">▶</button><button class="btn alt sm" id="pR">⟳</button><button class="btn alt sm" id="pQ">☰</button>';show("sOver");$("hud").classList.add("on");$("pC").onclick=togglePause;$("pR").onclick=function(){paused=false;AC.resume();$("sOver").classList.remove("on");startSong()};$("pQ").onclick=function(){paused=false;AC.resume();game=null;seqStop();goSelect()}}else{$("sOver").classList.remove("on");var go=function(){if(AC)AC.resume()};go()}}
@@ -345,7 +352,7 @@ function calTap(){if(!cal)return;var sp=60/cal.bpm,t=AC.currentTime-cal.start,b=
 var cv=$("c"),cx=cv.getContext("2d"),W,H,DPR;
 // ---------- input ----------
 function laneFromKey(k){k=k.toLowerCase();var i=KEYS.indexOf(k);if(i<0)i=ALT.indexOf(k);return i}
-addEventListener("keydown",function(e){audio();var k=e.key;if(e.repeat)return;
+addEventListener("keydown",function(e){if(GBBoard.isOpen())return;audio();var k=e.key;if(e.repeat)return;
  if(scene==="tut"){if(k==="Escape"){if(TUT)tutEnd();return}if(k==="m"||k==="M"){$("mute").click();return}var tl=laneFromKey(k);if(tl>=0){e.preventDefault();held[tl]=true;SFX.tap();tutTap(tl)}return}
  if(k==="Escape"||k==="p"||k==="P"){togglePause();return}
  if(k==="m"||k==="M"){$("mute").click();return}
@@ -354,7 +361,7 @@ addEventListener("keydown",function(e){audio();var k=e.key;if(e.repeat)return;
  if(scene==="select"){if(k==="Enter"||k===" "){startSong();e.preventDefault()}else if(k==="ArrowDown"||k==="ArrowUp"){var n=save.sel+(k==="ArrowDown"?1:-1);if(n>=0&&n<SONGS.length&&unlocked(n)){save.sel=n;persist();SFX.ui();renderList();preview()}e.preventDefault()}else if(k==="ArrowLeft"||k==="ArrowRight"){save.diff=Math.max(0,Math.min(2,save.diff+(k==="ArrowRight"?1:-1)));persist();SFX.ui();renderList()}return}
  if(scene==="play"&&game&&!game.done){var l=laneFromKey(k);if(l>=0){e.preventDefault();held[l]=true;SFX.tap();judge(l)}else if(!game.done&&(k==="Enter")&&$("sOver").classList.contains("on")){}}
  else if(scene==="play"&&game&&game.done&&(k==="Enter"||k===" ")){var r=$("rA");if(r)r.click()}});
-addEventListener("keyup",function(e){var l=laneFromKey(e.key);if(l>=0){held[l]=false;release(l)}});
+addEventListener("keyup",function(e){if(GBBoard.isOpen())return;var l=laneFromKey(e.key);if(l>=0){held[l]=false;release(l)}});
 var touches={};
 cv.addEventListener("pointerdown",function(e){audio();if(scene==="cal"){calTap();return}if(scene==="tut"){if(e.pointerType==="touch")tutTouch=true;var tl=Math.floor((e.clientX-laneX(0))/laneW());if(tl<0||tl>3)return;touches[e.pointerId]=tl;held[tl]=true;tutTap(tl);e.preventDefault();return}if(scene!=="play"||!game||paused)return;var l=Math.floor((e.clientX-laneX(0))/laneW());if(l<0||l>3)return;touches[e.pointerId]=l;held[l]=true;judge(l);e.preventDefault()});
 function up(e){var l=touches[e.pointerId];if(l===undefined)return;delete touches[e.pointerId];held[l]=false;release(l)}

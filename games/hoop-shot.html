@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Hoop Shot</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Swish!</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#1a2a5a;touch-action:none;user-select:none;-webkit-user-select:none;font-family:'Trebuchet MS','Segoe UI',Verdana,system-ui,sans-serif;color:#fff}
 #c{position:fixed;left:0;top:0;width:100vw;height:100vh;display:block}
@@ -9,6 +11,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#1a2a5a;touch-action:n
 .ov.on{display:flex}
 .dim{background:rgba(8,14,40,.72);backdrop-filter:blur(3px)}
 .logo{display:flex;flex-direction:column;align-items:center;line-height:.84;transform:rotate(-5deg);animation:bob 2.2s ease-in-out infinite;margin-bottom:10px}
+.logo.one{flex-direction:row;align-items:baseline}.logo.one span.l2{padding-left:.04em}
 .logo span{font-weight:900;font-style:italic;font-size:min(15vw,17vh,140px);letter-spacing:.02em;background:linear-gradient(180deg,#fff8e0 0%,#ffcf4a 40%,#ff8a1a 70%,#e8461a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 #7a2408) drop-shadow(0 8px 0 #2a0c04) drop-shadow(0 0 22px rgba(255,140,40,.55))}
 .logo span.l2{background:linear-gradient(180deg,#ffffff 0%,#bfe8ff 45%,#4aa8ff 75%,#2a5ae8 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 4px 0 #0c2a7a) drop-shadow(0 8px 0 #06123a) drop-shadow(0 0 22px rgba(80,160,255,.55))}
 @keyframes bob{0%,100%{transform:rotate(-5deg) translateY(0)}50%{transform:rotate(-3deg) translateY(-8px)}}
@@ -68,10 +71,10 @@ h2{margin:0;font-size:clamp(36px,8vw,60px);font-weight:900;font-style:italic;let
 <div class="corner"><button class="ib" id="bPause" style="display:none" aria-label="pause"><svg viewBox="0 0 24 24" fill="#fff"><rect x="5" y="4" width="5" height="16" rx="1.5"/><rect x="14" y="4" width="5" height="16" rx="1.5"/></svg></button><button class="ib" id="bMute" aria-label="mute"></button></div>
 
 <div id="title" class="ov on">
- <div class="logo"><span>HOOP</span><span class="l2">SHOT</span></div>
+ <div class="logo one"><span>SWISH</span><span class="l2">!</span></div>
  <div class="hrow"><button class="btn big" id="bCareer">CAREER</button><button class="btn big bl" id="bArcade">ARCADE</button><button class="btn big gn" id="bShop">SHOP</button></div>
  <div class="hint">Drag back · release to shoot</div>
- <button class="btn sm gy" id="bHow">? HOW TO PLAY</button>
+ <div class="hrow"><button class="btn sm gy" id="bHow">? HOW TO PLAY</button><button class="btn sm" id="bBoard">🏆 LEADERBOARD</button></div>
  <a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
 </div>
 <div id="levels" class="ov dim">
@@ -87,7 +90,7 @@ h2{margin:0;font-size:clamp(36px,8vw,60px);font-weight:900;font-style:italic;let
  <h2 id="rT">CLEAR!</h2>
  <div class="bigstars" id="rStars"></div>
  <div class="res" id="rRes"></div>
- <div class="hrow"><button class="btn gy" id="rMenu">MENU</button><button class="btn bl" id="rRetry">RETRY</button><button class="btn gn big" id="rNext">NEXT</button></div>
+ <div class="hrow"><button class="btn gy" id="rMenu">MENU</button><button class="btn bl" id="rRetry">RETRY</button><button class="btn" id="rBoard">🏆</button><button class="btn gn big" id="rNext">NEXT</button></div>
 </div>
 <div id="pause" class="ov dim">
  <h2>PAUSED</h2>
@@ -323,8 +326,10 @@ function win(){if(state!=='play')return;state='result';const L=LV[G.lv-1];
  const first=G.lv>=save.max;const coins=first?20+G.lv*4+stars*5:5+stars*2;save.coins+=coins;save.stars[G.lv-1]=Math.max(save.stars[G.lv-1]||0,stars);if(first&&G.lv<30)save.max=G.lv+1;if(G.lv===30)save.max=31;persist();
  setTimeout(()=>showResult(G.lv===30?'CHAMPION!':'CLEAR!',stars,[['coin',coins]],true),900)}
 function fail(){if(state!=='play')return;state='result';SFX.buzz();setTimeout(()=>showResult('MISSED',0,[['txt',G.makes+' / '+G.need]],false),700)}
-function arcadeEnd(){state='result';SFX.buzz();const coins=Math.round(G.score/2);save.coins+=coins;const best=G.score>save.best;if(best)save.best=G.score;persist();
- setTimeout(()=>showResult('TIME!',-1,[['txt','★ '+G.score+(best?' BEST':'')],['coin',coins]],true),700)}
+const LB_OPTS={title:'Swish!',label:'Arcade',format:'int'};
+function arcadeEnd(){state='result';SFX.buzz();const coins=Math.round(G.score/2);save.coins+=coins;let best=G.score>save.best;if(best)save.best=G.score;persist();
+ const sc=G.score;GBBoard.submit('hoop-shot',sc).then(r=>{if(r.best&&sc>0)best=true});
+ setTimeout(()=>showResult('TIME!',-1,[['txt','★ '+sc+(best?' NEW BEST!':'')],['coin',coins]],true),700)}
 
 /* ---------- particles ---------- */
 function burst(x,y,c,n){for(let i=0;i<n;i++){const a=Math.random()*6.283,v=rnd(60,240);parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:.4,m:.4,c,s:rnd(2,4),g:600})}}
@@ -518,10 +523,11 @@ function showResult(t,stars,items,ok){
  $('rT').textContent=t;$('rStars').style.display=stars>=0?'':'none';$('rStars').innerHTML='★'.repeat(Math.max(0,stars))+'<s>'+'★'.repeat(3-Math.max(0,stars))+'</s>';
  $('rRes').innerHTML=items.map(([k,v])=>k==='coin'?'<div><span class="coin"></span>+'+v+'</div>':'<div>'+v+'</div>').join('');
  $('rNext').style.display=G.mode==='career'&&ok&&G.lv<30?'':'none';
- $('rRetry').textContent=G.mode==='arcade'?'AGAIN':'RETRY';
+ $('rRetry').textContent=G.mode==='arcade'?'AGAIN':'RETRY';$('rBoard').style.display=G.mode==='arcade'?'':'none';
  showOv('result');$('bPause').style.display='none'}
 $('rMenu').onclick=()=>{SFX.click();if(G.mode==='career'){toTitle();openLevels()}else toTitle()};
 $('rRetry').onclick=()=>{SFX.click();play(G.mode,G.lv)};
+$('rBoard').onclick=$('bBoard').onclick=()=>{SFX.click();GBBoard.show('hoop-shot',LB_OPTS)};
 $('rNext').onclick=()=>{SFX.click();play('career',G.lv+1)};
 
 

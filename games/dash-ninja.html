@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Dash Ninja</title>
+<script src="lib/gb.js"></script>
+<title>Ninja Dash</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#12081e;touch-action:none;user-select:none;-webkit-user-select:none;font-family:'Trebuchet MS','Segoe UI',Verdana,system-ui,sans-serif;color:#fff}
 #c{position:fixed;left:0;top:0;width:100vw;height:100vh;display:block}
@@ -21,7 +22,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#12081e;touch-action:n
 .btn.sm{font-size:15px;padding:8px 14px;border-radius:12px}
 .btn[disabled]{filter:grayscale(1);opacity:.5}
 .hrow{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-.hint{opacity:.8;font-size:14px;letter-spacing:.04em}
+.hint:where(:not(#gbbar *,#gbedit *)){opacity:.8;font-size:14px;letter-spacing:.04em}
 .corner{position:fixed;top:8px;right:8px;z-index:8;display:flex;gap:8px}
 .ib{width:42px;height:42px;border-radius:12px;border:0;background:rgba(0,0,0,.35);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 .ib svg{width:24px;height:24px}
@@ -66,11 +67,11 @@ h2{margin:0;font-size:clamp(34px,8vw,58px);font-weight:900;font-style:italic;let
 <a id="sup" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
 <button class="btn sm gy" id="tutSkip" style="display:none">SKIP ›</button>
 <div class="corner"><button class="ib" id="bPause" style="display:none" aria-label="pause"><svg viewBox="0 0 24 24" fill="#fff"><rect x="5" y="4" width="5" height="16" rx="1.5"/><rect x="14" y="4" width="5" height="16" rx="1.5"/></svg></button><button class="ib" id="bMute" aria-label="mute"></button></div>
-<button class="tbtn" id="tJump" aria-label="jump"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg></button>
-<button class="tbtn" id="tDash" aria-label="dash"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18L20 6M13 6h7v7"/></svg></button>
+<button class="tbtn" id="tJump" data-gbctl="jump" aria-label="jump"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg></button>
+<button class="tbtn" id="tDash" data-gbctl="dash" aria-label="dash"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18L20 6M13 6h7v7"/></svg></button>
 
 <div id="title" class="ov on" style="justify-content:flex-start;padding-top:max(4vh,14px)">
- <div class="logo"><span>DASH</span><span class="l2">NINJA</span></div>
+ <div class="logo"><span>NINJA</span><span class="l2">DASH</span></div>
  <div class="hrow"><button class="btn big" id="bPlay">PLAY</button><button class="btn big vi" id="bShop">DOJO</button></div>
  <button class="btn sm gy" id="bHow">HOW TO PLAY</button>
  <div class="hint">Space / tap jump · Shift / swipe dash</div>
@@ -456,7 +457,7 @@ function drawBoss(g){const B=boss;g.save();g.translate(B.x,B.y);const daze=B.st=
 function drawHud(g){
  const sc=Math.max(.8,Math.min(1.2,W/1000));g.save();
  for(let i=0;i<pl.maxH;i++){const x=16+i*34*sc,y=16;g.save();g.translate(x+14*sc,y+14*sc);g.scale(sc,sc);g.fillStyle=i<pl.hearts?'#ff4a6a':'rgba(255,255,255,.2)';g.beginPath();g.moveTo(0,10);g.bezierCurveTo(-18,-2,-10,-16,0,-6);g.bezierCurveTo(10,-16,18,-2,0,10);g.fill();g.restore()}
- const bw=Math.min(W*.36,360),bx=(W-bw)/2,by=22;g.fillStyle='rgba(0,0,0,.35)';rr(g,bx,by,bw,10,5);g.fill();
+ const bw=Math.min(W*.36,360),bx=(W-bw)/2,by=22+(document.getElementById('gbbar')?24:0);g.fillStyle='rgba(0,0,0,.35)';rr(g,bx,by,bw,10,5);g.fill();
  if(boss){g.fillStyle=boss.c;rr(g,bx,by,bw*boss.hp/boss.max,10,5);g.fill()}else{const k=clamp(pl.x/(level.len-300),0,1);g.fillStyle=REG[level.r].acc;rr(g,bx,by,Math.max(10,bw*k),10,5);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(bx+bw*k,by+5,7,0,7);g.fill()}
  g.fillStyle='#ffd23a';g.beginPath();g.arc(bx+bw/2-18,by+30,8,0,7);g.fill();g.fillStyle='#fff';g.font='900 '+Math.round(18*sc)+'px Trebuchet MS,sans-serif';g.textAlign='left';g.fillText(coinsRun,bx+bw/2-6,by+37);
  // dash cooldown

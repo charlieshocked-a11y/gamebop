@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Hex Merge</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<script>if(window.GB&&GB.isTouch)document.documentElement.classList.add("gbt")</script>
+<title>Hex 2048</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;background:#241a3a;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:none}
@@ -34,6 +37,7 @@ canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 .th .sw{display:flex;gap:3px;justify-content:center;margin-bottom:6px}.th .sw i{width:20px;height:22px;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);display:block}
 .th small{display:block;font-size:12px;opacity:.85;margin-top:2px}
 #hud{position:fixed;top:0;left:0;right:0;display:none;align-items:center;gap:8px;padding:10px 12px;pointer-events:none}
+.gbt #hud{padding-top:38px}.gbt #goal{top:94px}
 #hud.on{display:flex}#hud>*{pointer-events:auto}
 .boxes{flex:1;display:flex;gap:8px;justify-content:center;padding-right:52px}
 .bx{background:rgba(0,0,0,.25);border-radius:14px;padding:4px 12px;text-align:center;min-width:72px}
@@ -47,6 +51,7 @@ canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 @keyframes st{from{transform:scale(0)}60%{transform:scale(1.4)}}
 .big{font-size:46px;font-weight:900;color:#e8801a}
 .sub{opacity:.7;font-size:15px;margin:2px 0 8px}
+.sub.nb{opacity:1;color:#ff5a8a;font-weight:900;letter-spacing:2px;animation:nbp .6s ease-in-out infinite alternate}@keyframes nbp{to{transform:scale(1.08)}}
 #tip{position:fixed;bottom:10px;left:0;right:0;text-align:center;font-size:13px;opacity:.65;pointer-events:none;display:none}
 #goal{position:fixed;left:0;right:0;top:66px;text-align:center;font-weight:900;font-size:15px;pointer-events:none;display:none}
 @media (max-width:560px){.modes{grid-template-columns:repeat(2,minmax(0,170px));gap:10px}.mode .ic{font-size:30px}.mode .nm{font-size:17px}.themes{grid-template-columns:repeat(2,minmax(0,150px))}.lg{grid-template-columns:repeat(5,56px);gap:8px}.lb{width:56px;height:62px}.bx{min-width:58px;padding:4px 8px}.bx b{font-size:18px}}
@@ -68,7 +73,7 @@ canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block}
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="sTitle" class="scr on"><div style="height:min(40vh,300px)"></div><div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap"><button class="btn" id="bPlay">▶ Play</button><button class="btn alt sm" id="bHow">? How to play</button></div><div style="margin-top:12px;font-size:14px;opacity:.85">Slide · match · merge to 2048</div><a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a></div>
+<div id="sTitle" class="scr on"><div style="height:min(40vh,300px)"></div><div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap"><button class="btn" id="bPlay">▶ Play</button><button class="btn alt sm" id="bHow">? How to play</button><button class="btn alt sm" id="bBoard">🏆 Leaderboard</button></div><div style="margin-top:12px;font-size:14px;opacity:.85">Slide · match · merge to 2048</div><a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a></div>
 <div id="sMenu" class="scr"><div class="modes" id="modes"></div><div style="margin-top:16px"><button class="btn alt sm" id="bMB">◀</button></div></div>
 <div id="sLv" class="scr"><div class="h2">Challenges</div><div class="lg" id="lg"></div><div style="margin-top:16px"><button class="btn alt sm" id="bLB">◀</button></div></div>
 <div id="sTh" class="scr"><div class="h2">Themes</div><div class="themes" id="ths"></div><div style="margin-top:16px"><button class="btn alt sm" id="bTB">◀</button></div></div>
@@ -212,8 +217,11 @@ function undo(){if(!G||paused||!G.hist.length||scene!=="play"){SFX.bad();return}
 function levelWin(){var c=G.cfg,left=c.moves-G.moves,st=left>=c.moves*.35?3:left>=c.moves*.18?2:1,i=c.n-1,first=!save.lv[i];if(st>(save.lv[i]||0))save.lv[i]=st;if(first)save.undo++;if(i>=save.unl)save.unl=Math.min(LV.length-1,i+1);persist();SFX.big();
  var h='<h3>'+c.target+' reached!</h3><div class="stars">';for(var j=0;j<3;j++)h+='<i class="'+(j<st?"on":"")+'" style="animation-delay:'+(j*.15)+'s">★</i>';h+='</div><div class="sub">'+left+' moves left'+(first?' · +1 ↶':'')+'</div><div><button class="btn alt sm" id="pM">☰</button><button class="btn alt sm" id="pR">⟳</button>'+(c.n<LV.length?'<button class="btn sm" id="pN">Next ▶</button>':'')+'</div>';
  $("panel").innerHTML=h;$("sOver").classList.add("on");$("pM").onclick=function(){$("sOver").classList.remove("on");goLevels()};$("pR").onclick=function(){$("sOver").classList.remove("on");startLevel(i)};if($("pN"))$("pN").onclick=function(){$("sOver").classList.remove("on");startLevel(i+1)};confetti()}
+var BNAME={classic:"Classic",big:"Big Board",time:"Time Attack"};
+function boardOpts(m){return {title:"Hex 2048",label:BNAME[m],format:"int"}}
 function overPanel(msg){var c=G.cfg;SFX.over();var h='<h3>'+msg+'</h3>';if(c.mode==="level")h+='<div class="sub">🎯 '+c.target+' · best tile '+Math.max(0,G.maxT)+'</div>';else h+='<div class="big">'+G.score+'</div><div class="sub">best '+(save.best[c.mode]||0)+' · max tile '+G.maxT+'</div>';
- h+='<div>'+(G.hist.length&&c.mode!=="time"?'<button class="btn alt sm" id="pU">↶ '+save.undo+'</button>':'')+'<button class="btn alt sm" id="pM">☰</button><button class="btn sm" id="pR">⟳ Again</button></div>';$("panel").innerHTML=h;$("sOver").classList.add("on");
+ h+='<div>'+(G.hist.length&&c.mode!=="time"?'<button class="btn alt sm" id="pU">↶ '+save.undo+'</button>':'')+'<button class="btn alt sm" id="pM">☰</button>'+(BNAME[c.mode]?'<button class="btn alt sm" id="pB">🏆</button>':'')+'<button class="btn sm" id="pR">⟳ Again</button></div>';$("panel").innerHTML=h;$("sOver").classList.add("on");
+ if(BNAME[c.mode]){var bm=c.mode,sc=G.score;$("pB").onclick=function(){GBBoard.show("hex-merge:"+bm,boardOpts(bm))};GBBoard.submit("hex-merge:"+bm,sc).then(function(r){var bg=$("panel").querySelector(".big");if(r.best&&sc>0&&bg&&$("sOver").classList.contains("on")){var n=document.createElement("div");n.className="sub nb";n.textContent="★ NEW BEST ★";bg.parentNode.insertBefore(n,bg)}})}
  if($("pU"))$("pU").onclick=undo;$("pM").onclick=function(){$("sOver").classList.remove("on");goMenu()};$("pR").onclick=function(){$("sOver").classList.remove("on");if(c.mode==="level")startLevel(c.n-1);else startClassic(c.mode,true)}}
 function confetti(){for(var i=0;i<60;i++){var a=Math.random()*6.28,v=200+Math.random()*400;parts.push({x:W/2,y:H*.4,vx:Math.cos(a)*v,vy:Math.sin(a)*v-200,l:1.3,ml:1.3,c:THEMES[save.theme].t[i%12],r:3+Math.random()*4,g:1})}}
 function burstAt(q,r,lv){var p=hpos(q,r),col=tcol(Math.pow(2,lv));for(var i=0;i<6+lv*2;i++){var a=Math.random()*6.28,v=60+Math.random()*120*(1+lv*.15);parts.push({x:p[0],y:p[1],vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:.5,ml:.5,c:col,r:2+Math.random()*3})}}
@@ -234,6 +242,7 @@ function goThemes(){scene="themes";show();$("ths").innerHTML=THEMES.map(function
 $("ths").addEventListener("click",function(e){var el=e.target.closest(".th");if(!el)return;var i=+el.dataset.i;if(!themeOk(i)){SFX.bad();return}save.theme=i;persist();SFX.ui();goThemes()});
 $("bPlay").onclick=function(){audio();SFX.ui();if(save.maxTile)goMenu();else if(!tutDone())runTut("play");else startClassic("classic")};
 $("bHow").onclick=function(){audio();SFX.ui();runTut("title")};
+$("bBoard").onclick=function(){audio();SFX.ui();GBBoard.show("hex-merge:classic",boardOpts("classic"))};
 $("bMB").onclick=function(){SFX.ui();goTitle()};$("bLB").onclick=function(){SFX.ui();goMenu()};$("bTB").onclick=function(){SFX.ui();goMenu()};
 $("bBack").onclick=function(){SFX.ui();togglePause()};$("bUndo").onclick=undo;
 function updHud(){if(!G)return;var c=G.cfg;$("un").textContent=save.undo;
@@ -284,7 +293,7 @@ function drawBoard(T){var b=G.b,th=THEMES[save.theme];layout(b.r);var bump=G.bum
  cx.restore()}
 function easeBack(t){var c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2)}
 function drawTitle(T){titleT+=1/60;var s=Math.min(W/11,H/9,64),cxm=W/2,cy=H*.24;
- var word="HEXMERGE",vals=[2,4,8,16,32,64,128,256];for(var i=0;i<8;i++){var row=i<3?0:1,idx=row?i-3:i,n=row?5:3,x=cxm+(idx-(n-1)/2)*s*1.6,y=cy+row*s*1.75+(idx%2?s*.45:0)+Math.sin(T*2+i)*4;var v=vals[(i+Math.floor(T*.8))%8];
+ var R0="HEX",R1="2048",word=R0+R1,vals=[2,4,8,16,32,64,128,256];for(var i=0;i<word.length;i++){var row=i<R0.length?0:1,idx=row?i-R0.length:i,n=row?R1.length:R0.length,x=cxm+(idx-(n-1)/2)*s*1.6,y=cy+row*s*1.75+(idx%2?s*.45:0)+Math.sin(T*2+i)*4;var v=vals[(i+Math.floor(T*.8))%8];
   var col=tcol(v);cx.fillStyle="rgba(0,0,0,.3)";hexP(x,y+s*.12,s*.98,s*.2);cx.fill();var g=cx.createLinearGradient(x,y-s,x,y+s);g.addColorStop(0,col);g.addColorStop(1,shadeHex(col,-.2));cx.fillStyle=g;hexP(x,y,s*.98,s*.2);cx.fill();cx.fillStyle="rgba(255,255,255,.3)";hexP(x,y-s*.08,s*.74,s*.16);cx.save();cx.clip();cx.fillRect(x-s,y-s,s*2,s*.55);cx.restore();
   cx.font="900 "+(s*.95)+"px Trebuchet MS,sans-serif";cx.textAlign="center";cx.textBaseline="middle";cx.fillStyle="rgba(0,0,0,.25)";cx.fillText(word[i],x,y+s*.08);cx.fillStyle=lum(col)>.62?"#3a2a5a":"#fff";cx.fillText(word[i],x,y+s*.02)}}
 var last=performance.now(),T=0;

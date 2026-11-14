@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Glowburst</title>
+<script src="lib/gb.js"></script>
+<title>Firework Pop</title>
 <style>
 :root{--ink:#3d1208;--paper:#ffd27a;--paper2:#ff8f45;--gold:#ffd86b;--plum:#2a1236}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -789,7 +790,7 @@ function drawAim(g,t){if(outcome)return;const x=aimX,y=aimY,live=chainLive(W);
 }
 function drawHUD(g,t){const d=W.d;
   // goal bar
-  const lb=70/S,rb=GW-118/S,bw=Math.min(380,rb-lb),bx=clamp(GW/2-bw/2,lb,rb-bw),by=30,bcx=bx+bw/2;
+  const lb=70/S,rb=GW-118/S,bw=Math.min(380,rb-lb),bx=clamp(GW/2-bw/2,lb,rb-bw),by=30+(GB.isTouch?Math.min(24,26/S):0),bcx=bx+bw/2;
   g.fillStyle='rgba(30,8,36,.7)';rr(g,bx-8,by-8,bw+16,32,16);g.fill();g.strokeStyle='rgba(255,207,110,.8)';g.lineWidth=2;g.stroke();
   let max,cur,marks;if(d.boss){max=W.goal;cur=W.goal-W.bossLeft;marks=[]}else{max=W.s3;cur=W.popped;marks=[W.goal,W.s2,W.s3]}
   const q=clamp(cur/max,0,1);dispQ=lerp(dispQ,q,.2);const gr=g.createLinearGradient(bx,0,bx+bw,0);gr.addColorStop(0,d.boss?'#ff4a3a':'#ff8a3d');gr.addColorStop(1,d.boss?'#ffd36b':'#ffd86b');g.fillStyle=gr;rr(g,bx,by,Math.max(16,bw*dispQ),16,8);g.fill();
@@ -817,17 +818,19 @@ const GL=(()=>{const arc2=(cx,cy,rx,ry,a0,a1,n)=>{const o=[];for(let i=0;i<=n;i+
     B:[[[.12,1],[.12,0],[.55,0],...arc(.55,.24,.24,-Math.PI/2,Math.PI/2,8),[.12,.48],[.6,.48],...arc(.6,.74,.26,-Math.PI/2,Math.PI/2,8),[.12,1]]],
     U:[[[.1,0],[.1,.56],...arc(.5,.56,.4,Math.PI,0,14),[.9,0]]],
     R:[[[.12,1],[.12,0],[.55,0],...arc(.55,.25,.25,-Math.PI/2,Math.PI/2,8),[.12,.5]],[[.42,.5],[.9,1]]],
-    S:[[...arc2(.5,.27,.36,.25,-.35,-Math.PI*1.5,12),...arc2(.5,.75,.38,.25,-Math.PI/2,Math.PI*.5+.45,12)]],T:[[[0,0],[1,0]],[[.5,0],[.5,1]]]}})();
-function drawWord(g,word,cx,cy,h,t,opt){const lw=h*.68,gap=h*.16,tw=word.length*lw+(word.length-1)*gap;let x=cx-tw/2;const strokes=[];
+    S:[[...arc2(.5,.27,.36,.25,-.35,-Math.PI*1.5,12),...arc2(.5,.75,.38,.25,-Math.PI/2,Math.PI*.5+.45,12)]],T:[[[0,0],[1,0]],[[.5,0],[.5,1]]],
+    F:[[[.12,1],[.12,0],[.88,0]],[[.12,.48],[.7,.48]]],I:[[[.5,0],[.5,1]]],E:[[[.88,0],[.12,0],[.12,1],[.88,1]],[[.12,.48],[.7,.48]]],
+    K:[[[.12,0],[.12,1]],[[.88,0],[.14,.58]],[[.4,.4],[.9,1]]],P:[[[.12,1],[.12,0],[.55,0],...arc(.55,.25,.25,-Math.PI/2,Math.PI/2,8),[.12,.5]]],' ':[]}})();
+function drawWord(g,word,cx,cy,h,t,opt){const lw=h*.68,gap=h*.16,wf=ch=>ch==='W'?lw*1.15:ch==='T'||ch==='L'?lw*.85:ch==='I'?lw*.4:ch===' '?lw*.45:lw;let tw=(word.length-1)*gap;for(const ch of word)tw+=wf(ch);let x=cx-tw/2;const strokes=[];
   for(let i=0;i<word.length;i++){const ch=word[i],gl=GL[ch];const by=Math.sin(t*2.2+i*.7)*h*.04,rt=Math.sin(t*1.6+i)*.04,sc=1+.04*Math.sin(t*3+i*1.3);
-    const lx=x,lwid=ch==='W'?lw*1.15:ch==='T'||ch==='L'?lw*.85:lw;strokes.push({gl,x:lx,y:cy-h/2+by,w:lwid,h,rt,sc});x+=lwid+gap}
+    const lx=x,lwid=wf(ch);strokes.push({gl,x:lx,y:cy-h/2+by,w:lwid,h,rt,sc});x+=lwid+gap}
   const pass=(lwW,col,dy,blur)=>{g.lineWidth=lwW;g.strokeStyle=col;g.lineCap='round';g.lineJoin='round';for(const s of strokes){g.save();g.translate(s.x+s.w/2,s.y+s.h/2+dy);g.rotate(s.rt);g.scale(s.sc,s.sc);g.translate(-s.w/2,-s.h/2);for(const pl of s.gl){g.beginPath();pl.forEach((p,j)=>j?g.lineTo(p[0]*s.w,p[1]*s.h):g.moveTo(p[0]*s.w,p[1]*s.h));g.stroke()}g.restore()}};
   g.save();g.globalCompositeOperation='lighter';g.globalAlpha=.35;pass(h*.5,'#ff7a2a',0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.restore();
   pass(h*.34,'#3d0d22',h*.06);pass(h*.3,'#5a1530',0);
   const gr=g.createLinearGradient(0,cy-h/2,0,cy+h/2);gr.addColorStop(0,'#fff3b0');gr.addColorStop(.45,'#ffc24a');gr.addColorStop(1,'#ff5a3a');pass(h*.2,gr,0);
   pass(h*.06,'rgba(255,255,240,.85)',-h*.04);
   return tw}
-function drawTitle(g,t){const h=Math.min(100,(GW-40)/9/.84,GH*.14),cy=Math.max(h*.75+14,GH*.2);const tw=drawWord(g,'GLOWBURST',GW/2,cy,h,t);
+function drawTitle(g,t){const two=GW<GH*1.1,h=Math.min(100,(GW-40)/(two?8:11.4)/.84,GH*(two?.11:.14)),cy0=Math.max(h*.75+14,GH*.2)-(two?h*.6:0);let tw=drawWord(g,two?'FIREWORK':'FIREWORK POP',GW/2,cy0,h,t);if(two)drawWord(g,'POP',GW/2,cy0+h*1.3,h,t);const cy=two?cy0+h*1.3:cy0;
   g.globalCompositeOperation='lighter';for(let i=0;i<5;i++){const a=t*1.3+i*1.256,x=GW/2+Math.cos(a)*tw*.52,y=cy+Math.sin(a*1.7)*h*.7;g.fillStyle='#fff6d0';star4(g,x,y,5+3*Math.sin(t*5+i))}g.globalCompositeOperation='source-over';
   g.font='800 '+Math.max(14,h*.2)+'px "Trebuchet MS",sans-serif';g.textAlign='center';g.fillStyle='rgba(255,230,190,.85)';g.fillText('one tap · one giant chain',GW/2,cy+h*.95);g.textAlign='left'}
 function drawHand(g,x,y,press){g.save();g.translate(x+6,y+8);g.scale(1+.0,1-.0);const p=press*6;g.translate(0,p);g.rotate(-.35);g.fillStyle='#fff8ec';g.strokeStyle='#3a1a10';g.lineWidth=2.5;g.beginPath();g.moveTo(-4,0);g.lineTo(-4,-30+0);g.arc(0,-30,4,Math.PI,0);g.lineTo(4,-8);g.quadraticCurveTo(10,-14,14,-8);g.quadraticCurveTo(19,-12,22,-5);g.quadraticCurveTo(27,-8,28,0);g.lineTo(28,14);g.quadraticCurveTo(26,28,10,30);g.lineTo(0,30);g.quadraticCurveTo(-12,26,-14,12);g.lineTo(-16,2);g.quadraticCurveTo(-14,-4,-6,4);g.closePath();g.fill();g.stroke();g.restore();

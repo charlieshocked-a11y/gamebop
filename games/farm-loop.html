@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Farm Loop</title>
+<script src="lib/gb.js"></script>
+<title>Tiny Farm</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#8fcf5f;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 canvas{display:block;width:100vw;height:100vh;cursor:pointer}
@@ -62,7 +63,7 @@ const SFX={plant(){if(lim('p',50))tone(330,0.08,'triangle',0.12,1.4)},water(){if
 // ---------- canvas ----------
 const cv=document.getElementById('c'),cx=cv.getContext('2d');let W=0,H=0,DPR=1,L={};
 function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=Math.max(200,innerWidth);H=Math.max(200,innerHeight);cv.width=W*DPR|0;cv.height=H*DPR|0;layout();icache={}}
-function layout(){const hud=58;L.hud=hud;L.land=W>H*1.1;const sb=Math.min(84,Math.max(64,H*0.11));L.sbH=sb;
+function layout(){L.hy=GB.isTouch?26:0;const hud=58+L.hy;L.hud=hud;L.land=W>H*1.1;const sb=Math.min(84,Math.max(64,H*0.11));L.sbH=sb;
  if(L.land){const fw=W*0.6;const cs=Math.floor(Math.min((fw-30)/6,(H-hud-sb-30)/4));L.cs=cs;L.fx=(fw-cs*6)/2+6;L.fy=hud+10+(H-hud-sb-24-cs*4)/2;
   L.bArea={x:fw+6,y:hud+8,w:W-fw-16,h:H-hud-20};L.seed={x:L.fx-6,y:H-sb-8,w:cs*6+12,h:sb}}
  else{const cs=Math.floor(Math.min((W-24)/6,(H-hud-sb)*0.42/4));L.cs=cs;L.fx=(W-cs*6)/2;L.fy=hud+10;const by=L.fy+cs*4+16;L.bArea={x:10,y:by,w:W-20,h:H-sb-16-by};L.seed={x:8,y:H-sb-8,w:W-16,h:sb}}
@@ -206,7 +207,7 @@ function drawTitle(){const g=cx;drawLand(true);
  g.fillStyle='#c98a52';const fy=H*0.9;for(let x=8;x<W;x+=34){rr(g,x,fy-26,10,34,3);g.fill()}g.fillRect(0,fy-18,W,6);g.fillRect(0,fy-6,W,6);
  const s=Math.min(W/6,H/5,118);const cy=H*0.3;
  g.save();g.translate(W/2,cy);g.rotate(Math.sin(T*1.5)*0.02);
- ['Farm','Loop'].forEach((w,i)=>{const y=(i-0.5)*s*1.0;g.font='900 '+s+'px '+FONT;g.textAlign='center';g.textBaseline='middle';g.lineJoin='round';g.lineWidth=s*0.2;g.strokeStyle=P.ink;g.strokeText(w,0,y+s*0.05);g.strokeText(w,0,y);g.lineWidth=s*0.08;g.strokeStyle='#fff';g.strokeText(w,0,y);g.fillStyle=i?'#7cc95a':'#ff9a2e';g.fillText(w,0,y)});
+ ['Tiny','Farm'].forEach((w,i)=>{const y=(i-0.5)*s*1.0;g.font='900 '+s+'px '+FONT;g.textAlign='center';g.textBaseline='middle';g.lineJoin='round';g.lineWidth=s*0.2;g.strokeStyle=P.ink;g.strokeText(w,0,y+s*0.05);g.strokeText(w,0,y);g.lineWidth=s*0.08;g.strokeStyle='#fff';g.strokeText(w,0,y);g.fillStyle=i?'#7cc95a':'#ff9a2e';g.fillText(w,0,y)});
  g.restore();
  // loop arrow around crops
  const r=Math.min(W,H)*0.16;const ccx=W/2,ccy=cy+s*1.35+r*0.4;
@@ -261,16 +262,16 @@ function drawSeedBar(){const g=cx;const s=L.seed;g.fillStyle='rgba(74,52,36,.25)
   if(locked){uiIcon('lock',x+(bw-4)/2,y+bh*0.4,bw*0.4,P.ink);txt(String(c.lv),x+(bw-4)/2,y+bh*0.82,Math.min(14,bw*0.22),P.ink)}
   else if(!inS){let ns=G.season;for(let k=1;k<4;k++){if(c.m&(1<<((G.season+k)%4))){ns=(G.season+k)%4;break}}seasonIcon(g,ns,x+(bw-4)/2,y+bh*0.82,Math.min(9,bw*0.14))}
   else{coinIcon(g,x+(bw-4)/2-bw*0.16,y+bh*0.83,Math.min(6,bw*0.09));txt(String(c.c),x+(bw-4)/2-bw*0.06,y+bh*0.84,Math.min(14,bw*0.22),P.ink,'left')}})}
-function drawHUD(){const g=cx;const hud=L.hud;
- button(10,8,44,44,P.wood,()=>{paused=true},(x,y)=>uiIcon('pause',x,y,44),{dark:P.woodD});
+function drawHUD(){const g=cx;const hud=L.hud,o=L.hy;
+ button(10,8+o,44,44,P.wood,()=>{paused=true},(x,y)=>uiIcon('pause',x,y,44),{dark:P.woodD});
  // coins
- const cw=Math.min(150,W*0.3);g.fillStyle='rgba(74,52,36,.3)';rr(g,62,14,cw,34,17);g.fill();g.fillStyle=P.cream;rr(g,62,11,cw,34,17);g.fill();coinIcon(g,80,28,11);txt(fmt(G.coins),96,29,19,P.ink,'left');L.coinPos=[80,28];
+ const cw=Math.min(150,W*0.3);g.fillStyle='rgba(74,52,36,.3)';rr(g,62,14+o,cw,34,17);g.fill();g.fillStyle=P.cream;rr(g,62,11+o,cw,34,17);g.fill();coinIcon(g,80,28+o,11);txt(fmt(G.coins),96,29+o,19,P.ink,'left');L.coinPos=[80,28+o];
  // level + xp
- const lx=62+cw+10,lw=Math.min(170,W-lx-140);g.fillStyle='rgba(74,52,36,.3)';rr(g,lx,14,lw,34,17);g.fill();g.fillStyle=P.cream;rr(g,lx,11,lw,34,17);g.fill();starPath(g,lx+18,28,13);g.fillStyle='#ffcf3a';g.fill();txt(String(G.lvl),lx+18,29,12,P.ink);
- const k=G.xp/xpNeed(G.lvl);g.fillStyle='rgba(74,52,36,.15)';rr(g,lx+36,22,lw-46,12,6);g.fill();g.fillStyle=P.xp;rr(g,lx+36,22,Math.max(12,(lw-46)*k),12,6);g.fill();
+ const lx=62+cw+10,lw=Math.min(170,W-lx-140);g.fillStyle='rgba(74,52,36,.3)';rr(g,lx,14+o,lw,34,17);g.fill();g.fillStyle=P.cream;rr(g,lx,11+o,lw,34,17);g.fill();starPath(g,lx+18,28+o,13);g.fillStyle='#ffcf3a';g.fill();txt(String(G.lvl),lx+18,29+o,12,P.ink);
+ const k=G.xp/xpNeed(G.lvl);g.fillStyle='rgba(74,52,36,.15)';rr(g,lx+36,22+o,lw-46,12,6);g.fill();g.fillStyle=P.xp;rr(g,lx+36,22+o,Math.max(12,(lw-46)*k),12,6);g.fill();
  // season
- const sx=W-104;const sk=G.sT/SEASON_LEN;g.fillStyle=P.cream;circ(g,sx,30,20,P.cream);g.strokeStyle=SEASONS[G.season].acc==='#ffffff'?'#7cc4ff':SEASONS[G.season].acc;g.lineWidth=4;g.beginPath();g.arc(sx,30,20,-Math.PI/2,-Math.PI/2+sk*6.283);g.stroke();seasonIcon(g,G.season,sx,30,13);
- button(W-56,8,44,44,'#7cc95a',toggleMute,(x,y)=>uiIcon('mute',x,y,44),{dark:'#4f8f36'});
+ const sx=W-104;const sk=G.sT/SEASON_LEN;g.fillStyle=P.cream;circ(g,sx,30+o,20,P.cream);g.strokeStyle=SEASONS[G.season].acc==='#ffffff'?'#7cc4ff':SEASONS[G.season].acc;g.lineWidth=4;g.beginPath();g.arc(sx,30+o,20,-Math.PI/2,-Math.PI/2+sk*6.283);g.stroke();seasonIcon(g,G.season,sx,30+o,13);
+ button(W-56,8+o,44,44,'#7cc95a',toggleMute,(x,y)=>uiIcon('mute',x,y,44),{dark:'#4f8f36'});
  L.basket=[L.bslots[0].x+L.bslots[0].w/2,L.bslots[0].y+L.bslots[0].h*0.4];}
 function fmt(n){n=Math.floor(n);return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e4?(n/1e3).toFixed(1)+'k':String(n)}
 function upCost(u){return Math.round(u.base*Math.pow(2.1,up(u.k)))}

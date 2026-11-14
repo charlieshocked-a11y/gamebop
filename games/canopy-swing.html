@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Canopy Swing</title>
+<script src="lib/gb.js"></script><script src="lib/board.js"></script>
+<title>Monkey Swing</title>
 <style>
 :root{--cream:#fff4d8;--wood:#a8693a;--woodD:#5a3416;--ink:#3a2512;--leaf:#5fbf45;--leafD:#245a1f}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -47,15 +48,15 @@ body{font-family:"Trebuchet MS","Avenir Next","Nunito","Segoe UI",system-ui,sans
 .bar{position:absolute;left:0;right:0;top:0;display:flex;align-items:flex-start;justify-content:space-between;padding:calc(10px + env(safe-area-inset-top)) calc(66px + env(safe-area-inset-right)) 0 calc(12px + env(safe-area-inset-left));gap:8px}
 #bMute{position:fixed;right:calc(10px + env(safe-area-inset-right));top:calc(10px + env(safe-area-inset-top));z-index:9;width:44px;height:44px}
 #bPause{width:44px;height:44px}
-.panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(580px,calc(100vw - 20px));max-height:calc(100vh - 24px);overflow:auto;pointer-events:auto;text-align:center;
+.panel:where(:not(#gbbar *,#gbedit *)){position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(580px,calc(100vw - 20px));max-height:calc(100vh - 24px);overflow:auto;pointer-events:auto;text-align:center;
  padding:30px 18px 18px;border-radius:20px 26px 18px 24px;color:var(--ink);
  background:radial-gradient(130% 90% at 25% 0%,#fdf0cc,#efd8a2 55%,#ddbd7b);border:5px solid #6b4220;
  box-shadow:0 0 0 3px #3a2210,0 20px 44px rgba(0,0,0,.5),inset 0 0 34px rgba(130,80,25,.3)}
-.on .panel{animation:panelin .5s cubic-bezier(.2,1.25,.35,1) backwards}
+.on .panel:where(:not(#gbbar *,#gbedit *)){animation:panelin .5s cubic-bezier(.2,1.25,.35,1) backwards}
 @keyframes panelin{0%{transform:translate(-50%,-38%) scale(.8) rotate(-3deg);opacity:0}100%{transform:translate(-50%,-50%)}}
 .ribbon{display:inline-block;margin:-6px auto 12px;padding:8px 30px;font-weight:900;font-size:24px;color:#fffbe6;border-radius:9px 13px 8px 12px;
  background:linear-gradient(#86d450,#3f9530);border:3px solid #1f4d1d;box-shadow:0 4px 0 #173d15;text-shadow:0 2px 0 #1f4d1d;transform:rotate(-2deg)}
-.close{position:absolute;right:8px;top:8px}
+.close:where(:not(#gbbar *,#gbedit *)){position:absolute;right:8px;top:8px}
 .tabs{display:flex;gap:6px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
 .tab{opacity:.7}.tab.sel{opacity:1;filter:brightness(1.12);transform:translateY(-2px)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
@@ -129,7 +130,7 @@ body{font-family:"Trebuchet MS","Avenir Next","Nunito","Segoe UI",system-ui,sans
   <div class="row rise" style="animation-delay:.08s">
    <button id="bRun" class="btn"></button><button id="bShop" class="btn"></button><button id="bAch" class="btn ico" aria-label="Trophies"></button>
   </div>
-  <button id="bHow" class="btn sm rise" style="animation-delay:.16s">How to play</button>
+  <div class="row rise" style="animation-delay:.16s"><button id="bHow" class="btn sm">How to play</button><button id="bLb" class="btn sm">🏆 Leaderboard</button></div>
  </div>
  <a id="support" href="https://cash.app/$CharlieShocked" target="_blank" rel="noopener">Support ♥</a>
 </div>
@@ -1589,7 +1590,7 @@ function drawLogo() {
       cx.restore(); x += ws[i]; });
     return tot;
   };
-  const w1 = word('CANOPY', cy - sz * 0.5, sz * 0.66, '#f4ff9a', '#9ee052', '#3f9a2c', '#173a10', 1);
+  const w1 = word('MONKEY', cy - sz * 0.5, sz * 0.66, '#f4ff9a', '#9ee052', '#3f9a2c', '#173a10', 1);
   // vine swooping between the words
   const vy = cy + sz * 0.02, x0 = mx - w1 * 0.62, x1 = mx + w1 * 0.62; cx.lineCap = 'round'; cx.strokeStyle = '#2d5a1a'; cx.lineWidth = sz * 0.07; cx.beginPath(); cx.moveTo(x0, vy - sz * 0.3); cx.bezierCurveTo(mx - w1 * 0.3, vy + sz * 0.3, mx + w1 * 0.3, vy - sz * 0.25, x1, vy + sz * 0.05); cx.stroke();
   cx.strokeStyle = '#6cbf3c'; cx.lineWidth = sz * 0.035; cx.stroke();
@@ -1698,6 +1699,7 @@ function levelComplete() {
   $('rMap').onclick = () => { SFX.click(); trans(() => goMap(w)); };
   if (hasNext) $('rNext').onclick = () => { SFX.click(); trans(() => startLevel(nextW, nextL)); };
 }
+const BOARD = 'canopy-swing', BOPT = { title: 'Monkey Swing', label: 'Endless', format: v => Math.round(v) + ' m' };
 function runOver() {
   const d = Math.floor(G.dist); let best, nr;
   if (G.daily) { if (save.daily.seed !== G.seed) save.daily = { seed: G.seed, best: 0 }; nr = d > save.daily.best; if (nr) save.daily.best = d; best = save.daily.best; unlock('daily'); }
@@ -1707,8 +1709,9 @@ function runOver() {
   el.innerHTML = '<div class="ribbon">' + (daily ? 'Daily Run' : 'Jungle Run') + '</div>' + (nr ? '<div><span class="newrec pop">NEW RECORD!</span></div>' : '') +
     '<div style="font:900 54px/1 \'Arial Black\',sans-serif;color:#3a2512"><span id="rD">0</span><span style="font-size:24px"> m</span></div>' +
     '<div class="rows"><div class="stat">' + IC.trophy + ' ' + best + ' m<small>BEST</small></div><div class="stat">' + IC.fruit + ' <span id="rF">0</span><small>FRUIT</small></div><div class="stat">×' + G.maxCombo + '<small>TOP COMBO</small></div></div>' +
-    '<div class="btns"><button class="btn ico" id="rMenu" aria-label="Menu">' + IC.back + '</button><button class="btn leaf big" id="rAgain">' + IC.retry + 'Again</button></div>';
-  show('results'); countUp('rD', d); countUp('rF', G.fruit);
+    '<div class="btns"><button class="btn ico" id="rMenu" aria-label="Menu">' + IC.back + '</button><button class="btn leaf big" id="rAgain">' + IC.retry + 'Again</button>' + (daily ? '' : '<button class="btn sm" id="rLb">🏆 Leaderboard</button>') + '</div>';
+  show('results');
+  if (!daily) { const g0 = G; GBBoard.submit(BOARD, d).then(x => { if (x.best && d > 0 && !nr && G === g0 && mode === 'results') el.querySelector('.ribbon').insertAdjacentHTML('afterend', '<div><span class="newrec pop">NEW RECORD!</span></div>'); }); $('rLb').onclick = () => { SFX.click(); GBBoard.show(BOARD, BOPT); }; } countUp('rD', d); countUp('rF', G.fruit);
   $('rMenu').onclick = () => { SFX.click(); trans(goTitle); }; $('rAgain').onclick = () => { SFX.click(); trans(() => startRun(daily)); };
 }
 function countUp(id, to, time) { const el = $(id); if (!el) return; const t0 = performance.now(), dur = 900; const step = () => { const k = Math.min(1, (performance.now() - t0) / dur), v = to * easeOut(k); el.textContent = time ? fmtT(v) : Math.round(v); if (k < 1) requestAnimationFrame(step); else if (!time) { tone(1200, 0.08, 'triangle', 0.08); } }; step(); }
@@ -1784,6 +1787,7 @@ function wire() {
   on('bPause', () => { SFX.click(); pauseGame(); }); on('pRes', () => { SFX.click(); resume(); });
   on('pRetry', () => { SFX.click(); paused = false; const g = G; trans(() => g.kind === 'run' ? startRun(g.daily) : g.kind === 'tut' ? startTut() : startLevel(g.w, g.l)); });
   on('pMap', () => { SFX.click(); paused = false; const g = G; trans(() => g.kind === 'tut' ? (store.set('tutorial', true), goTitle()) : g.kind === 'run' ? goTitle() : goMap(g.w)); });
+  on('bLb', () => { SFX.click(); GBBoard.show(BOARD, BOPT); });
   on('tutSkip', () => { SFX.click(); endTutorial(); });
   on('bMute', () => setMute(!muted));
   document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('button'); if (b) b.blur(); });
@@ -1792,7 +1796,7 @@ function wire() {
   cv.addEventListener('pointermove', e => { IN.mx = e.clientX; IN.my = e.clientY; if (e.pointerType === 'mouse') IN.aim = 'mouse'; });
   cv.addEventListener('contextmenu', e => e.preventDefault());
   const HOLD = ['Space', 'Enter', 'KeyX', 'KeyZ', 'KeyJ'];
-  window.addEventListener('keydown', e => { initAudio(); const c = e.code;
+  window.addEventListener('keydown', e => { if (GBBoard.isOpen()) return; initAudio(); const c = e.code;
     if (c === 'Space' || c.startsWith('Arrow')) e.preventDefault();
     if (c === 'Escape' || c === 'KeyP') { if (mode === 'play') pauseGame(); else if (mode === 'pause') resume(); return; }
     if (c === 'KeyM') { setMute(!muted); return; }

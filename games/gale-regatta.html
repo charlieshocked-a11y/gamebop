@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Gale Regatta</title>
+<script src="lib/gb.js"></script>
+<script src="lib/board.js"></script>
+<title>Sail Race</title>
 <style>
 :root{--ink:#143a5c;--ink2:#0d2840;--cloth:#fbf3e1;--cloth2:#eadcbc;--red:#e5483a;--redD:#9c2a20;--brass:#e8b04a;--sea:#2aa3c4}
 *{box-sizing:border-box}
@@ -41,10 +43,10 @@ body{font-family:"Trebuchet MS","Avenir Next","Segoe UI",system-ui,sans-serif;co
 #support:hover{opacity:1}
 .corner{position:absolute;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));display:flex;gap:8px;pointer-events:auto}
 /* panels */
-.panel{pointer-events:auto;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(860px,94vw);max-height:calc(100vh - 24px);overflow:auto;
+.ov>.panel{pointer-events:auto;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(860px,94vw);max-height:calc(100vh - 24px);overflow:auto;
  background:radial-gradient(120% 90% at 30% 20%,#fdf6e6,#f2e3c2 70%,#e8d3a8) padding-box,repeating-linear-gradient(45deg,#b0824a 0 5px,#e0bb80 5px 10px) border-box;
  border:7px solid transparent;border-radius:22px;box-shadow:0 18px 50px rgba(3,15,30,.55);padding:16px 18px;color:var(--ink);animation:panIn .45s cubic-bezier(.2,1.3,.4,1) both;scrollbar-width:none}
-.panel::-webkit-scrollbar{display:none}
+.ov>.panel::-webkit-scrollbar{display:none}
 @keyframes panIn{from{opacity:0;transform:translate(-50%,-42%) scale(.92)}to{opacity:1;transform:translate(-50%,-50%)}}
 .ph{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .ph h2{margin:0;font-family:Georgia,"Palatino Linotype",serif;font-style:italic;font-size:30px;color:var(--ink);text-shadow:0 2px 0 rgba(255,255,255,.8);flex:1}
@@ -102,7 +104,7 @@ body{font-family:"Trebuchet MS","Avenir Next","Segoe UI",system-ui,sans-serif;co
 .sw button.on{border-color:var(--red);transform:scale(1.08)}
 .sw button .pr{position:absolute;left:0;right:0;bottom:0;font-size:10px;font-weight:900;background:rgba(10,30,50,.75);color:#ffe9a8}
 .sw button canvas{width:100%;height:100%}
-.lbl{font-weight:900;font-size:13px;color:#5a6a78;margin:10px 0 6px;text-transform:uppercase;letter-spacing:1px}
+#dockBody .lbl{font-weight:900;font-size:13px;color:#5a6a78;margin:10px 0 6px;text-transform:uppercase;letter-spacing:1px}
 /* achievements */
 .achs{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:9px}
 .ach{text-align:center;font-size:11.5px;font-weight:800;color:#5a6a78;line-height:1.15}
@@ -136,8 +138,10 @@ body{font-family:"Trebuchet MS","Avenir Next","Segoe UI",system-ui,sans-serif;co
 .pad{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom));width:84px;height:84px;border-radius:50%;pointer-events:auto;background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.45),rgba(255,255,255,.16));border:3px solid rgba(255,255,255,.6);box-shadow:0 6px 14px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;touch-action:none}
 .pad svg{width:40px;height:40px}
 .pad.on{background:radial-gradient(circle,rgba(255,255,255,.7),rgba(255,255,255,.3));transform:scale(.93)}
-#pL{left:calc(14px + env(safe-area-inset-left))}
-#pR{left:calc(110px + env(safe-area-inset-left))}
+#steer{position:absolute;left:calc(14px + env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom));width:180px;height:84px;pointer-events:none}
+#steer .pad{bottom:0}
+#pL{left:0}
+#pR{left:96px}
 #pT{width:66px;height:66px;left:calc(68px + env(safe-area-inset-left));bottom:calc(112px + env(safe-area-inset-bottom));font-weight:900;color:#fff;font-size:13px;flex-direction:column;text-shadow:0 1px 2px rgba(0,0,0,.5)}
 #pT svg{width:26px;height:26px}
 #trim{position:absolute;right:calc(16px + env(safe-area-inset-right));bottom:calc(20px + env(safe-area-inset-bottom));width:66px;height:200px;border-radius:33px;pointer-events:auto;touch-action:none;background:rgba(255,255,255,.18);border:3px solid rgba(255,255,255,.55);box-shadow:0 6px 14px rgba(0,0,0,.25)}
@@ -176,7 +180,7 @@ body{font-family:"Trebuchet MS","Avenir Next","Segoe UI",system-ui,sans-serif;co
 
 <div id="title" class="ov">
  <div class="logo">
-  <svg viewBox="0 0 680 250" aria-label="Gale Regatta">
+  <svg viewBox="0 0 680 250" aria-label="Sail Race">
    <defs>
     <linearGradient id="lg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf5"/><stop offset=".55" stop-color="#ffe9b0"/><stop offset="1" stop-color="#f3b24a"/></linearGradient>
     <linearGradient id="lg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a6a"/><stop offset="1" stop-color="#d63a2c"/></linearGradient>
@@ -189,9 +193,9 @@ body{font-family:"Trebuchet MS","Avenir Next","Segoe UI",system-ui,sans-serif;co
     <path d="M0 160 L140 160 Q132 186 104 190 L22 190 Q6 182 0 160Z" fill="#143a5c" stroke="#0d2840" stroke-width="6" stroke-linejoin="round"/>
     <path d="M10 168 L132 168" stroke="#e8b04a" stroke-width="4"/>
    </g>
-   <text x="200" y="112" font-family="Georgia,'Palatino Linotype',serif" font-style="italic" font-weight="900" font-size="104" fill="url(#lg1)" stroke="#0d2840" stroke-width="14" stroke-linejoin="round" paint-order="stroke" letter-spacing="2">Gale</text>
-   <text x="186" y="208" font-family="Georgia,'Palatino Linotype',serif" font-style="italic" font-weight="900" font-size="96" fill="url(#lg1)" stroke="#0d2840" stroke-width="14" stroke-linejoin="round" paint-order="stroke">Regatta</text>
-   <path d="M196 228 q22 -14 44 0 t44 0 t44 0 t44 0 t44 0 t44 0 t44 0 t44 0 t44 0" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" opacity=".9"/>
+   <text x="200" y="112" font-family="Georgia,'Palatino Linotype',serif" font-style="italic" font-weight="900" font-size="104" fill="url(#lg1)" stroke="#0d2840" stroke-width="14" stroke-linejoin="round" paint-order="stroke" letter-spacing="2">Sail</text>
+   <text x="186" y="208" font-family="Georgia,'Palatino Linotype',serif" font-style="italic" font-weight="900" font-size="96" fill="url(#lg1)" stroke="#0d2840" stroke-width="14" stroke-linejoin="round" paint-order="stroke">Race</text>
+   <path d="M196 228 q22 -14 44 0 t44 0 t44 0 t44 0 t44 0" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" opacity=".9"/>
    <path d="M470 40 q30 -12 70 -2 q-26 6 -40 20" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" opacity=".75"/>
    <path d="M430 66 q40 -10 90 0" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".55"/>
   </svg>
@@ -200,6 +204,7 @@ body{font-family:"Trebuchet MS","Avenir Next","Segoe UI",system-ui,sans-serif;co
   <button class="btn red big" id="bPlay"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="#fff"/></svg><span id="playLbl">Play</span></button>
   <div class="row">
    <button class="btn" id="bDaily"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="none" stroke="#143a5c" stroke-width="2.6"/><path d="M12 13V8.5M12 13l3 2" stroke="#e5483a" stroke-width="2.6" stroke-linecap="round"/><path d="M9 2h6" stroke="#143a5c" stroke-width="2.6" stroke-linecap="round"/></svg>Daily</button>
+   <button class="btn" id="bBoard">🏆 Leaderboard</button>
    <button class="btn" id="bDock"><svg viewBox="0 0 24 24"><path d="M12 2v18M6 20c0-4 2.5-7 6-7s6 3 6 7M4 17c2 4 14 4 16 0" fill="none" stroke="#143a5c" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="4" r="2" fill="#e5483a"/><path d="M8 8h8" stroke="#143a5c" stroke-width="2.4" stroke-linecap="round"/></svg>Dock</button>
    <button class="btn" id="bAch"><svg viewBox="0 0 24 24"><path d="M7 3h10v5a5 5 0 01-10 0z" fill="#e8b04a" stroke="#143a5c" stroke-width="2"/><path d="M7 5H4c0 3 1.5 4.5 3.5 4.8M17 5h3c0 3-1.5 4.5-3.5 4.8M12 13v4M8 21h8l-1-4H9z" fill="none" stroke="#143a5c" stroke-width="2" stroke-linejoin="round"/></svg>Trophies</button>
    <button class="btn" id="bHow"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="#143a5c" stroke-width="2.4"/><path d="M9.3 9.3a2.8 2.8 0 115 1.7c-1 1-2.3 1.4-2.3 3" fill="none" stroke="#143a5c" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1.4" fill="#e5483a"/></svg>How to play</button>
@@ -246,10 +251,10 @@ body{font-family:"Trebuchet MS","Avenir Next","Segoe UI",system-ui,sans-serif;co
 <div id="hud" class="ov">
  <div class="tl"><button class="btn ico" id="hPause" title="Pause"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke="#143a5c" stroke-width="3.4" stroke-linecap="round"/></svg></button></div>
  <div class="tc">
-  <div class="pad" id="pL"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-  <div class="pad" id="pR"><svg viewBox="0 0 24 24"><path d="M9 4l8 8-8 8" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-  <div class="pad" id="pT"><svg viewBox="0 0 24 24"><path d="M5 9a8 8 0 0114 0M19 9l1-4M19 9l-4-1M19 15a8 8 0 01-14 0M5 15l-1 4M5 15l4 1" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>TACK</div>
-  <div id="trim"><div class="zone" id="trimZone"></div><div class="tl2" style="top:6px">IN</div><div class="tl2" style="bottom:6px">OUT</div><div class="knob" id="trimKnob"><svg viewBox="0 0 24 24"><path d="M6 20L12 3l6 17z" fill="#fbf3e1" stroke="#143a5c" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 3v17" stroke="#e5483a" stroke-width="2"/></svg></div></div>
+  <div id="steer" data-gbctl="steer"><div class="pad" id="pL"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <div class="pad" id="pR"><svg viewBox="0 0 24 24"><path d="M9 4l8 8-8 8" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+  <div class="pad" id="pT" data-gbctl="tack"><svg viewBox="0 0 24 24"><path d="M5 9a8 8 0 0114 0M19 9l1-4M19 9l-4-1M19 15a8 8 0 01-14 0M5 15l-1 4M5 15l4 1" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>TACK</div>
+  <div id="trim" data-gbctl="trim"><div class="zone" id="trimZone"></div><div class="tl2" style="top:6px">IN</div><div class="tl2" style="bottom:6px">OUT</div><div class="knob" id="trimKnob"><svg viewBox="0 0 24 24"><path d="M6 20L12 3l6 17z" fill="#fbf3e1" stroke="#143a5c" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 3v17" stroke="#e5483a" stroke-width="2"/></svg></div></div>
  </div>
 </div>
 
@@ -411,6 +416,8 @@ function polar(twa, pt) {
 function idealTrim(twa, pt) { return clamp((twa - pt) / (172 - pt), 0, 1); }
 function vmgFactor(legRel, pt) { let best = 0; for (let th = pt; th <= 180; th += 2) { const v = polar(th, pt) * Math.cos(Math.abs(th - legRel) * D2R); if (v > best) best = v; } return best; }
 function seedOf(v, r) { return 9173 + v * 7919 + r * 104729; }
+function dailyBoard() { return 'gale-regatta:daily-' + dayNum(); }
+function showBoard() { const d = new Date(); GBBoard.show(dailyBoard(), { title: 'Sail Race', label: 'Daily ' + d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), format: fmtT, lower: true }); }
 function dayKey() { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
 function dayNum() { const d = new Date(); return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); }
 
@@ -1460,8 +1467,8 @@ function drawHUD(T) {
     if (G.ghost) utxt('Ghost = your best run', 16, top + 140, 11, 'rgba(255,255,255,.75)', 'left', 3);
   }
   // timer + marks
-  const cx = VW / 2;
-  if (G.mode != 'tut') {
+  const cx = VW / 2, gbY = GB.isTouch ? 28 : 0, topC = top + gbY; // keep top-centre clear for the phone settings tab
+  if (G.mode != 'tut') { const top = topC;
     const n = G.marks.length - 1, pw = 16; let x = cx - (n * pw) / 2 + pw / 2;
     ctx.fillStyle = 'rgba(10,30,50,.45)'; rrect(cx - Math.max(60, n * pw / 2 + 14), top, Math.max(120, n * pw + 28), 44, 14); ctx.fill();
     if (G.mode == 'race') txt(fmtT(G.rt), cx, top + 24, 20, '#fff8e8', 'center', 0);
@@ -1500,7 +1507,7 @@ function drawHUD(T) {
     txt(kn, bx - 60 - 12, by + 9, 26, '#fff8e8', 'right', 5); utxt('kn', bx - 60 - 12, by + 22, 10, '#fff', 'right', 3);
     if (p.perfect) txt('PERFECT', mx, by - 26, 13, '#ffe27a', 'center', 4);
   } else {
-    const ky = G.mode == 'tut' ? top + 60 : top + 84; txt(kn, cx, ky, 26, '#fff8e8', 'center', 5); utxt('knots', cx, ky + 13, 10, '#fff', 'center', 3);
+    const ky = (G.mode == 'tut' ? top + 60 : top + 84) + gbY; txt(kn, cx, ky, 26, '#fff8e8', 'center', 5); utxt('knots', cx, ky + 13, 10, '#fff', 'center', 3);
     if (p.perfect) txt('PERFECT TRIM', cx, ky + 34, 14, '#ffe27a', 'center', 4);
     const z = $('trimZone'), k = $('trimKnob');
     if (z) { z.style.top = (5 + clamp(p.ideal - .075, 0, 1) * 140) + 'px'; z.style.height = (50 + .15 * 140) + 'px'; z.style.opacity = p.nogo ? 0 : 1; k.style.top = (5 + p.trim * 140) + 'px'; k.style.background = p.perfect ? 'radial-gradient(circle at 40% 35%,#fff8c0,#ffd34a)' : ''; }
@@ -1546,7 +1553,7 @@ function syncOv() {
   show('hud', base == 'play' && !modal); show('pause', modal == 'pause'); show('tut', base == 'play' && G && G.mode == 'tut' && !modal);
 }
 function fadeTo(fn) { const f = $('fade'); f.style.opacity = 1; setTimeout(() => { try { fn(); } catch (e) { console.warn(e); } f.style.opacity = 0; }, 260); }
-function updMute() { document.querySelectorAll('.mute').forEach(b => b.innerHTML = settings.mute ? '<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#143a5c"/><path d="M16 9l5 6M21 9l-5 6" stroke="#e5483a" stroke-width="2.6" stroke-linecap="round"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#143a5c"/><path d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12" fill="none" stroke="#143a5c" stroke-width="2.2" stroke-linecap="round"/></svg>'); }
+function updMute() { document.querySelectorAll('.btn.mute').forEach(b => b.innerHTML = settings.mute ? '<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#143a5c"/><path d="M16 9l5 6M21 9l-5 6" stroke="#e5483a" stroke-width="2.6" stroke-linecap="round"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#143a5c"/><path d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12" fill="none" stroke="#143a5c" stroke-width="2.2" stroke-linecap="round"/></svg>'); }
 function makeTitleWorld() {
   const W = buildWorld({ mode: 'title', v: 1, r: 0, seed: 31337, kind: 'title', light: 'day', margin: 1000 });
   W.phase = 'race'; W.player = null;
@@ -1651,6 +1658,7 @@ function computeResult(place) {
     res.coins = (d.paid ? 15 : 60 + res.medal * 40) + W.rs.coins; d.paid = true; save.daily = d;
     save.st.dailies++; achv('daily'); if (W.ghost && res.newBest) achv('ghost');
     res.best = d.best;
+    GBBoard.submit(dailyBoard(), W.rt, { lower: true }).then(b => { if (b.best) res.newBest = true; });
   }
   save.coins += res.coins; save.st.coins += res.coins; if (save.st.coins >= 1000) achv('coin1k');
   persist(); return res;
@@ -1851,11 +1859,12 @@ function showResults() {
     h += '<div class="board">' + order.map((b, i) => `<div class="${b.player ? 'me' : ''}" style="animation-delay:${.3 + i * .07}s"><span>${i + 1}</span><i style="background:${b.col}"></i>${b.name}<em>${b.fin ? fmtT(b.finT) : '…'}</em></div>`).join('') + '</div>';
   }
   const nr = R.mode == 'race' ? (raceUnlocked(G.v, G.rIdx + 1) ? [G.v, G.rIdx + 1] : G.rIdx == 4 && venueUnlocked(G.v + 1) ? [G.v + 1, 0] : null) : null;
-  h += '<div class="foot">' + (nr ? '<button class="btn red" id="rNext">Next race ▶</button>' : '') + '<button class="btn" id="rRetry">Retry</button><button class="btn" id="rMap">' + (R.mode == 'race' ? 'Career' : 'Menu') + '</button></div>';
+  h += '<div class="foot">' + (R.mode == 'daily' ? '<button class="btn" id="rBoard">🏆</button>' : '') + (nr ? '<button class="btn red" id="rNext">Next race ▶</button>' : '') + '<button class="btn" id="rRetry">Retry</button><button class="btn" id="rMap">' + (R.mode == 'race' ? 'Career' : 'Menu') + '</button></div>';
   P.innerHTML = h; P.style.animation = 'none'; void P.offsetWidth; P.style.animation = '';
   const mode = R.mode, v = G.v, r = G.rIdx;
   if (nr) $('rNext').onclick = () => { save.sel = nr[0]; startRace('race', nr[0], nr[1]); };
   $('rRetry').onclick = () => startRace(mode, v, r);
+  if ($('rBoard')) $('rBoard').onclick = showBoard;
   $('rMap').onclick = () => fadeTo(() => mode == 'race' ? goMap() : goTitle());
   // count up coins
   let c = 0; const tgt = R.coins, el = $('rc'); const t0 = performance.now();
@@ -1942,7 +1951,10 @@ const padBind = (id, k) => { const el = $(id); const on = e => { e.preventDefaul
   el.addEventListener('pointerdown', on); el.addEventListener('pointerup', off); el.addEventListener('pointercancel', off); el.addEventListener('lostpointercapture', off); };
 padBind('pL', 'left'); padBind('pR', 'right');
 $('pT').addEventListener('pointerdown', e => { e.preventDefault(); const el = $('pT'); el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 150); if (G && G.player) doTack(G.player); });
-{ const tr = $('trim'); const set = e => { const r = tr.getBoundingClientRect(); touch.trim = clamp((e.clientY - r.top - 30) / (r.height - 60), 0, 1); };
+// keep scaled touch controls anchored to their screen edge (GB size setting scales around transform-origin)
+function ctlOrigins() { const f = GB.settings.flip; $('steer').style.transformOrigin = f ? 'right bottom' : 'left bottom'; $('trim').style.transformOrigin = f ? 'left bottom' : 'right bottom'; $('pT').style.transformOrigin = 'center bottom'; }
+ctlOrigins(); GB.on(ctlOrigins);
+{ const tr = $('trim'); const set = e => { const r = tr.getBoundingClientRect(), k = r.height / (tr.offsetHeight || 200); touch.trim = clamp((e.clientY - r.top - 30 * k) / (r.height - 60 * k), 0, 1); };
   tr.addEventListener('pointerdown', e => { e.preventDefault(); try { tr.setPointerCapture(e.pointerId); } catch (_) { } set(e); tr.dataset.on = 1; });
   tr.addEventListener('pointermove', e => { if (tr.dataset.on == 1) set(e); });
   const up = () => { tr.dataset.on = 0; }; tr.addEventListener('pointerup', up); tr.addEventListener('pointercancel', up); }
@@ -1950,6 +1962,7 @@ document.querySelectorAll('.btn').forEach(b => b.addEventListener('pointerdown',
 document.addEventListener('click', e => { const m = e.target.closest('.mute'); if (m) setMute(!settings.mute); });
 $('bPlay').onclick = () => { if (!store.get('tutorial', false)) startTutorial('first'); else fadeTo(goMap); };
 $('bDaily').onclick = () => startRace('daily', 0, 0);
+$('bBoard').onclick = showBoard;
 $('bDock').onclick = () => fadeTo(goDock);
 $('bAch').onclick = () => fadeTo(goAch);
 $('bHow').onclick = () => startTutorial('title');
