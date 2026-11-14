@@ -97,3 +97,6 @@ Charlie: "some games that are like timed, like, oh, you have to go grab this and
 - Make every run feel close: a big countdown, a heartbeat or ticking sound that speeds up, slow-mo when you make it with a split second left, and "SO CLOSE!" when you just miss.
 - Controls follow Rule 3 (move plus one action button, auto-grab when you touch the item).
 - Each level adds a new twist: farther targets, guards, collapsing floors, carrying something heavy that slows you, several items in one run, shortcuts you unlock.
+
+## Rule 12 (Charlie, 2026-11-14): game names must sound human, not AI
+No two-fancy-words mashups ("Neon Serpent", "Ember Drift", "Quiver Peak") and no made-up compound words ("Glowburst", "Tetherdrift"). Name games the way a kid or an indie dev would: plain, funny, or a little sentence that says what you do. Good: "Don't Crash the Trains", "Type or Die", "Gone Fishing", "Punch Goblins in the Sky", "Giant Snowball". The slug can stay short; the title is what players see.

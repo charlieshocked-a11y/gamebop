@@ -67,7 +67,7 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "ember-drift",
-  "title": "Ember Drift",
+  "title": "Hot Tires",
   "category": "Racing",
   "tags": [
    "drift",
@@ -78,13 +78,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Drift tiny glowing cars, build embers, unleash blazing boosts.",
   "controls": "Arrows/WASD · Space drift · Touch",
   "added": "2026-11-08",
-  "keywords": "car racing drift race track time trial driving vehicle neon",
+  "keywords": "car racing drift race track time trial driving vehicle neon ember drift",
   "file": "games/ember-drift.html",
   "thumb": "thumbs/ember-drift.jpg"
  },
  {
   "slug": "hive-mind",
-  "title": "Hive Mind",
+  "title": "Bee Business",
   "category": "Idle",
   "tags": [
    "idle",
@@ -95,13 +95,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Grow a buzzing hex hive, survive seasons, repel wasp raids.",
   "controls": "Mouse · Touch",
   "added": "2026-11-08",
-  "keywords": "bee bees insect hive honey colony idle clicker incremental nature build",
+  "keywords": "bee bees insect hive honey colony idle clicker incremental nature build hive mind",
   "file": "games/hive-mind.html",
   "thumb": "thumbs/hive-mind.jpg"
  },
  {
   "slug": "keystorm",
-  "title": "Keystorm",
+  "title": "Type or Die",
   "category": "Typing",
   "tags": [
    "typing",
@@ -112,13 +112,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Type symbols, numbers and code fast or the city burns.",
   "controls": "Keyboard",
   "added": "2026-11-08",
-  "keywords": "typing keyboard words meteors space hard wpm type",
+  "keywords": "typing keyboard words meteors space hard wpm type keystorm",
   "file": "games/keystorm.html",
   "thumb": "thumbs/keystorm.jpg"
  },
  {
   "slug": "gravity-gulp",
-  "title": "Gravity Gulp",
+  "title": "Feed the Black Hole",
   "category": "Puzzle",
   "tags": [
    "physics",
@@ -129,13 +129,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Bend a marble's path with gravity wells into a black hole.",
   "controls": "Mouse · Touch · Space",
   "added": "2026-11-08",
-  "keywords": "physics space marble planet gravity black hole puzzle brain",
+  "keywords": "physics space marble planet gravity black hole puzzle brain gravity gulp",
   "file": "games/gravity-gulp.html",
   "thumb": "thumbs/gravity-gulp.jpg"
  },
  {
   "slug": "tiny-tactics",
-  "title": "Tiny Tactics",
+  "title": "Little Guys at War",
   "category": "Strategy",
   "tags": [
    "turn-based",
@@ -146,13 +146,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Command a pixel squad through 20 battles of grid tactics.",
   "controls": "Mouse · Touch",
   "added": "2026-11-08",
-  "keywords": "turn based tactics strategy chess army knights medieval rpg battle war",
+  "keywords": "turn based tactics strategy chess army knights medieval rpg battle war tiny tactics",
   "file": "games/tiny-tactics.html",
   "thumb": "thumbs/tiny-tactics.jpg"
  },
  {
   "slug": "neon-serpent",
-  "title": "Neon Serpent",
+  "title": "Snake, But Glowy",
   "category": "Arcade",
   "tags": [
    "snake",
@@ -163,13 +163,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Glowing snake with portals, power-ups and a closing arena",
   "controls": "Arrows/WASD · Swipe",
   "added": "2026-11-08",
-  "keywords": "snake retro classic arcade neon",
+  "keywords": "snake retro classic arcade neon neon serpent",
   "file": "games/neon-serpent.html",
   "thumb": "thumbs/neon-serpent.jpg"
  },
  {
   "slug": "mine-deep",
-  "title": "Mine Deep",
+  "title": "Dig to the Middle",
   "category": "Adventure",
   "tags": [
    "mining",
@@ -180,13 +180,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Drill to the 1000m core, sell ore, upgrade your pod",
   "controls": "Arrows/WASD · E bomb · Touch d-pad",
   "added": "2026-11-08",
-  "keywords": "mining dig drill ore underground cave upgrade miner",
+  "keywords": "mining dig drill ore underground cave upgrade miner mine deep",
   "file": "games/mine-deep.html",
   "thumb": "thumbs/mine-deep.jpg"
  },
  {
   "slug": "sky-hopper",
-  "title": "Sky Hopper",
+  "title": "The Lava Is Rising",
   "category": "Platformer",
   "tags": [
    "climbing",
@@ -197,13 +197,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Wall-jump up an endless tower ahead of rising lava",
   "controls": "Arrows/WASD · Space jump · Shift dash · Touch",
   "added": "2026-11-08",
-  "keywords": "jumping jump climbing tower platformer endless lava",
+  "keywords": "jumping jump climbing tower platformer endless lava sky hopper",
   "file": "games/sky-hopper.html",
   "thumb": "thumbs/sky-hopper.jpg"
  },
  {
   "slug": "orbit-defense",
-  "title": "Orbit Defense",
+  "title": "Spin the Turrets",
   "category": "Strategy",
   "tags": [
    "tower defense",
@@ -213,13 +213,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Rotate orbital rings of turrets to stop spiraling alien swarms",
   "controls": "Mouse · Touch",
   "added": "2026-11-08",
-  "keywords": "tower defense td space planet aliens turrets strategy",
+  "keywords": "tower defense td space planet aliens turrets strategy orbit defense",
   "file": "games/orbit-defense.html",
   "thumb": "thumbs/orbit-defense.jpg"
  },
  {
   "slug": "pocket-golf",
-  "title": "Pocket Golf",
+  "title": "Tricky Putt",
   "category": "Sports",
   "tags": [
    "minigolf",
@@ -229,13 +229,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "27 tricky minigolf holes with slopes, ice and spinners",
   "controls": "Mouse drag · Touch · Arrows + Space",
   "added": "2026-11-08",
-  "keywords": "golf minigolf mini golf putt sports ball physics",
+  "keywords": "golf minigolf mini golf putt sports ball physics pocket golf",
   "file": "games/pocket-golf.html",
   "thumb": "thumbs/pocket-golf.jpg"
  },
  {
   "slug": "block-bakery",
-  "title": "Block Bakery",
+  "title": "Grandma's Cake Shop",
   "category": "Casual",
   "tags": [
    "merge",
@@ -246,13 +246,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Merge pastries into wedding cakes and serve the hungry line",
   "controls": "Mouse/Touch drag · Space bake",
   "added": "2026-11-08",
-  "keywords": "merge baking bakery cake food cooking cute cafe shop",
+  "keywords": "merge baking bakery cake food cooking cute cafe shop block bakery",
   "file": "games/block-bakery.html",
   "thumb": "thumbs/block-bakery.jpg"
  },
  {
   "slug": "laser-lab",
-  "title": "Laser Lab",
+  "title": "Mirrors and Lasers",
   "category": "Puzzle",
   "tags": [
    "lasers",
@@ -263,13 +263,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Bend glowing beams through mirrors and prisms to power up",
   "controls": "Mouse/Touch · Tap rotate · Drag place · Z undo",
   "added": "2026-11-08",
-  "keywords": "lasers mirrors light logic puzzle brain science",
+  "keywords": "lasers mirrors light logic puzzle brain science laser lab",
   "file": "games/laser-lab.html",
   "thumb": "thumbs/laser-lab.jpg"
  },
  {
   "slug": "asteroid-miner",
-  "title": "Asteroid Miner",
+  "title": "Space Rock Blaster",
   "category": "Action",
   "tags": [
    "shooter",
@@ -280,13 +280,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Blast rocks, grab ore, upgrade your ship, beat ten bosses",
   "controls": "WASD move · Mouse aim & shoot · Touch dual sticks",
   "added": "2026-11-08",
-  "keywords": "space ship shooter asteroids aliens bullet hell roguelite",
+  "keywords": "space ship shooter asteroids aliens bullet hell roguelite asteroid miner",
   "file": "games/asteroid-miner.html",
   "thumb": "thumbs/asteroid-miner.jpg"
  },
  {
   "slug": "terminal-rush",
-  "title": "Terminal Rush",
+  "title": "Type Like a Hacker",
   "category": "Typing",
   "tags": [
    "typing",
@@ -297,13 +297,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Type real code at speed before the trace catches you",
   "controls": "Keyboard · Tab autocomplete · Esc pause",
   "added": "2026-11-08",
-  "keywords": "typing hacker hacking code programming keyboard hard computer",
+  "keywords": "typing hacker hacking code programming keyboard hard computer terminal rush",
   "file": "games/terminal-rush.html",
   "thumb": "thumbs/terminal-rush.jpg"
  },
  {
   "slug": "farm-loop",
-  "title": "Farm Loop",
+  "title": "One More Harvest",
   "category": "Idle",
   "tags": [
    "farming",
@@ -314,13 +314,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Plant, harvest, bake and grow a cozy farm through the seasons",
   "controls": "Mouse/Touch tap & drag · 1-9 pick seed",
   "added": "2026-11-08",
-  "keywords": "farming farm crops animals cows chickens harvest cozy idle simulation sim",
+  "keywords": "farming farm crops animals cows chickens harvest cozy idle simulation sim farm loop",
   "file": "games/farm-loop.html",
   "thumb": "thumbs/farm-loop.jpg"
  },
  {
   "slug": "bounce-brigade",
-  "title": "Bounce Brigade",
+  "title": "Bricks Must Fall",
   "category": "Arcade",
   "tags": [
    "brick breaker",
@@ -331,13 +331,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Smash bricks, stack wild upgrades, topple five boss worlds",
   "controls": "Mouse · Arrows/A D · Space · Touch drag",
   "added": "2026-11-08",
-  "keywords": "brick breaker breakout paddle ball arcade",
+  "keywords": "brick breaker breakout paddle ball arcade bounce brigade",
   "file": "games/bounce-brigade.html",
   "thumb": "thumbs/bounce-brigade.jpg"
  },
  {
   "slug": "rune-match",
-  "title": "Rune Match",
+  "title": "Match 3 Monsters",
   "category": "Puzzle",
   "tags": [
    "match-3",
@@ -348,13 +348,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Match runes to slash, burn and freeze monsters",
   "controls": "Mouse drag/click · Touch swipe",
   "added": "2026-11-08",
-  "keywords": "match 3 match-3 gems rpg battle monsters fantasy",
+  "keywords": "match 3 match-3 gems rpg battle monsters fantasy rune match",
   "file": "games/rune-match.html",
   "thumb": "thumbs/rune-match.jpg"
  },
  {
   "slug": "hoop-shot",
-  "title": "Hoop Shot",
+  "title": "Nothing But Net",
   "category": "Sports",
   "tags": [
    "basketball",
@@ -365,13 +365,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Flick perfect arcs, swish trick shots, chase combo streaks",
   "controls": "Mouse drag · Touch drag",
   "added": "2026-11-08",
-  "keywords": "basketball sports shooting hoops ball",
+  "keywords": "basketball sports shooting hoops ball hoop shot",
   "file": "games/hoop-shot.html",
   "thumb": "thumbs/hoop-shot.jpg"
  },
  {
   "slug": "tank-duel",
-  "title": "Tank Duel",
+  "title": "Tanks a Lot",
   "category": "Strategy",
   "tags": [
    "artillery",
@@ -382,13 +382,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Blast craters, bury rivals, climb the ranks to Marshal",
   "controls": "Arrows · A/D · Space · Q/E · Mouse/Touch aim",
   "added": "2026-11-08",
-  "keywords": "tanks artillery war army explosions turn based worms 2 player multiplayer",
+  "keywords": "tanks artillery war army explosions turn based worms 2 player multiplayer tank duel",
   "file": "games/tank-duel.html",
   "thumb": "thumbs/tank-duel.jpg"
  },
  {
   "slug": "dash-ninja",
-  "title": "Dash Ninja",
+  "title": "Ninja in a Hurry",
   "category": "Action",
   "tags": [
    "runner",
@@ -399,13 +399,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Wall-run, dash-slash and outrun four deadly boss lords",
   "controls": "Space/Up jump · Shift/Right dash · Tap/Swipe",
   "added": "2026-11-08",
-  "keywords": "ninja runner endless run sword samurai action",
+  "keywords": "ninja runner endless run sword samurai action dash ninja",
   "file": "games/dash-ninja.html",
   "thumb": "thumbs/dash-ninja.jpg"
  },
  {
   "slug": "knight-quest",
-  "title": "Knight Quest",
+  "title": "The Knight Moves Weird",
   "category": "Puzzle",
   "tags": [
    "chess",
@@ -415,13 +415,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Hop like a knight, grab every gem, dodge guarding rooks.",
   "controls": "Mouse/Touch · Arrows + Enter · Z undo · R restart · H hint",
   "added": "2026-11-08",
-  "keywords": "chess knight board puzzle brain logic",
+  "keywords": "chess knight board puzzle brain logic knight quest",
   "file": "games/knight-quest.html",
   "thumb": "thumbs/knight-quest.jpg"
  },
  {
   "slug": "tile-kingdom",
-  "title": "Tile Kingdom",
+  "title": "My Tiny Island",
   "category": "Strategy",
   "tags": [
    "city builder",
@@ -431,13 +431,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Place buildings, chain neighbour combos, grow a thriving island.",
   "controls": "Mouse/Touch · 1-4 / Q E pick tile · Enter place",
   "added": "2026-11-08",
-  "keywords": "city builder town building island kingdom village strategy relaxing",
+  "keywords": "city builder town building island kingdom village strategy relaxing tile kingdom",
   "file": "games/tile-kingdom.html",
   "thumb": "thumbs/tile-kingdom.jpg"
  },
  {
   "slug": "beat-tapper",
-  "title": "Beat Tapper",
+  "title": "Tap the Beat",
   "category": "Music",
   "tags": [
    "rhythm",
@@ -447,13 +447,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Tap neon notes to 15 live-synthesized tracks. Chase the S.",
   "controls": "D F J K (or arrows) · Touch lanes",
   "added": "2026-11-08",
-  "keywords": "music rhythm dance beat songs piano notes",
+  "keywords": "music rhythm dance beat songs piano notes beat tapper",
   "file": "games/beat-tapper.html",
   "thumb": "thumbs/beat-tapper.jpg"
  },
  {
   "slug": "letter-lattice",
-  "title": "Letter Lattice",
+  "title": "Big Word Energy",
   "category": "Word",
   "tags": [
    "word search",
@@ -463,13 +463,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Drag through letters, blast bombs, chase giant long-word scores.",
   "controls": "Mouse/Touch drag · Type letters + Enter",
   "added": "2026-11-08",
-  "keywords": "word words boggle spelling vocabulary letters brain",
+  "keywords": "word words boggle spelling vocabulary letters brain letter lattice",
   "file": "games/letter-lattice.html",
   "thumb": "thumbs/letter-lattice.jpg"
  },
  {
   "slug": "hex-merge",
-  "title": "Hex Merge",
+  "title": "2048 Hex",
   "category": "Puzzle",
   "tags": [
    "2048",
@@ -479,13 +479,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Slide hexagon tiles six ways and merge your way to 2048.",
   "controls": "Q W E A S D · Swipe/Drag · Z undo",
   "added": "2026-11-08",
-  "keywords": "2048 numbers merge math puzzle hexagon",
+  "keywords": "2048 numbers merge math puzzle hexagon hex merge",
   "file": "games/hex-merge.html",
   "thumb": "thumbs/hex-merge.jpg"
  },
  {
   "slug": "deep-cast",
-  "title": "Deep Cast",
+  "title": "Gone Fishing",
   "category": "Casual",
   "tags": [
    "fishing",
@@ -495,13 +495,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Drop deep, dodge jellies, hook legends on the way up",
   "controls": "Mouse/Drag · Arrows/WASD · Hold to reel",
   "added": "2026-11-08",
-  "keywords": "fishing fish ocean sea water boat collection relaxing",
+  "keywords": "fishing fish ocean sea water boat collection relaxing deep cast",
   "file": "games/deep-cast.html",
   "thumb": "thumbs/deep-cast.jpg"
  },
  {
   "slug": "moto-hill",
-  "title": "Moto Hill",
+  "title": "Wheelie Hills",
   "category": "Racing",
   "tags": [
    "physics",
@@ -512,13 +512,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Flip, wheelie and fuel-hunt across six wild worlds",
   "controls": "Arrows/WASD · Touch pedals",
   "added": "2026-11-08",
-  "keywords": "motorbike motorcycle bike dirt hill climb physics driving vehicle stunts",
+  "keywords": "motorbike motorcycle bike dirt hill climb physics driving vehicle stunts moto hill",
   "file": "games/moto-hill.html",
   "thumb": "thumbs/moto-hill.jpg"
  },
  {
   "slug": "ghost-typer",
-  "title": "Ghost Typer",
+  "title": "Race Your Ghost",
   "category": "Typing",
   "tags": [
    "typing",
@@ -529,13 +529,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Out-type your own ghost and rivals up to 140 WPM",
   "controls": "Keyboard",
   "added": "2026-11-08",
-  "keywords": "typing race racing keyboard wpm hard words",
+  "keywords": "typing race racing keyboard wpm hard words ghost typer",
   "file": "games/ghost-typer.html",
   "thumb": "thumbs/ghost-typer.jpg"
  },
  {
   "slug": "zombie-fort",
-  "title": "Zombie Fort",
+  "title": "Zombies at the Door",
   "category": "Action",
   "tags": [
    "survival",
@@ -545,13 +545,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Build by day, blast cartoon zombies by night",
   "controls": "WASD + Mouse · Touch twin sticks",
   "added": "2026-11-08",
-  "keywords": "zombies zombie survival shooter base building defense horror",
+  "keywords": "zombies zombie survival shooter base building defense horror zombie fort",
   "file": "games/zombie-fort.html",
   "thumb": "thumbs/zombie-fort.jpg"
  },
  {
   "slug": "ice-slide",
-  "title": "Ice Slide",
+  "title": "Slide on Ice",
   "category": "Puzzle",
   "tags": [
    "sliding",
@@ -561,13 +561,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Slide, push and melt your way through 60 frosty puzzles",
   "controls": "Arrows/WASD · Swipe",
   "added": "2026-11-08",
-  "keywords": "ice penguin sliding snow winter puzzle brain",
+  "keywords": "ice penguin sliding snow winter puzzle brain ice slide",
   "file": "games/ice-slide.html",
   "thumb": "thumbs/ice-slide.jpg"
  },
  {
   "slug": "boing-voyage",
-  "title": "Boing Voyage",
+  "title": "Bouncy Ball Adventure",
   "category": "Platformer",
   "tags": [
    "bouncy ball",
@@ -577,7 +577,7 @@ window.GAMEBOP_GAMES = [
   ],
   "blurb": "Bounce a springy ball through 5 worlds, chaining epic combos",
   "controls": "A/D or ←/→ steer · Hold ↑/Space super-bounce · ↓ ground-pound · Touch",
-  "keywords": "bouncing ball bouncy platformer bounce springs combos worlds bosses skins jump physics cute",
+  "keywords": "bouncing ball bouncy platformer bounce springs combos worlds bosses skins jump physics cute boing voyage",
   "deep": false,
   "added": "2026-11-09",
   "file": "games/boing-voyage.html",
@@ -585,7 +585,7 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "tilt-palace",
-  "title": "Tilt Palace",
+  "title": "Pinball Palace",
   "category": "Arcade",
   "tags": [
    "pinball",
@@ -595,7 +595,7 @@ window.GAMEBOP_GAMES = [
   ],
   "blurb": "Six themed pinball tables, boss toys, multiball and wizard modes.",
   "controls": "←/→ or Z / / flip · Space plunge · Shift nudge · Touch",
-  "keywords": "pinball arcade flippers ball tables multiball jackpot bumpers ramps physics retro high score",
+  "keywords": "pinball arcade flippers ball tables multiball jackpot bumpers ramps physics retro high score tilt palace",
   "deep": false,
   "added": "2026-11-09",
   "file": "games/tilt-palace.html",
@@ -603,7 +603,7 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "kickflip-alley",
-  "title": "Kickflip Alley",
+  "title": "Skate Street",
   "category": "Sports",
   "tags": [
    "skateboarding",
@@ -613,7 +613,7 @@ window.GAMEBOP_GAMES = [
   ],
   "blurb": "Flip, grind and manual huge combos across sunset city spots",
   "controls": "Arrows · Z ollie · X flip · C grab · Touch joystick + 3 buttons",
-  "keywords": "skateboard skating skate kickflip grind tricks combo sports sunset city ramps",
+  "keywords": "skateboard skating skate kickflip grind tricks combo sports sunset city ramps kickflip alley",
   "deep": false,
   "added": "2026-11-09",
   "file": "games/kickflip-alley.html",
@@ -621,7 +621,7 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "junction-jam",
-  "title": "Junction Jam",
+  "title": "Don't Crash the Trains",
   "category": "Puzzle",
   "tags": [
    "trains",
@@ -631,7 +631,7 @@ window.GAMEBOP_GAMES = [
   ],
   "blurb": "Flip switches and steer toy trains home before they crash!",
   "controls": "Mouse/Touch tap · 1-9 switches · F fast-forward · P pause",
-  "keywords": "train trains railway switches junction tracks routing stations model railroad diorama colours puzzle",
+  "keywords": "train trains railway switches junction tracks routing stations model railroad diorama colours puzzle junction jam",
   "deep": false,
   "added": "2026-11-09",
   "file": "games/junction-jam.html",
@@ -639,7 +639,7 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "noodle-rush",
-  "title": "Noodle Rush",
+  "title": "Ramen Stand",
   "category": "Casual",
   "tags": [
    "cooking",
@@ -648,7 +648,7 @@ window.GAMEBOP_GAMES = [
   ],
   "blurb": "Boil, slice, sizzle and serve ramen at a cozy night-market stall!",
   "controls": "Mouse/Touch drag or tap · Keys A-L, Q/W/E, 1-4, Enter",
-  "keywords": "cooking noodles ramen restaurant food time management chef customers kitchen serving night market",
+  "keywords": "cooking noodles ramen restaurant food time management chef customers kitchen serving night market noodle rush",
   "deep": false,
   "added": "2026-11-09",
   "file": "games/noodle-rush.html",
@@ -656,8 +656,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "gale-regatta",
-  "title": "Gale Regatta",
-  "keywords": "sailing sailboat boat racing regatta wind ocean sea yacht catamaran career upgrades",
+  "title": "Sailboat Racers",
+  "keywords": "sailing sailboat boat racing regatta wind ocean sea yacht catamaran career upgrades gale regatta",
   "deep": false,
   "category": "Racing",
   "tags": [
@@ -674,8 +674,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "trickle-valley",
-  "title": "Trickle Valley",
-  "keywords": "water physics digging puzzle plants garden flowing fluid sandbox frogs ducks lava ice",
+  "title": "Water the Garden",
+  "keywords": "water physics digging puzzle plants garden flowing fluid sandbox frogs ducks lava ice trickle valley",
   "deep": false,
   "category": "Puzzle",
   "tags": [
@@ -692,8 +692,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "canopy-swing",
-  "title": "Canopy Swing",
-  "keywords": "jungle swing vine rope monkey gibbon physics momentum platformer canopy endless runner animals",
+  "title": "Jungle Swing",
+  "keywords": "jungle swing vine rope monkey gibbon physics momentum platformer canopy endless runner animals canopy swing",
   "deep": false,
   "category": "Platformer",
   "tags": [
@@ -710,8 +710,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "wild-lens",
-  "title": "Wild Lens",
-  "keywords": "wildlife photography safari camera animals zoo nature jeep zebra elephant lion ocean collection",
+  "title": "Safari Snaps",
+  "keywords": "wildlife photography safari camera animals zoo nature jeep zebra elephant lion ocean collection wild lens",
   "deep": false,
   "category": "Adventure",
   "tags": [
@@ -728,8 +728,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "quiver-peak",
-  "title": "Quiver Peak",
-  "keywords": "archery bow arrow target sports mountain wind bullseye tournament shooting crossbow",
+  "title": "Archery Mountain",
+  "keywords": "archery bow arrow target sports mountain wind bullseye tournament shooting crossbow quiver peak",
   "deep": false,
   "category": "Sports",
   "tags": [
@@ -746,8 +746,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "wreckaroo",
-  "title": "Wreckaroo",
-  "keywords": "wrecking ball demolition crane physics destruction smash tower collapse swing tnt robot boss",
+  "title": "Wrecking Ball Guy",
+  "keywords": "wrecking ball demolition crane physics destruction smash tower collapse swing tnt robot boss wreckaroo",
   "deep": false,
   "category": "Arcade",
   "tags": [
@@ -763,8 +763,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "slingstar",
-  "title": "Slingstar",
-  "keywords": "space comet planets orbit slingshot gravity one tap stars astronaut black hole wormhole arcade",
+  "title": "Planet Hopper",
+  "keywords": "space comet planets orbit slingshot gravity one tap stars astronaut black hole wormhole arcade slingstar",
   "deep": false,
   "category": "Arcade",
   "tags": [
@@ -781,8 +781,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "tetherdrift",
-  "title": "Tetherdrift",
-  "keywords": "racing drift car rope swing tether toy cars drifting corners time trial police chase",
+  "title": "Rope Drift",
+  "keywords": "racing drift car rope swing tether toy cars drifting corners time trial police chase tetherdrift",
   "deep": false,
   "category": "Racing",
   "tags": [
@@ -799,8 +799,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "glowburst",
-  "title": "Glowburst",
-  "keywords": "fireworks lanterns chain reaction festival night one tap puzzle dragon explosion casual relaxing",
+  "title": "One Tap Fireworks",
+  "keywords": "fireworks lanterns chain reaction festival night one tap puzzle dragon explosion casual relaxing glowburst",
   "deep": false,
   "category": "Puzzle",
   "tags": [
@@ -817,8 +817,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "springflip-circus",
-  "title": "Springflip Circus",
-  "keywords": "circus trampoline acrobat flip backflip bounce trapeze cannon clown seal one-button combo",
+  "title": "Flip Circus",
+  "keywords": "circus trampoline acrobat flip backflip bounce trapeze cannon clown seal one-button combo springflip circus",
   "deep": false,
   "category": "Arcade",
   "tags": [
@@ -835,8 +835,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "burrow-bolt",
-  "title": "Burrow Bolt",
-  "keywords": "mole digging tunnel leap jump worms momentum timing one button underground fox boss arcade",
+  "title": "Dig Dive Flip",
+  "keywords": "mole digging tunnel leap jump worms momentum timing one button underground fox boss arcade burrow bolt",
   "deep": false,
   "category": "Arcade",
   "tags": [
@@ -853,8 +853,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "knuckle-comet",
-  "title": "Knuckle Comet",
-  "keywords": "boxing punch combo sky flying goblins balloons boss blimp action chain clouds superhero",
+  "title": "Punch Goblins in the Sky",
+  "keywords": "boxing punch combo sky flying goblins balloons boss blimp action chain clouds superhero knuckle comet",
   "deep": false,
   "category": "Action",
   "tags": [
@@ -871,8 +871,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "pinquake",
-  "title": "Pinquake",
-  "keywords": "bowling pins strike ball sports physics arcade lanes bumpers tnt badger boss upgrades skins",
+  "title": "Boom Bowling",
+  "keywords": "bowling pins strike ball sports physics arcade lanes bumpers tnt badger boss upgrades skins pinquake",
   "deep": false,
   "category": "Sports",
   "tags": [
@@ -889,8 +889,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "teeter-zoo",
-  "title": "Teeter Zoo",
-  "keywords": "stacking tower animals zoo crane drop balance physics panda cute casual one-button",
+  "title": "Animal Stack",
+  "keywords": "stacking tower animals zoo crane drop balance physics panda cute casual one-button teeter zoo",
   "deep": false,
   "category": "Casual",
   "tags": [
@@ -907,8 +907,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "drumhop",
-  "title": "Drumhop",
-  "keywords": "rhythm music drums beat bounce ball timing jungle tap boss toad bird songs festival",
+  "title": "Drum Bounce",
+  "keywords": "rhythm music drums beat bounce ball timing jungle tap boss toad bird songs festival drumhop",
   "deep": false,
   "category": "Music",
   "tags": [
@@ -925,8 +925,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "hopjack",
-  "title": "Hopjack",
-  "keywords": "pogo stick bounce jump platformer rooftops city combo spring boss stomp",
+  "title": "Pogo Rooftops",
+  "keywords": "pogo stick bounce jump platformer rooftops city combo spring boss stomp hopjack",
   "deep": false,
   "category": "Platformer",
   "tags": [
@@ -943,8 +943,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "loopkite",
-  "title": "Loopkite",
-  "keywords": "kite wind flying beach loop sky one button relaxing string storm",
+  "title": "Loop de Kite",
+  "keywords": "kite wind flying beach loop sky one button relaxing string storm loopkite",
   "deep": false,
   "category": "Casual",
   "tags": [
@@ -961,8 +961,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "breakshot-bay",
-  "title": "Breakshot Bay",
-  "keywords": "pool billiards snooker trick shot cue balls pockets puzzle sports pier",
+  "title": "Trick Shot Pier",
+  "keywords": "pool billiards snooker trick shot cue balls pockets puzzle sports pier breakshot bay",
   "deep": false,
   "category": "Sports",
   "tags": [
@@ -979,8 +979,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "bumpaloo",
-  "title": "Bumpaloo",
-  "keywords": "bumper cars sumo 3d island ram push brawl party cars arena boss",
+  "title": "Bumper Car Island",
+  "keywords": "bumper cars sumo 3d island ram push brawl party cars arena boss bumpaloo",
   "deep": false,
   "category": "Action",
   "tags": [
@@ -997,8 +997,8 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "snowbigger",
-  "title": "Snowbigger",
-  "keywords": "snowball snow winter rolling downhill grow smash hop ski avalanche yeti physics",
+  "title": "Giant Snowball",
+  "keywords": "snowball snow winter rolling downhill grow smash hop ski avalanche yeti physics snowbigger",
   "deep": false,
   "category": "Arcade",
   "tags": [
