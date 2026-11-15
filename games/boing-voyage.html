@@ -293,6 +293,7 @@ const SFX = {
   fan() { noise(.2, { f: 2000, ft: 'bandpass', vol: .05 }); },
   bolt() { [0, 4, 7, 12, 16].forEach((s, i) => tone(523 * Math.pow(2, s / 12), .35, { type: 'triangle', vol: .16, delay: i * .06 })); },
   check() { tone(660, .15, { type: 'triangle', vol: .15 }); tone(880, .25, { type: 'triangle', vol: .15, delay: .1 }); },
+  perfect(k) { const f = 660 * Math.pow(2, Math.min(k, 10) / 12); tone(f, .12, { type: 'square', vol: .07 }); tone(f * 1.5, .18, { type: 'triangle', vol: .1, delay: .05 }); tone(f * 2, .22, { type: 'sine', vol: .07, delay: .1 }); },
   combo(n) { const f = 440 * Math.pow(2, Math.min(n, 24) / 12); tone(f, .3, { type: 'triangle', vol: .12 }); tone(f * 1.5, .3, { type: 'sine', vol: .08, delay: .04 }); },
   finish() { [0, 4, 7, 12, 7, 12, 16].forEach((s, i) => tone(392 * Math.pow(2, s / 12), .3, { type: i % 2 ? 'triangle' : 'square', vol: .1, delay: i * .09, lp: 2400 })); },
   star(i) { tone(660 * Math.pow(2, i * 4 / 12), .4, { type: 'triangle', vol: .2 }); tone(1320 * Math.pow(2, i * 4 / 12), .3, { vol: .08, delay: .03 }); },
@@ -660,7 +661,7 @@ function genLevel(w, l) {
   g.finish();
   placeBolts(L, g);
   L.startX = 2.5 * TS; L.startY = 13 * TS - 60;
-  L.par = Math.round(g.x * TS / 200 + 8 + plan.length * 1.5);
+  L.par = Math.round(g.x * TS / 420 + 3 + plan.length * .5);
   finalizeL(L); return L;
 }
 function genTutorial() {
@@ -729,6 +730,7 @@ function startRun(mode, w, l) {
     cp: { x: L.startX, y: L.startY }, hitstop: 0, slowT: 0, done: false, deadT: 0, finT: 0, respawnAt: null, boss: null, projs: [], near: [], dist: 0,
     gemStreak: 0, lastGemT: -9, skin: skinById(save.skin), tutStep: 0, tutSuper: false, tutPound: false, over: false, intro: 1.2, flash: 0, bolt: 0, ambient: [] };
   if (l === 8 && mode === 'level') G.boss = makeBoss(w, L);
+  if (mode === 'level' && l < 8) { G.rec = []; G.recT = 0; const gh = store.get('ghost' + (w * 9 + l), null); G.ghost = gh && gh.p && gh.p.length ? gh : null; }
   G.cam.x = G.ball.x + 150; G.cam.y = G.ball.y - 60;
   save.st.plays++; persist();
 }
@@ -815,7 +817,7 @@ function resolve(b, c, mover) {
 function land(b, c, imp, mover) {
   const t = c.t, sk = G.skin;
   impactSquash(b, c.nx, c.ny, imp);
-  b.air = 0; b.gY = b.y;
+  b.air = 0; b.gY = b.y; b.landT = G.t;
   if (b.pd === 2) {
     if (t === 2) { breakCracked(c.tx, c.ty); b.vy = Math.max(b.vy * .8, 700); return; }
     if (t === 8) { crumbleBreak(c.tx, c.ty); b.vy = Math.max(b.vy * .8, 700); return; }
@@ -825,8 +827,9 @@ function land(b, c, imp, mover) {
   if (sk.heavy && t === 2 && imp > 500) { breakCracked(c.tx, c.ty); b.vy = Math.max(b.vy * .6, 300); return; }
   if (t === 8) crumbleTouch(c.tx, c.ty);
   if (t === 2 && G.w === 0) hint('crack', HK().crack);
+  if (G.mode !== 'tut' && G.t - (b.sqPressT == null ? -9 : b.sqPressT) < .17 && t !== 3 && t !== 4 && t !== 9) { perfectBounce(b, t, mover); return; }
   if (sqHeld()) { b.ch = true; b.chT = 0; b.chSurf = t; b.vy = 0; b.vx *= .5; chargeStart(); groundTouch(b, t, mover); dust(b.x, b.y + b.r, 4, 120); SFX.boing(sk, .2, .8); return; }
-  let v = BOUNCE * (sk.b || 1);
+  let v = BOUNCE * (sk.b || 1); perfHint();
   if (t === 3) { v *= .36; G.L.jelly.set(c.tx * 64 + c.ty, G.t); SFX.jelly(); hint('sq', HK().sq); }
   else if (t === 4) { v *= .5; b.vx *= .35; b.honeyT = .6; SFX.honey(); hint('sq', HK().sq); for (let i = 0; i < 4; i++) part({ x: b.x + rnd(-10, 10), y: b.y + b.r, vx: rnd(-60, 60), vy: rnd(-160, -60), l: .7, s: rnd(3, 5), c: '#f5a623', k: 'drop', g: 900 }); }
   else if (t === 5 || t === 6) { b.vx += (t === 5 ? -1 : 1) * 300; }
@@ -836,13 +839,29 @@ function land(b, c, imp, mover) {
   if (t !== 3 && t !== 4) SFX.boing(sk, clamp(imp / 1600, 0, 1), comboPitch());
   dust(b.x, b.y + b.r, Math.min(8, 1 + imp / 180 | 0), 60 + imp * .12);
 }
+function perfHint() { if (G.mode === 'level' && G.w === 0 && G.l <= 1 && G.t > 1.5) hint('perf', isTouch ? 'Tap ● as you land = PERFECT!' : 'Tap ↑ as you land = PERFECT!'); }
+function perfectBounce(b, t, mover, late) {
+  const sk = G.skin; b.sqPressT = -9;
+  G.perf = G.t - (G.lastPerfT || -9) < 1.7 ? (G.perf || 0) + 1 : 1; G.lastPerfT = G.t; G.bestPerf = Math.max(G.bestPerf || 0, G.perf);
+  const k = Math.min(G.perf, 6), dir = inDir() || b.look;
+  b.vy = -BOUNCE * (sk.b || 1) * (1.24 + .045 * k); b.vx += dir * (80 + 25 * k); b.air = .01; b.ch = false; chargeStop();
+  if (mover) b.vx += mover.vx * .5;
+  b.sq = -.36 * (sk.sqm || 1); b.sqv = 0; b.sqA = -PI / 2;
+  groundTouch(b, t, mover, true);
+  addCombo('perfect', 15 * k);
+  SFX.boing(sk, 1, 1 + k * .06); SFX.perfect(k); shake(2 + k * .8);
+  ring(b.x, b.y + b.r, 46 + k * 10, k >= 4 ? '#ffd34d' : '#fff6c0', 5); dust(b.x, b.y + b.r, 10, 280);
+  burst(b.x, b.y + b.r, 6 + k * 3, 'star', k >= 4 ? '#ffd34d' : '#fff6c0', 220 + k * 30);
+  pop(b.x, b.y - 46, k > 1 ? 'PERFECT x' + k : (late ? 'PERFECT!' : 'PERFECT!'), k >= 4 ? '#ffd34d' : '#fff6c0', 1 + Math.min(.6, k * .1), .9);
+  if (k === 5) { G.slowT = .25; G.flash = .25; }
+}
 function poundImpact(b) {
   SFX.pound(); shake(10); G.hitstop = Math.max(G.hitstop, .07); ring(b.x, b.y + b.r, 70, 'rgba(255,255,255,.9)', 6);
   dust(b.x, b.y + b.r, 14, 320); G.tutPound = true;
   for (const e of G.near) if ((e.t === 'roller') && !e.dead && Math.abs(e.x - b.x) < 80 && Math.abs(e.y - b.y) < 50) stomp(e, true);
 }
-function groundTouch(b, t, mover) {
-  endChain();
+function groundTouch(b, t, mover, keep) {
+  if (!keep) { endChain(); G.perf = 0; }
   if (!mover && (t === 1 || t === 5 || t === 6 || t === 3 || t === 4)) {
     const L = G.L, tx = Math.floor(b.x / TS), ty = Math.floor((b.y + b.r + 4) / TS);
     let safe = true; for (let d = -3; d <= 3; d++) { const tt = tget(L, tx + d, ty); if (tt === 9 || tt === 0 || tt === 8) safe = false; }
@@ -895,6 +914,7 @@ function updateBall(dt) {
     }
     finishBallFrame(b, dt); return;
   }
+  if (KE.sqP) { b.sqPressT = G.t; if (G.mode !== 'tut' && G.t - (b.landT || -9) < .09 && b.vy < 0 && b.air < .1 && !b.pd) { const L = G.L, ty = Math.floor((b.y + b.r + 8) / TS); perfectBounce(b, tget(L, Math.floor(b.x / TS), ty) || 1, null, true); } }
   // steering with inertia
   const max = MAXVX * (sk.vm || 1) * (b.honeyT > 0 ? .55 : 1);
   if (Math.abs(b.vx) > max) b.vx -= Math.sign(b.vx) * Math.min(Math.abs(b.vx) - max, 170 * dt);
@@ -1211,6 +1231,7 @@ function updateGame(dt) {
   if (G.done) { G.finT += dt; b.joy = 1; b.vx *= .9; if (b.air > .5 || b.vy === 0) {} ballCelebrate(dt); if (G.finT > 1.8 && !G.shown) { G.shown = true; onFinishShown(); } }
   else if (b.dead) { G.deadT -= dt; if (G.deadT <= 0) respawn(); }
   else updateBall(dt);
+  if (G.rec && !G.done) { G.recT += dt; while (G.recT >= .05) { G.recT -= .05; if (G.rec.length < 12000) G.rec.push(Math.round(b.x), Math.round(b.y)); } }
   updateBoss(dt); if (G.boss) updateProjs(dt);
   updateParts(dt); updateCam(dt);
   for (const p of G.pops) p.t += dt; G.pops = G.pops.filter(p => p.t < p.d);
@@ -1239,6 +1260,8 @@ function finishLevel(e) {
   const newBolts = G.bolts.map((v, i) => v && !rec.b[i] ? 1 : 0);
   G.result = { st, prevS: rec.s.slice(), newBolts, gems: G.gems };
   rec.s = rec.s.map((v, i) => v || st[i] ? 1 : 0); rec.b = rec.b.map((v, i) => v || G.bolts[i] ? 1 : 0);
+  if (G.rec && !isBoss && (!G.ghost || G.time < G.ghost.t)) { store.set('ghost' + id, { t: +G.time.toFixed(2), p: G.rec }); G.result.rec = !!G.ghost; }
+  G.result.close = !isBoss && !st[0] && G.time - L.par < 2;
   rec.t = rec.t ? Math.min(rec.t, G.time) : G.time; rec.done = 1; save.lv[id] = rec;
   save.gems += G.gems; save.gemsAll += G.gems;
   if (id >= save.unl) save.unl = Math.min(44, id + 1);
@@ -1705,6 +1728,12 @@ function drawBallAt(g, x, y, r, b, sk, t) {
   if (sk.id === 'slime') { g.fillStyle = '#6fe25a'; g.beginPath(); g.ellipse(r * .3, r * .9, r * .12, r * .22 + Math.sin(t * 5) * r * .05, 0, 0, TAU); g.fill(); }
   g.restore();
 }
+function drawGhost(t) {
+  const gh = G.ghost; if (!gh || G.done) return; const f = G.time / .05, i = Math.floor(f) * 2, p = gh.p;
+  if (i + 3 >= p.length) return; const k = f - Math.floor(f), x = lerp(p[i], p[i + 2], k), y = lerp(p[i + 1], p[i + 3], k);
+  ctx.save(); ctx.globalAlpha = .38; ctx.fillStyle = '#fff'; circle(ctx, x, y, 17); ctx.strokeStyle = '#3a1830'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(x, y, 17, 0, TAU); ctx.stroke();
+  ctx.fillStyle = '#3a1830'; circle(ctx, x - 5, y - 3, 2.6); circle(ctx, x + 6, y - 3, 2.6); ctx.globalAlpha = .7; ctx.font = '900 12px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.fillText('BEST', x, y - 26); ctx.restore();
+}
 function drawBall(t) {
   const b = G.ball, sk = G.skin; if (b.hide) return;
   // ground shadow
@@ -1818,7 +1847,7 @@ function drawHUD(t) {
   const cx = VW / 2;
   const syc = sy + (document.getElementById('gbbar') ? 30 : 0);
   if (G.mode === 'gaunt') { hudText(String(gauntScore()), cx, syc + 20, 30, '#fff', 'center'); hudText('best ' + save.gBest, cx, syc + 46, 13, '#ffe9b0', 'center'); }
-  else if (G.mode === 'level') { hudText(fmtTime(G.time), cx, syc + 16, 18, G.time <= G.L.par ? '#fff' : '#ffc0a0', 'center'); }
+  else if (G.mode === 'level') { const lft = G.L.par - G.time, warn = G.l < 8 && lft < 5 && lft > 0; const ps = warn ? 1 + .12 * Math.abs(Math.sin(t * 8)) : 1; ctx.save(); ctx.translate(cx, syc + 16); ctx.scale(ps, ps); hudText(fmtTime(G.time), 0, 0, 18, G.time <= G.L.par ? (warn ? '#ffe066' : '#fff') : '#ffc0a0', 'center'); ctx.restore(); if (G.l < 8) hudText('★ ' + fmtTime(G.L.par), cx, syc + 36, 12, G.time <= G.L.par ? '#ffe9a0' : 'rgba(255,200,180,.7)', 'center'); }
   if (G.combo >= 2) { const s = 1 + G.comboShow * .35, y = syc + (G.mode === 'gaunt' ? 84 : 58); ctx.save(); ctx.translate(cx, y); ctx.scale(s, s); ctx.rotate(Math.sin(t * 8) * .04); hudText('x' + mult(), 0, 0, 34, comboColor(), 'center'); ctx.restore(); hudText(G.combo + ' chain', cx, y + 26, 13, '#fff', 'center'); }
   if (G.boss) { const B = G.boss, w = Math.min(320, VW * .6), x = cx - w / 2, y = sy + 58 + (G.combo >= 2 ? 50 : 0);
     hudText(WORLDS[B.w].boss, cx, y - 12, 15, '#fff', 'center'); ctx.fillStyle = 'rgba(40,20,40,.6)'; rrect(ctx, x - 3, y - 3, w + 6, 18, 9); ctx.fill();
@@ -1862,6 +1891,7 @@ function drawWorld(dt, t) {
   drawDynTiles(L, Math.max(0, Math.floor(vx0 / TS)), Math.floor(vx1 / TS), Math.max(0, Math.floor(vy0 / TS)), Math.min(LH - 1, Math.floor(vy1 / TS)), t);
   drawEnts(t, vx0, vx1);
   drawBoss(t);
+  drawGhost(t);
   drawBall(t);
   drawParts(); drawPops();
   if (G.mode === 'tut') drawTutWorld(t);
@@ -2066,7 +2096,7 @@ function onFinishShown() {
 function showResults() {
   modal = 'results'; syncOverlays();
   const r = G.result, isBoss = G.l === 8, why = isBoss ? [IC.crown, IC.clock, IC.heart] : [IC.clock, IC.gem, IC.heart];
-  $('resTitle').textContent = isBoss ? 'Boss Bonked!' : ['Hooray!', 'Boing-tastic!', 'Super!', 'Nailed it!'][Math.floor(Math.random() * 4)];
+  $('resTitle').textContent = isBoss ? 'Boss Bonked!' : r.rec ? 'New Record!' : r.close ? 'So Close!' : ['Hooray!', 'Boing-tastic!', 'Super!', 'Nailed it!'][Math.floor(Math.random() * 4)];
   const st = $('stars'); st.innerHTML = '';
   r.st.forEach((v, i) => { const d = document.createElement('div'); d.className = 'star'; d.innerHTML = IC.starE.replace('<svg', '<svg class="st"') + '<div class="why">' + why[i] + '</div>'; st.appendChild(d);
     setTimeout(() => { if (v) { d.classList.add('on'); d.innerHTML = IC.star.replace('<svg', '<svg class="st"') + '<div class="why">' + why[i] + '</div>'; SFX.star(i); } else SFX.click(); }, 450 + i * 380); });

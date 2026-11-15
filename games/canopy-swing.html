@@ -249,6 +249,8 @@ const SFX = {
   thwip() { noise(0.07, 0.22, 'highpass', 2600); tone(1300, 0.09, 'triangle', 0.12, 340); },
   attach() { tone(170, 0.12, 'sine', 0.32, 85); noise(0.05, 0.18, 'lowpass', 900); },
   whoosh(k) { k = clamp(k, 0, 1.4); noise(0.3 + 0.25 * k, 0.12 + 0.3 * k, 'bandpass', 380, 1800 + 900 * k, 1.4); },
+  gold() { [0, 4, 7, 12, 16, 19, 24].forEach((k, i) => tone(523 * Math.pow(2, k / 12), 0.2, 'triangle', 0.13, null, i * 0.05)); },
+  zone() { tone(1400, 0.05, 'sine', 0.05); },
   perfect(c) { const sc = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24]; const f = 523 * Math.pow(2, sc[Math.min(c, 10)] / 12); tone(f, 0.16, 'triangle', 0.16); tone(f * 1.5, 0.22, 'sine', 0.13, null, 0.06, echo); tone(f * 1.5, 0.2, 'sine', 0.1, null, 0.06); },
   whoop() { if (silent()) return; const t = AC.currentTime; const o = AC.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(420, t); o.frequency.exponentialRampToValueAtTime(900, t + 0.18); o.frequency.exponentialRampToValueAtTime(640, t + 0.5);
     const g = AC.createGain(); env(g, t, 0.03, 0.16, 0.5); const f1 = AC.createBiquadFilter(); f1.type = 'bandpass'; f1.frequency.setValueAtTime(700, t); f1.frequency.linearRampToValueAtTime(1100, t + 0.3); f1.Q.value = 4; o.connect(f1); f1.connect(g); g.connect(sfxG); g.connect(echo); o.start(t); o.stop(t + 0.6); },
@@ -425,6 +427,7 @@ function genLevel(w, l, seedOverride) {
   finishLevel(L, R);
   // par: rough flow pace
   L.par = Math.round(len / (boss ? 600 : 650) + 5);
+  L.chase = !boss && ((w >= 1 && (l === 3 || l >= 6)) || (w === 0 && l === 7));
   return L;
 }
 function finishLevel(L, R) {
@@ -433,7 +436,7 @@ function finishLevel(L, R) {
   while (tx < L.len + 200) { tx += R.r(380, 620); if (!L.falls.some(f => Math.abs(f.x - tx) < 140) && !L.trunks.some(t => Math.abs(t.x - tx) < 120)) L.trunks.push({ x: tx, w: R.r(46, 78) }); }
   for (const a of L.anchors) { if (a.sw) { a.style = 'swing'; continue; } let best = null, bd = 230; for (const t of L.trunks) { const dd = Math.abs(t.x - a.x); if (dd < bd && dd > t.w / 2 + 25) { bd = dd; best = t; } } a.trunk = best; a.style = best ? 'branch' : 'hang'; a.hx = a.x + R.r(-50, 50); }
   // crocs in open water
-  for (let x = 500; x < L.len; x += R.r(420, 640)) { if (L.plats.some(p => x > p.x - 80 && x < p.x + p.w + 80) || L.stumps.some(p => Math.abs(p.x - x) < 280)) continue; L.crocs.push({ x, hx: x, t: R.r(0, 6), st: 0, lt: 0, cd: R.r(0.5, 2), dir: R.c(.5) ? 1 : -1 }); }
+  for (let x = 500; x < L.len; x += R.r(420 - 35 * L.w, 640 - 45 * L.w)) { if (L.plats.some(p => x > p.x - 80 && x < p.x + p.w + 80) || L.stumps.some(p => Math.abs(p.x - x) < 280)) continue; L.crocs.push({ x, hx: x, t: R.r(0, 6), st: 0, lt: 0, cd: R.r(0.5, 2), dir: R.c(.5) ? 1 : -1 }); }
   // idols
   const an = L.anchors.filter(a => !a.sw && a.x > 400 && a.x < L.len - 300);
   const pickA = f => an[Math.min(an.length - 1, Math.floor(an.length * f))];
@@ -506,9 +509,10 @@ function startGame(kind, w, l, opts) {
     tutStep: 0, tf: {}, theme: kind === 'run' ? 0 : w, target: null, chomp: null, bot: kind === 'attract' || !!opts.bot, silent: !!opts.silent, lightT: 4, flash: 0, bolt: null, seed: opts.seed, daily: !!opts.daily,
     slines: [], dist: 0, doom: null, glideT: 0, prevHeld: false, fchain: 0, fchainT: 0, banner: null, cleanT: 0, botT: 0, deadSince: 0 };
   G.P = newPlayer(L.start.x, L.start.y); G.P.plat = L.plats[0];
-  if (L.boss || kind === 'run') G.doom = { x: kind === 'run' ? -1000 : -900, y: 420, t: 0, wait: kind === 'run' ? 3 : 1.8, kind: kind === 'run' ? 'storm' : WORLDS[w].bk, base: kind === 'run' ? 240 : 212 + w * 10, pounce: 0, atkT: 3.5 };
+  if (L.boss || kind === 'run' || L.chase) G.doom = { x: kind === 'run' ? -1000 : -900, y: 420, t: 0, wait: kind === 'run' ? 3 : 1.8, kind: kind === 'run' ? 'storm' : WORLDS[w].bk, base: kind === 'run' ? 240 : L.chase ? 285 + w * 22 : 212 + w * 10, pounce: 0, atkT: L.chase ? 1e9 : 3.5 };
   G.cam.x = G.P.x + 260; G.cam.y = 380;
-  if (kind === 'level') G.banner = { t: 0, a: (w + 1) + '-' + (l + 1), b: LNAMES[w][l], boss: L.boss };
+  if (kind === 'level') G.banner = { t: 0, a: (w + 1) + '-' + (l + 1), b: L.chase ? 'It\'s chasing you! Swing fast!' : LNAMES[w][l], boss: L.boss || L.chase };
+  if (L.chase && !G.silent) setTimeout(() => G && G.L === L && SFX.roar(), 900);
   if (kind === 'run') G.banner = { t: 0, a: opts.daily ? 'Daily Run' : 'Jungle Run', b: 'Outswing the storm!' };
   if (!G.silent) setBG(G.theme);
   if (!G.silent) setMusic(G.theme, !!L.boss || kind === 'run', kind === 'attract');
@@ -556,7 +560,9 @@ function release() {
     if (P.combo >= 3 && sp > 700) { P.an.emo = 'whoop'; P.an.emoT = 0.9; if (P.combo % 2 === 1) SFX.whoop(); if (P.combo % 4 === 0) G.slowT = 0.22; }
     if (isReal()) { save.st.perfect++; unlock('perfect'); if (P.combo >= 5) unlock('combo5'); if (P.combo >= 10) unlock('combo10'); }
     G.tf.perfect = 1;
-  } else { SFX.whoosh(sp / 1500); if (sp > 900 && P.vx > 0) { P.an.emo = 'whoop'; P.an.emoT = 0.6; } }
+    if (P.combo % 5 === 0) { const bn = P.combo; G.fruit += bn; if (isReal()) save.fruit += bn; pop(P.x, P.y - 78, 'x' + P.combo + ' COMBO! +' + bn, '#ffd34d', 1.25); sparks(P.x, P.y, 16, '#ffd34d'); G.shake = Math.max(G.shake, 5); }
+    if (P.combo >= 10 && P.combo % 10 === 0) { G.gold = 7; G.flash = 0.35; G.slowT = 0.3; SFX.gold(); pop(P.x, P.y - 110, 'GOLDEN MONKEY!', '#ffe14d', 1.5); ring(P.x, P.y, '#ffd34d', 120); }
+  } else if (P.vx > 0 && sp > 300 && r.t > 0.16 && P.y > a.y) { const lb = th >= 0.62 ? 'LATE!' : th <= -0.28 ? 'EARLY!' : ''; if (lb && r.minTh < 0.1 && isReal()) pop(P.x, P.y - 40, lb, '#ffc0a0', 0.75); SFX.whoosh(sp / 1500); } else { SFX.whoosh(sp / 1500); if (sp > 900 && P.vx > 0) { P.an.emo = 'whoop'; P.an.emoT = 0.6; } }
   G.tf.rel = (G.tf.rel || 0) + 1;
 }
 function flip() { const P = G.P; P.vy = Math.min(P.vy, -640); P.vx += 40 * P.face; P.flipT = 0.5; P.canFlip = false; SFX.flip(); ring(P.x, P.y + 10, '#ffffff', 24); if (isReal()) { save.st.flips++; if (save.st.flips >= 20) unlock('flip'); } }
@@ -581,7 +587,7 @@ function dropCarry() { const P = G.P, t = P.carry; if (!t) return; P.st = 'air';
 function land(pl) {
   const P = G.P, k = clamp(P.vy / 1200, 0, 1); P.y = pl.y - PR; P.vy = 0; P.st = 'ground'; P.plat = pl; P.rope = null; P.shoot = null; P.glide = false;
   P.an.sqV -= 5 + 7 * k; dust(P.x, pl.y, 5 + k * 8); SFX.land(k); if (k > 0.5) G.shake = Math.max(G.shake, 4 * k);
-  if (P.combo >= 3) pop(P.x, P.y - 54, 'combo ×' + P.combo, '#ffd28a', 0.8); P.combo = 0; P.canFlip = true;
+  if (P.combo >= 3) { const bn = Math.floor(P.combo * P.combo / 6); G.fruit += bn; if (isReal()) save.fruit += bn; pop(P.x, P.y - 54, 'combo ×' + P.combo + '  +' + bn, '#ffd28a', 0.95); SFX.fruit(6); } P.combo = 0; P.canFlip = true;
 }
 function bounceOn(b, top) {
   const P = G.P; P.y = top; P.vy = -Math.max(840, P.vy * 0.96); if (b.k === 'leaf') P.vx += 190;
@@ -636,6 +642,8 @@ function update(dt) {
   if (G.hit > 0) { G.hit -= dt; updFx(dt * 0.2); return; }
   let ts = 1; if (G.slowT > 0) { G.slowT -= dt; ts = 0.4; }
   const gdt = dt * ts; G.time += gdt; const P = G.P, L = G.L;
+  if (G.gold > 0) { G.gold -= gdt; if (P.st !== 'dead' && Math.random() < 0.5) G.parts.push({ t: 'spark', x: P.x + rr(-14, 14), y: P.y + rr(-14, 14), vx: rr(-40, 40), vy: rr(-80, 0), c: '#ffe066', s: 2, life: 0.4, max: 0.4, drag: 2 }); if (P.st === 'dead') G.gold = 0; }
+  if (P.st === 'rope' && P.rope.taut && P.vx > 0) { const th = Math.atan2(P.x - P.rope.a.x, P.y - P.rope.a.y), inZ = th > -0.28 && th < 0.62 && P.rope.minTh < 0.1 && P.rope.t > 0.16; if (inZ && !G.inZ && G.kind !== 'attract' && !G.silent) SFX.zone(); G.inZ = inZ; } else G.inZ = false;
   if (G.timing && !G.won && P.st !== 'dead' && G.kind !== 'attract') G.t += gdt;
   // anchors
   for (const a of L.anchors) if (a.sw) { const s = a.sw, th = s.amp * Math.sin(G.time * s.w + s.ph), thd = s.amp * s.w * Math.cos(G.time * s.w + s.ph); a.x = s.px + Math.sin(th) * s.len; a.y = s.py + Math.cos(th) * s.len; a.vx = Math.cos(th) * s.len * thd; a.vy = -Math.sin(th) * s.len * thd; }
@@ -740,10 +748,10 @@ function updWorld(dt) {
   for (const c of L.crocs) {
     if (c.x < cx0 || c.x > cx1) continue; c.t += dt; c.cd -= dt;
     if (c.st === 0) { c.x = c.hx + Math.sin(c.t * 0.5) * 60; c.dir = Math.cos(c.t * 0.5) >= 0 ? 1 : -1;
-      if (!c.tame && c.cd <= 0 && alive && Math.abs(P.x - c.x) < 170 && P.y > WATER - 290 && P.st !== 'ground') { c.st = 1; c.lt = 0; c.tx = P.x + P.vx * 0.3; c.dir = c.tx > c.x ? 1 : -1; if (!L.lava) splash(c.x, WATER, 8); else embersAt(c.x, WATER, 8); SFX.splash(); } }
-    else { c.lt += dt; const T = 0.85; c.x += (c.tx - c.x) * (1 - Math.exp(-3 * dt)); c.hy = WATER - Math.sin(Math.min(1, c.lt / T) * Math.PI) * 175;
+      if (!c.tame && c.cd <= 0 && alive && Math.abs(P.x - c.x) < 170 + 14 * G.w && P.y > WATER - 290 - 10 * G.w && P.st !== 'ground') { c.st = 1; c.lt = 0; c.hy = WATER; c.tx = P.x + P.vx * 0.3; c.dir = c.tx > c.x ? 1 : -1; if (!L.lava) splash(c.x, WATER, 8); else embersAt(c.x, WATER, 8); SFX.splash(); } }
+    else { c.lt += dt; const T = 0.85; c.x += (c.tx - c.x) * (1 - Math.exp(-3 * dt)); c.hy = WATER - Math.sin(Math.min(1, c.lt / T) * Math.PI) * (175 + 10 * G.w);
       const cd = hyp(P.x - (c.x + c.dir * 26), P.y - c.hy); if (alive && cd < 36) kill(L.lava ? 'lava' : 'croc'); else if (alive && cd < 85 && !c.nm) { c.nm = 1; nearMiss(); }
-      if (c.lt > T) { c.nm = 0; c.st = 0; c.cd = 2.6; c.hx = c.x; c.t = 0; L.lava ? embersAt(c.x, WATER, 8) : splash(c.x, WATER, 10); } }
+      if (c.lt > T) { c.nm = 0; c.st = 0; c.cd = 2.6 - 0.2 * G.w; c.hx = c.x; c.t = 0; L.lava ? embersAt(c.x, WATER, 8) : splash(c.x, WATER, 10); } }
   }
   // hornet nests
   for (const n of L.nests) {
@@ -760,7 +768,7 @@ function updWorld(dt) {
   for (const b of L.bouncers) b.sq *= Math.exp(-5 * dt);
   // collectibles
   if (P.st !== 'dead') {
-    const mr = save.up.magnet ? 40 + save.up.magnet * 55 : 0;
+    const mr = Math.max(save.up.magnet ? 40 + save.up.magnet * 55 : 0, G.gold > 0 ? 190 : 0);
     for (const f of L.fruit) { if (f.got || f.x < P.x - 300 || f.x > P.x + 300) continue; const dx = P.x - f.x, dy = P.y - f.y, d = hyp(dx, dy);
       if (d < PR + 17) getFruit(f); else if (d < mr + 30) { const k = Math.min(1, 520 * dt / d); f.x += dx * k; f.y += dy * k; } }
     for (const d of L.idols) { if (d.got) continue; if (hyp(P.x - d.x, P.y - d.y) < PR + 22) getIdol(d); }
@@ -791,7 +799,7 @@ function discover(dt) {
 let nmT = 0;
 function nearMiss() { if (G.time - nmT < 1.5 || G.kind === 'attract') return; nmT = G.time; const P = G.P; pop(P.x, P.y - 50, rnd() < 0.5 ? 'CLOSE ONE!' : 'PHEW!', '#9affd0', 0.9); G.slowT = Math.max(G.slowT, 0.12); SFX.whoosh(0.5); }
 function getFruit(f) {
-  const P = G.P; f.got = 1; const v = P.combo >= 8 ? 3 : P.combo >= 4 ? 2 : 1; G.fruit += v;
+  const P = G.P; f.got = 1; const v = (P.combo >= 8 ? 3 : P.combo >= 4 ? 2 : 1) * (G.gold > 0 ? 2 : 1); G.fruit += v;
   if (isReal()) { save.fruit += v; save.st.fruit += v; if (save.st.fruit >= 500) unlock('fruit500'); }
   SFX.fruit(G.fchain++); G.fchainT = 0.6; sparks(f.x, f.y, 5, '#fff3a0'); if (v > 1) pop(f.x, f.y - 16, '+' + v, '#ffe9a0', 0.6);
   G.parts.push({ t: 'fly', x: f.x, y: f.y, k: f.k, life: 0.5, max: 0.5 });
@@ -1428,8 +1436,9 @@ function drawPlayer() {
 function drawSwingZone() {
   const P = G.P; if (P.st !== 'rope' || !P.rope.taut) return; const a = P.rope.a, r = P.rope.len, th = Math.atan2(P.x - a.x, P.y - a.y), inZ = th > -0.28 && th < 0.62 && P.vx > 0;
   if (P.vx <= 0 && G.kind !== 'tut') return;
-  cx.lineCap = 'round'; cx.strokeStyle = inZ ? 'rgba(255,245,160,.55)' : 'rgba(255,245,180,' + (G.kind === 'tut' ? 0.32 : 0.16) + ')'; cx.lineWidth = inZ ? 12 : 8;
+  cx.lineCap = 'round'; cx.strokeStyle = inZ ? 'rgba(255,230,90,.85)' : 'rgba(255,245,180,' + (G.kind === 'tut' ? 0.4 : 0.28) + ')'; cx.lineWidth = inZ ? 14 : 9;
   cx.beginPath(); cx.arc(a.x, a.y, r, Math.PI / 2 - 0.62, Math.PI / 2 + 0.28); cx.stroke();
+  if (G.inZ && hyp(P.vx, P.vy) > 300) { const pu = 1 + 0.25 * Math.sin(G.time * 30); cx.fillStyle = 'rgba(255,245,170,.9)'; cx.beginPath(); cx.arc(P.x, P.y, (PR + 8) * pu, 0, TAU); cx.globalAlpha = 0.35; cx.fill(); cx.globalAlpha = 1; cx.font = '900 15px system-ui,sans-serif'; cx.textAlign = 'center'; cx.lineWidth = 4; cx.strokeStyle = 'rgba(60,30,0,.6)'; cx.strokeText('LET GO!', P.x, P.y - 34); cx.fillStyle = '#fff3a0'; cx.fillText('LET GO!', P.x, P.y - 34); }
 }
 // ================= effects =================
 function pop(x, y, txt, c, s) { G.pops.push({ x, y, txt, c, s: s || 1, life: 1.1, max: 1.1 }); }
@@ -1526,6 +1535,7 @@ function render(dt) {
   for (const c of L.crocs) if (inV(c.x, 80)) drawCroc(c);
   for (const t of L.toucans) if (inV(t.x, 60) && t.st !== 1) drawToucan(t);
   for (const a of G.atk) drawAtk(a);
+  if (G.gold > 0) { const P = G.P, k = Math.min(1, G.gold); cx.save(); cx.globalCompositeOperation = 'lighter'; const gg = cx.createRadialGradient(P.x, P.y, 4, P.x, P.y, 60); gg.addColorStop(0, 'rgba(255,220,90,' + 0.55 * k + ')'); gg.addColorStop(1, 'rgba(255,200,40,0)'); cx.fillStyle = gg; cx.beginPath(); cx.arc(P.x, P.y, 60, 0, TAU); cx.fill(); cx.restore(); }
   drawPlayer();
   for (const t of L.toucans) if (t.st === 1) drawToucan(t);
   drawChomp();
