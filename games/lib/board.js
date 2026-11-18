@@ -6,13 +6,12 @@
  *   GBBoard.show('neon-serpent', {title:'Neon Serpent', format:'score'|'time'|'int'|fn, lower:false})
  *   GBBoard.button(parentEl, 'neon-serpent', {...same opts as show})  // adds a small \uD83C\uDFC6 button
  * submit() returns a Promise and never throws. It keeps each player's best only.
- * Until FIREBASE below is filled in, boards show this device's own best runs.
+ * Until the Firebase config in lib/gb.js is filled in, boards show this device's own best runs.
  */
 (function () {
   'use strict';
-  // \u2193\u2193 Paste the Firebase web config values here (apiKey + projectId are all that's needed).
-  var FIREBASE = { apiKey: '', projectId: '' };
-  // \u2191\u2191
+  // The Firebase config lives in lib/gb.js (window.GB_FIREBASE), which every game loads first.
+  var FIREBASE = (window.GB_FIREBASE && window.GB_FIREBASE.apiKey) ? window.GB_FIREBASE : { apiKey: '', projectId: '' };
 
   var ONLINE = !!(FIREBASE.apiKey && FIREBASE.projectId);
   var BASE = ONLINE ? 'https://firestore.googleapis.com/v1/projects/' + FIREBASE.projectId + '/databases/(default)/documents' : '';

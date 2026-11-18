@@ -12,6 +12,10 @@
 (function () {
   'use strict';
   if (window.GB) return;
+  // \u2193\u2193 Paste the Firebase web config here ONCE (apiKey + projectId). Leaderboards (board.js) and play counts both use it.
+  var FIREBASE = { apiKey: '', projectId: '' };
+  // \u2191\u2191
+  window.GB_FIREBASE = FIREBASE;
   var KEY = 'gamebop.settings';
   var slug = (location.pathname.split('/').pop() || 'game').replace(/\.html?$/, '') || 'game';
   var S = { vol: 0.8, mute: false, flip: false, size: 1, pos: {} };
@@ -152,6 +156,32 @@
     ov.querySelector('.gb-ok').onclick = function () { ov.remove(); document.documentElement.classList.remove('gbedit'); done(); };
     document.body.appendChild(ov);
   }
+
+  // ---------- anonymous play counter (for the weekly tune-up) ----------
+  // One count per page load, only after 20s of visible play, only on the live site. No personal data:
+  // just +1 on stats/<slug> (all time) and stats/<slug>~w<week> (this week).
+  (function () {
+    if (!FIREBASE.apiKey || !FIREBASE.projectId || !/\.github\.io$/.test(location.hostname)) return;
+    var seen = 0, sent = false, last = Date.now();
+    function send() {
+      if (sent) return; sent = true;
+      var week = 'w' + Math.floor((Date.now() / 864e5 + 3) / 7);
+      var doc = 'projects/' + FIREBASE.projectId + '/databases/(default)/documents/stats/';
+      var inc = { fieldPath: 'plays', increment: { integerValue: '1' } };
+      try {
+        fetch('https://firestore.googleapis.com/v1/projects/' + FIREBASE.projectId + '/databases/(default)/documents:commit?key=' + FIREBASE.apiKey, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+          body: JSON.stringify({ writes: [{ transform: { document: doc + slug, fieldTransforms: [inc] } }, { transform: { document: doc + slug + '~' + week, fieldTransforms: [inc] } }] })
+        }).catch(function () {});
+      } catch (e) {}
+    }
+    setInterval(function () {
+      var now = Date.now();
+      if (!document.hidden) seen += now - last;
+      last = now;
+      if (seen >= 20000) send();
+    }, 2000);
+  })();
 
   var GB = window.GB = {
     settings: S, isTouch: isTouch, manual: false,
