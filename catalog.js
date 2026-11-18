@@ -529,7 +529,9 @@ window.GAMEBOP_GAMES = [
   "blurb": "Out-type your own ghost and rivals up to 140 WPM",
   "controls": "Keyboard",
   "added": "2026-11-08",
-  "keywords": "typing race racing keyboard wpm hard words ghost typer race your ghost",
+  "keywords": "typing race racing keyboard wpm hard words ghost typer race your ghost multiplayer online race friends 2 player",
+  "multi": true,
+  "players": 4,
   "file": "games/ghost-typer.html",
   "thumb": "thumbs/ghost-typer.jpg"
  },
