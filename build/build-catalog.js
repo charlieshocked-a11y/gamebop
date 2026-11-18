@@ -1,5 +1,6 @@
 // Rebuilds catalog.js from tools/meta.json (the master list of games).
-// meta.json: array of {slug,title,category,tags,blurb,controls,prompt,added,external?}
+// meta.json: array of {slug,title,category,tags,blurb,controls,prompt,added,external?, multi?, players?}
+// Extra fields pass straight through (e.g. "multi": true + "players": 2 puts a game in the portal's Multiplayer bubble).
 const fs = require('fs'), path = require('path');
 const root = path.resolve(__dirname, '..');
 const meta = JSON.parse(fs.readFileSync(path.join(__dirname, 'meta.json'), 'utf8'));

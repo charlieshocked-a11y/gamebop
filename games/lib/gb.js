@@ -11,11 +11,15 @@
  */
 (function () {
   'use strict';
-  if (window.GB) return;
-  // \u2193\u2193 Paste the Firebase web config here ONCE (apiKey + projectId). Leaderboards (board.js) and play counts both use it.
-  var FIREBASE = { apiKey: '', projectId: '' };
-  // \u2191\u2191
+  // \u2193\u2193 Paste the Firebase web config here ONCE (apiKey, projectId, databaseURL). Accounts, players, multiplayer
+  // (lib/net.js), leaderboards (lib/board.js) and play counts all use it. Setup steps + rules: build/FIREBASE.md
+  var FIREBASE = { apiKey: '', projectId: '', databaseURL: '' };
+  // \u2191\u2191  (optional `emulator: 'http://localhost:9199'` is only for local tests: it replaces the auth + database URLs)
+  if (!FIREBASE.apiKey && window.GB_FIREBASE && typeof window.GB_FIREBASE === 'object') FIREBASE = window.GB_FIREBASE; // test pages only
   window.GB_FIREBASE = FIREBASE;
+  // The home page loads this file with data-portal just to read the config (no settings bar, no play counter).
+  if (document.currentScript && document.currentScript.hasAttribute('data-portal')) return;
+  if (window.GB) return;
   var KEY = 'gamebop.settings';
   var slug = (location.pathname.split('/').pop() || 'game').replace(/\.html?$/, '') || 'game';
   var S = { vol: 0.8, mute: false, flip: false, size: 1, pos: {} };
@@ -159,27 +163,22 @@
 
   // ---------- anonymous play counter (for the weekly tune-up) ----------
   // One count per page load, only after 20s of visible play, only on the live site. No personal data:
-  // just +1 on stats/<slug> (all time) and stats/<slug>~w<week> (this week).
+  // just +1 on stats/<slug>/plays (all time) and stats/<slug>~w<week>/plays (this week) in the Realtime Database.
   (function () {
-    if (!FIREBASE.apiKey || !FIREBASE.projectId || !/\.github\.io$/.test(location.hostname)) return;
+    var db = String(FIREBASE.emulator || FIREBASE.databaseURL || (FIREBASE.projectId ? 'https://' + FIREBASE.projectId + '-default-rtdb.firebaseio.com' : '')).replace(/\/+$/, '');
+    if (!db || !(FIREBASE.apiKey || FIREBASE.emulator) || !(/\.github\.io$/.test(location.hostname) || FIREBASE.emulator)) return;
     var seen = 0, sent = false, last = Date.now();
     function send() {
       if (sent) return; sent = true;
-      var week = 'w' + Math.floor((Date.now() / 864e5 + 3) / 7);
-      var doc = 'projects/' + FIREBASE.projectId + '/databases/(default)/documents/stats/';
-      var inc = { fieldPath: 'plays', increment: { integerValue: '1' } };
-      try {
-        fetch('https://firestore.googleapis.com/v1/projects/' + FIREBASE.projectId + '/databases/(default)/documents:commit?key=' + FIREBASE.apiKey, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
-          body: JSON.stringify({ writes: [{ transform: { document: doc + slug, fieldTransforms: [inc] } }, { transform: { document: doc + slug + '~' + week, fieldTransforms: [inc] } }] })
-        }).catch(function () {});
-      } catch (e) {}
+      var week = 'w' + Math.floor((Date.now() / 864e5 + 3) / 7), inc = { '.sv': { increment: 1 } }, body = {};
+      body[slug + '/plays'] = inc; body[slug + '~' + week + '/plays'] = inc;
+      try { fetch(db + '/stats.json', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, keepalive: true, body: JSON.stringify(body) }).catch(function () {}); } catch (e) {}
     }
     setInterval(function () {
       var now = Date.now();
       if (!document.hidden) seen += now - last;
       last = now;
-      if (seen >= 20000) send();
+      if (seen >= (GB.playMs || 20000)) send();
     }, 2000);
   })();
 

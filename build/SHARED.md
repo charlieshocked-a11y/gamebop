@@ -15,4 +15,49 @@
 - boardId: the game slug, or `slug:variant` for a separate board per mode/difficulty/track (max ~4 boards per game). Times where lower is better: `{lower:true}`.
 - Add a 🏆 button on the game-over/results screen and on the main menu: `GBBoard.button(parentEl, boardId, {title:'Game Name', format:'int'|'time'|'float'|fn, lower:false, label:'Insane'})`, or call `GBBoard.show(boardId, sameOpts)` from your own styled button. While `GBBoard.isOpen()` the game must ignore input (the panel already stops events from reaching the page).
 - Skip leaderboards for pure level/puzzle-progress and idle/management games where there's no comparable number.
-- First time a player opens a board online they're asked for a 2–8 char tag (no real names). Until the Firebase config is pasted into board.js, boards show the device's own best runs.
+- Names on boards are the player's Gamebop account username. With no account, a new best asks them once to "Make your account" (username + animal avatar, no real names). board.js loads lib/net.js by itself when the site is online. Until the Firebase config is pasted into lib/gb.js (see build/FIREBASE.md), boards show the device's own best runs. The public GBBoard API is unchanged.
+
+## 3. Multiplayer + accounts — games/lib/net.js (global `GBNet`)
+- Load after gb.js (and board.js if used): `<script src="lib/net.js"></script>`. In meta.json add `"multi": true` and `"players": 2` (max players; 2 shows a "👥 2P" tile flag, more shows "🌐 Online"); the portal's Multiplayer bubble lists these games.
+- Same API online and offline. With no database config (or no network) rooms are LOCAL and filled with bots, so every multiplayer game must be fully playable vs bots. Bots must be smart (real strategy, not random), and run ONLY on the host: `if (GBNet.isHost()) for (const b of GBNet.myBots()) runBot(b.uid)`; a bot acts with `GBNet.send(type, data, {as: b.uid})` / `GBNet.setMyState(obj, {as: b.uid})`. Host can change mid-game (host migration), so check `isHost()` every tick, not once.
+- No free-text chat, ever. Show players by `p.label` (bots are "BOT · Name") with `GBNet.avatarHTML(p, px)`.
+
+| Call | What it does |
+|---|---|
+| `GBNet.lobby(game, {min, max, title})` | Overlay: Quick Match / Create private room (5-letter code + copy) / Join with code / Play vs bots. Resolves with the room when the match starts, or `null` if closed. |
+| `GBNet.quickMatch(game, {maxPlayers, wait:8000, onUpdate})` | Joins an open public room for `game`, else makes one, waits ~8 s, fills empty seats with bots, starts. Resolves on start. |
+| `GBNet.createRoom(game, {public, maxPlayers, local})` / `GBNet.joinRoom(code)` | Make / join a room (status `'wait'`). Errors have `.code`: `not-found`, `full`, `bad-code`, `offline`, `network`. |
+| `GBNet.start()` · `GBNet.fillWithBots(n?)` · `GBNet.kick(uid)` | Host only. `fillWithBots()` with no n fills every empty seat. |
+| `GBNet.leave()` | Leave (room is deleted when the last human leaves). Call when the game ends or the player quits to menu. |
+| `GBNet.onRoom(cb)` → unsubscribe | `cb(room)` now and on every change; `cb(null)` when you leave / the room closes. |
+| `GBNet.room()` | Latest snapshot (below) or null. |
+| `GBNet.send(type, data, {as})` | Ordered event to everyone INCLUDING yourself (process your own move when it comes back, so all players apply events in the same order). Use for discrete actions (moves, shots, picks), not per-frame data. |
+| `GBNet.onEvent(cb)` → unsubscribe | `cb({id, type, data, from, t, mine, bot})`. Events that arrive before the first listener are queued. |
+| `GBNet.setMyState(obj, {as})` | Your continuous state (position, score…), written at most every `GBNet.stateInterval` ms (100). Everyone reads it at `room.state[uid]`. |
+| `GBNet.setShared(obj)` | Host only: one host-owned object at `room.shared` (e.g. the authoritative board / round / RNG seed). |
+| `GBNet.isHost()` · `GBNet.myId()` · `GBNet.myBots()` | Who runs the authority + the bots. |
+| `GBNet.me()` · `GBNet.onMe(cb)` · `GBNet.profilePanel()` | Account: `{uid, name, avatar, color, hasAccount, display}` (`display` is the username or "Guest123"). |
+| `GBNet.isOpen()` | A GBNet overlay is open: ignore game input. |
+
+Room snapshot: `{code, game, local, online, status:'wait'|'play', isHost, host, me, maxPlayers, players:[{uid, name, label, avatar, color, bot, here, me, host, joined}], humans, bots, state:{uid: obj}, shared}`. `players` is sorted by join order (same on every screen, use it for seat/colour order). `here:false` = that person dropped (no heartbeat for 10 s); the game decides (usually the host's bot takes over that seat).
+Data is plain JSON. Empty objects/arrays and `null` are dropped by the database, so don't rely on them.
+
+Example (turn-based 2-player game):
+```js
+const room = await GBNet.lobby('hex-duel', { min: 2, max: 2, title: 'Hex Duel' });
+if (!room) return showMenu();                       // closed the lobby
+const order = room.players.map(p => p.uid);          // seat 0 moves first
+let turn = 0;
+GBNet.onEvent(e => {
+  if (e.type !== 'move' || e.from !== order[turn % 2]) return;  // ignore out-of-turn
+  applyMove(e.data.cell, turn % 2); turn++;
+  if (gameOver()) { showResult(); GBNet.leave(); }
+});
+canvas.onclick = ev => { if (order[turn % 2] === GBNet.myId()) GBNet.send('move', { cell: cellAt(ev) }); };
+setInterval(() => {                                  // host plays for bots (and for anyone who dropped)
+  if (!GBNet.isHost()) return;
+  const r = GBNet.room(), who = r.players.find(p => p.uid === order[turn % 2]);
+  if (who && (who.bot || !who.here)) GBNet.send('move', { cell: smartBotMove() }, { as: who.uid });
+}, 700);
+```
+Testing: everything works offline with bots. For online tests there is a mock Firebase (REST + streaming + rules) used by the platform tests; set `window.GB_FIREBASE = {apiKey:'t', projectId:'t', emulator:'http://localhost:9199'}` before gb.js loads (e.g. Playwright `addInitScript`). Never commit an emulator URL.

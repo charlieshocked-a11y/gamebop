@@ -8,8 +8,8 @@ Never remake Charlie's own games (meta.json "mine": true — rude-cat, scribble-
 
 ## 1. Find the weakest games
 A. **Play data** (only if the Firebase config in games/lib/gb.js is filled in). Read the counts with WebFetch (the shell can't reach Google):
-   `https://firestore.googleapis.com/v1/projects/<projectId>/databases/(default)/documents/stats?pageSize=1000&key=<apiKey>`
-   Docs `stats/<slug>` = all-time plays, `stats/<slug>~w<N>` = plays in week N, where N = floor((unixDays + 3) / 7) (unixDays = ms since 1970 / 86400000). A play = someone stayed 20+ s. Use last week's and this week's counts. Games with few or no plays are candidates.
+   `<databaseURL>/stats.json` (Realtime Database, public read; databaseURL is in games/lib/gb.js)
+   `stats/<slug>/plays` = all-time plays, `stats/<slug>~w<N>/plays` = plays in week N, where N = floor((unixDays + 3) / 7) (unixDays = ms since 1970 / 86400000). A play = someone stayed 20+ s. Use last week's and this week's counts. Games with few or no plays are candidates.
 B. **Fun review** (always). Keep build/review-log.json = { slug: { reviewed: "YYYY-MM-DD", score: n, plays: n, notes: "..." } }. Each week, review the ~20 eligible games with the oldest "reviewed" date (never-reviewed first), plus every low-play candidate from A. Reviewer agents (about 5 games each, never the fixer) play each game for real with Playwright for ~3 minutes, desktop and phone size, and score it like SPEC.md's Fun review gate: Hook, Controls, Feel, Want-more, Looks/animation, Surprise, each 1–10; score = the LOWEST. Write the score and the 3 biggest problems into review-log.json.
 C. Pick the **6–8 worst** (lowest score; plays break ties; a game with score ≥ 8 and decent plays is never picked).
 
