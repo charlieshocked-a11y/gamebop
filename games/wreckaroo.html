@@ -111,6 +111,7 @@ button{font-family:inherit}
 .lt.lock{filter:grayscale(1) brightness(.7);cursor:default}
 .lt.boss{background:linear-gradient(#ffb08a,#ff7a4a)}
 .lt.bonus{background:linear-gradient(#fff3a0,#ffd84a)}
+#ups{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.ur{display:flex;align-items:center;gap:8px;background:linear-gradient(#fff6e2,#f3dcae);border:3px solid var(--ink);border-radius:6px;padding:5px 7px;box-shadow:0 3px 0 var(--ink)}.ur .un{flex:0 0 100px;font-weight:900;font-size:14px;line-height:1.05;text-align:left}.ur .un small{display:block;font-size:10px;font-weight:700;opacity:.7}.ur .pp{display:flex;gap:2px;flex:1;min-width:0}.ur .pp i{flex:1 1 8px;max-width:14px;height:12px;background:#d8c49a;border:1px solid #2a1c12}.ur .pp i.on{background:#ffc21a}.ur button{pointer-events:auto;cursor:pointer;font:inherit;font-weight:900;font-size:13px;min-width:62px;padding:6px 6px;border:3px solid #2a1c12;border-radius:5px;background:#ffd84a;box-shadow:0 2px 0 #2a1c12}.ur button[disabled]{opacity:.45;cursor:default}
 #skins{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
 .sk{pointer-events:auto;cursor:pointer;background:linear-gradient(#fff6e2,#f3dcae);border:3px solid var(--ink);border-radius:6px;box-shadow:0 3px 0 var(--ink);padding:6px 2px;font-size:12px}
 .sk canvas{width:64px;height:64px;display:block;margin:0 auto}
@@ -162,7 +163,7 @@ button{font-family:inherit}
 </div></div>
 
 <div id="levels" class="scr"><div class="veil"></div><div class="panel"><h2>JOBS</h2><div id="lvGrid"></div><div class="prow" style="margin-top:12px"><button class="btn tag" id="lvBack">Back</button></div></div></div>
-<div id="garage" class="scr"><div class="veil"></div><div class="panel"><h2>BALLS</h2><div id="skins"></div><div class="prow"><button class="btn tag" id="gBack">Back</button></div></div></div>
+<div id="garage" class="scr"><div class="veil"></div><div class="panel" style="max-height:94vh;overflow-y:auto"><h2>BALLS</h2><div id="skins"></div><h2 style="margin-top:4px">CRANE SHOP</h2><div id="ups"></div><div class="prow"><button class="btn tag" id="gBack">Back</button></div></div></div>
 
 <script>
 (()=>{
@@ -177,6 +178,9 @@ const defSave=()=>({lvl:1,stars:{},coins:0,skins:['iron'],skin:'iron',best:{}});
 let hasSave=lg('save',null)!=null;
 let S=Object.assign(defSave(),lg('save',{})||{});
 function save(){ls('save',S);hasSave=true}
+if(!S.up||typeof S.up!=='object')S.up={};
+const UPG=[{id:'heavy',n:'Heavy Ball',d:'Smash harder',max:12,p:l=>Math.round(20*Math.pow(1.33,l))},{id:'winch',n:'Turbo Winch',d:'Swing faster, fly farther',max:12,p:l=>Math.round(25*Math.pow(1.33,l))},{id:'coins',n:'Scrap Dealer',d:'+10% coins',max:12,p:l=>Math.round(30*Math.pow(1.33,l))},{id:'xball',n:'Spare Ball',d:'+1 ball per job',max:2,p:l=>[400,1500][l]}];
+const upL=id=>S.up[id]|0;
 let muted=!!lg('mute',false);
 let tutDone=!!lg('tut',false);
 const clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t, rnd=(a,b)=>a+Math.random()*(b-a);
@@ -463,7 +467,7 @@ function buildLevel(sp,menu){
  sp.x1=x1;sp.top=top;
 }
 function spawnBall(instant){
- const sk=skin();const b=body({x:R.px,y:R.py+(instant?ROPE:60),r:BALLR,mat:'ball',m:sk.m});b.isBall=true;b.keep=true;b.re=sk.re;b.fr=.5;
+ const sk=skin();const b=body({x:R.px,y:R.py+(instant?ROPE:60),r:BALLR,mat:'ball',m:sk.m*(1+.06*upL('heavy'))});b.isBall=true;b.keep=true;b.re=sk.re;b.fr=.5;
  b.vx=instant?150:0;R.ball=b;R.on=true;R.L=instant?ROPE:60;R.retract=0;G.ballT=0;if(!instant)SND.winch();G.lastSide=0}
 
 // ================= FX =================
@@ -510,14 +514,14 @@ function damageArb(ar){
  hitFx(A,B,mx,cx,cy,nx,ny);
  const sk=skin();
  const mA=B.isBall&&sk.dm&&(A.mat==='wood'||A.mat==='glass')?sk.dm:1,mB=A.isBall&&sk.dm&&(B.mat==='wood'||B.mat==='glass')?sk.dm:1;
- dmgBody(A,mx*mA,B.isBall?B:null);dmgBody(B,mx*mB,A.isBall?A:null)}
+ const hv=1+.05*upL('heavy');dmgBody(A,mx*mA*(B.isBall?hv:1),B.isBall?B:null);dmgBody(B,mx*mB*(A.isBall?hv:1),A.isBall?A:null)}
 function removeBody(b){b.dead=true;const i=bodies.indexOf(b);if(i>=0)bodies.splice(i,1);
  for(const o of bodies)if(o.im>0&&!o.awake&&o.x1>b.x0-10&&o.x0<b.x1+10&&o.y1>b.y0-10&&o.y0<b.y1+10){o.awake=true;o.sleepT=0}}
 function breakBody(b){
  if(b.dead)return;
  if(b.mat==='tnt'){removeBody(b);pendBoom.push({x:b.x,y:b.y,t:.06});return}
  removeBody(b);G.broke++;
- if(b.orig){G.kills++;addCoins(1,b.x,b.y)}
+ if(b.orig){G.kills++;addCoins(b.bonusC||1,b.x,b.y);if(b.bonusC)FX('pop',b.x,b.y-30,'+'+(b.bonusC*2),'#ffd84a',24)}
  FX('sfx','brk',b.mat);
  const big=b.hw*b.hh*4;
  FX('chips',b.x,b.y,b.mat,clamp(big/120|0,5,16),b.vx,b.vy);
@@ -549,7 +553,7 @@ function explode(x,y){
  for(const p of G.pigeons)if(p.st===0&&Math.hypot(p.x-x,p.y-y)<RAD*1.4)scare(p,true);
  if(G.st==='play'){pose('cheer',1.6);say(Math.random()<.5?'KA-BOOM!':'Whoa!');}
 }
-function addCoins(n,x,y){const sk=skin();n*=sk.coin||1;G.coins+=n;if(G.st!=='menu')FX('coin',x,y,Math.min(n,6))}
+function addCoins(n,x,y){const sk=skin();n*=(sk.coin||1)*(1+.1*upL('coins'))*(G.bonusSw>0?2:1);n=Math.round(n);G.coins+=n;if(G.st!=='menu')FX('coin',x,y,Math.min(n,6))}
 function flash(a){const f=$('flash');f.style.transition='none';f.style.opacity=a;requestAnimationFrame(()=>{f.style.transition='opacity .35s';f.style.opacity=0})}
 function popBalloon(bl,snap){if(bl.popped)return;bl.popped=true;if(snap){bl.fly=1;FX('sfx','pop');FX('pop',bl.x,bl.y-20,'SNAP!','#fff',22)}else{FX('rubber',bl.x,bl.y,bl.c);FX('pop',bl.x,bl.y-20,'POP!','#fff',24)}bl.h.awake=true;bl.h.sleepT=0;for(const b of blocks)if(b.grp&&!b.dead){b.awake=true;b.sleepT=0}
  if(G.balloons.every(b=>b.popped))for(const b of blocks)if(b.grp){b.ld=.03;b.ad=.25}}
@@ -559,8 +563,8 @@ function scare(p,hit){if(p.st)return;p.st=1;p.vx=p.dir*rnd(160,260);p.vy=-rnd(24
 function setScr(id){for(const s of['menu','hud','pause','res','levels','garage','tut'])$(s).classList.toggle('on',id.includes(s))}
 function startLevel(n,tut){
  aInit();G.lvl=n;G.paused=false;$('pause').classList.remove('on');
- const sp=spec(n);buildLevel(sp);
- G.st='play';G.lastImp=null;G.queued=0;G.lastHS=-9;G.bossT=1.5;G.bsayT=0;G.bOw=0;G.balls=sp.balls;G.t=0;G.simT=0;G.acc=0;G.ts=G.tsT=1;G.hs=0;G.winT=0;G.setT=0;G.coins=0;G.broke=0;G.kills=0;G.combo=0;G.comboT=0;G.released=0;G.bigHit=0;G.nextBallT=-1;G.slowT=0;G.rep=null;G.hold=false;G.shake=0;G.zoom=0;G.failed=0;
+ const sp=spec(n);if(!tut&&n>1)sp.balls+=upL('xball');if(n>LV.length+8&&!tut)sp.balls=Math.max(2,sp.balls-1);buildLevel(sp);
+ G.st='play';G.bonusSw=0;G.ballsAtWin=null;G.lastImp=null;G.queued=0;G.lastHS=-9;G.bossT=1.5;G.bsayT=0;G.bOw=0;G.balls=sp.balls;G.t=0;G.simT=0;G.acc=0;G.ts=G.tsT=1;G.hs=0;G.winT=0;G.setT=0;G.coins=0;G.broke=0;G.kills=0;G.combo=0;G.comboT=0;G.released=0;G.bigHit=0;G.nextBallT=-1;G.slowT=0;G.rep=null;G.hold=false;G.shake=0;G.zoom=0;G.failed=0;
  spawnBall(true);camFit();buildBg();
  setScr(tut?'hud tut':'hud');updHud(true);
  $('lvlSign').innerHTML='<b>'+n+'</b><span>'+sp.name+'</span>';
@@ -583,7 +587,7 @@ function camFit(){
 function flagsDown(){let all=true;for(const f of G.flags){const h=f.h;const d=h.dead||h.sunk||(-h.y<G.line);if(d&&!f.down){f.down=true;if(G.st!=='menu'){FX('sfx','flag');FX('pop',h.x,h.y-40,'✓','#9dff8a',30);if(h.dead)part({t:'flagp',x:h.x,y:h.y-h.hh-20,vx:rnd(-80,80),vy:-250,a:0,w:rnd(-6,6),l:0,L:3,g:.7});updHud()}}if(!f.down)all=false}return all}
 function releaseBall(){
  const b=R.ball;if(!b||!R.on)return false;const sp=Math.hypot(b.vx-R.pvx,b.vy);if(sp<200||R.L<ROPE-5)return false;
- const a=G.aim||{vx:b.vx*FLING,vy:b.vy*FLING};b.vx=a.vx;b.vy=a.vy;b.w=rnd(-6,6);
+ const a=G.aim||{vx:b.vx*FLING,vy:b.vy*FLING};const wf=1+.015*upL('winch');b.vx=a.vx*wf;b.vy=a.vy*wf;b.w=rnd(-6,6);
  R.on=false;R.ball=null;R.retract=1;G.free.push({b,t:0,slow:0});G.balls--;G.released++;G.bigHit=0;
  FX('sfx','rel');FX('sparks',R.px,R.py+30,8);G.shake=Math.max(G.shake,3);
  if(G.st==='play'){updHud();if(!G.firstRel){G.firstRel=true;$('hint').classList.add('off')}
@@ -603,7 +607,8 @@ function calcPct(){const o=blocks.filter(b=>b.orig);if(!o.length)return 100;let 
 function showResults(won,close){
  G.st='results';setScr('hud res');G.hold=false;
  const pct=calcPct();const n=G.lvl;let stars=0;const pb=S.best[n]||0,ps=S.stars[n]||0;
- if(won){stars=1+(G.balls>=1?1:0)+(pct>=(G.spec.bonus?60:75)?1:0);const bonus=G.balls*10;G.coins+=bonus;
+ const bl=G.ballsAtWin!=null?G.ballsAtWin:G.balls;
+ if(won){stars=1+(bl>=1?1:0)+(pct>=(G.spec.bonus?70:90)?1:0);const bonus=bl*10;G.coins+=bonus;
   S.stars[n]=Math.max(S.stars[n]||0,stars);S.best[n]=Math.max(S.best[n]||0,pct);S.lvl=Math.max(S.lvl,n+1)}
  S.coins+=G.coins;save();
  $('resT').textContent=won?(stars===3?'PERFECT!':stars===2?'WRECKED!':'DONE!'):close?'SO CLOSE!':'OUT OF BALLS';
@@ -611,7 +616,7 @@ function showResults(won,close){
  $('resStars').style.display=won?'flex':'none';
  const sb='<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="#555c66" stroke="#111" stroke-width="2"/><circle cx="7" cy="7" r="2" fill="#ccd"/></svg>';
  const cb='<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="#ffc21a" stroke="#6a4200" stroke-width="2"/></svg>';
- $('resStats').innerHTML=(won?'<div>'+sb+'<b>'+G.balls+'</b> left</div>':'')+'<div><b id="cPct">0</b>% wrecked</div><div>'+cb+'+<b id="cCoin">0</b></div>'+(won&&pb&&pct>pb?'<div style="background:#e2432e">NEW BEST!</div>':'')+(won&&stars<3?'<div style="background:#5a4630;font-size:13px">'+(G.balls<1?'Save a ball for ★':'Wreck 75% for ★')+'</div>':'');
+ $('resStats').innerHTML=(won?'<div>'+sb+'<b>'+bl+'</b> left</div>':'')+'<div><b id="cPct">0</b>% wrecked</div><div>'+cb+'+<b id="cCoin">0</b></div>'+(won&&pb&&pct>pb?'<div style="background:#e2432e">NEW BEST!</div>':'')+(won&&stars<3?'<div style="background:#5a4630;font-size:13px">'+(bl<1?'Save a ball for ★':'Wreck 90% for ★')+'</div>':'');
  const P=$('resP');P.classList.remove('in');void P.offsetWidth;P.classList.add('in');
  $('rNext').style.display=won?'':'none';$('rRetry').className=won?'btn tag':'btn big';$('rRetry').textContent=won?'Retry':'RETRY';
  const tz=$('tease');tz.style.display=won?'block':'none';if(won){drawTease(n+1)}
@@ -685,7 +690,8 @@ function buildLvGrid(){const g=$('lvGrid');g.innerHTML='';const N=Math.max(LV.le
  for(let i=1;i<=N;i++){const d=document.createElement('button');const lock=i>S.lvl;const sp=i<=LV.length?LV[i-1]():null;d.className='lt'+(lock?' lock':'')+(sp&&sp.boss?' boss':'')+(sp&&sp.bonus?' bonus':'');
   const s=S.stars[i]||0;d.innerHTML=(lock?'🔒︎'.slice(0,0)+'✕':i)+'<small>'+(lock?'':'★'.repeat(s)+'·'.repeat(3-s))+'</small>';if(lock)d.innerHTML='<span style="opacity:.5">'+i+'</span><small>LOCKED</small>';
   d.addEventListener('pointerdown',e=>e.stopPropagation());d.addEventListener('click',()=>{if(lock)return;aInit();SND.click();$('levels').classList.remove('on');startLevel(i,false)});g.appendChild(d)}}
-function buildGarage(){const g=$('skins');g.innerHTML='';const ts=totalStars();
+function buildUps(){const u=$('ups');u.innerHTML='';for(const q of UPG){const l=upL(q.id),pr=l<q.max?q.p(l):0,d=document.createElement('div');d.className='ur';let p='';for(let i=0;i<q.max;i++)p+='<i'+(i<l?' class="on"':'')+'></i>';d.innerHTML='<div class="un">'+q.n+'<small>'+q.d+'</small></div><div class="pp">'+p+'</div>';const b=document.createElement('button');b.textContent=l>=q.max?'MAX':'● '+pr;if(l>=q.max||S.coins<pr)b.disabled=true;b.addEventListener('pointerdown',e=>e.stopPropagation());b.addEventListener('click',e=>{e.stopPropagation();aInit();if(l<q.max&&S.coins>=pr){S.coins-=pr;S.up[q.id]=l+1;save();SND.gold();buildGarage()}});d.appendChild(b);u.appendChild(d)}}
+function buildGarage(){buildUps();const g=$('skins');g.innerHTML='';const ts=totalStars();
  for(const sk of SKINS){const own=S.skins.includes(sk.id)||(sk.stars&&ts>=sk.stars);const d=document.createElement('button');d.className='sk'+(S.skin===sk.id?' eq':'')+(own?'':' lock');
   const c=document.createElement('canvas');c.width=128;c.height=128;const q=c.getContext('2d');q.setTransform(2,0,0,2,0,0);q.translate(32,32);drawBallSkin(q,24,sk.id,0);d.appendChild(c);
   const l=document.createElement('div');l.textContent=own?(S.skin===sk.id?'ON':sk.name):sk.stars?'★ '+sk.stars:'● '+sk.cost;d.appendChild(l);
@@ -697,7 +703,7 @@ function aimCandidates(){
  const b=R.ball;const T=[];for(const f of G.flags)if(!f.down&&!(f.h.grp&&G.balloons.some(b=>!b.popped)))T.push({x:f.h.x,y:f.h.y*.62});for(const bl of G.balloons)if(!bl.popped)T.push({x:bl.x,y:bl.y,bal:1});
  if(!T.length)T.push({x:G.spec.x1*.7,y:-60});
  const tgt=[];for(const o of bodies)if(o.im>0&&!o.isBall&&!o.ghost&&!o.frag||o.kin||o.stat&&!o.ground)tgt.push(o);
- const hist=G.vh||[];const cands=[[b.vx,b.vy]];for(let i=2;i<hist.length;i+=2)cands.push(hist[hist.length-1-i]);
+ const EZ=G.lvl<=3||G.st==='menu'||!!G.tut;const hist=G.vh||[];const cands=[[b.vx,b.vy]];if(EZ)for(let i=2;i<hist.length;i+=2)cands.push(hist[hist.length-1-i]);
  let best=null;
  for(const v of cands){for(const da of(G.lvl>6&&G.st!=='menu'?[0,-.03,.03]:[0,-.035,.035,-.07,.07])){const ca=Math.cos(da),sa=Math.sin(da);const vx=(v[0]*ca-v[1]*sa)*FLING,vy=(v[0]*sa+v[1]*ca)*FLING;if(vx<60)continue;
   const r=simArc(b.x,b.y,vx,vy,tgt,false);let sc;
@@ -706,12 +712,12 @@ function aimCandidates(){
   if(!best||sc>best.sc)best={sc,vx,vy,hit:r.hit,jelly:r.jelly}}}
  const fwd=b.vx-R.pvx>0;
  if(fwd&&(!best||!best.hit||!(best.hit.lift||best.hit.im>0)||best.jelly)){
-  const sp0=Math.hypot(b.vx,b.vy)*FLING,a0=Math.atan2(b.vy,b.vx),easy=G.lvl<=6||G.st==='menu';const rng=easy?1.3:.4;
-  for(let da=-rng;da<=rng;da+=.07)for(const k of(easy?[.75,.9,1.05,1.2,1.35]:[.9,1.05,1.2])){const an=clamp(a0+da,-1.45,.35);const vx=Math.cos(an)*sp0*k,vy=Math.sin(an)*sp0*k;if(vx<80)continue;
+  const sp0=Math.hypot(b.vx,b.vy)*FLING,a0=Math.atan2(b.vy,b.vx),easy=G.lvl<=3||G.st==='menu'||G.tut;const rng=easy?1.3:G.lvl<=7?.22:.12;
+  for(let da=-rng;da<=rng;da+=easy?.07:.04)for(const k of(easy?[.75,.9,1.05,1.2,1.35]:[1,1.08])){const an=clamp(a0+da,-1.45,.35);const vx=Math.cos(an)*sp0*k,vy=Math.sin(an)*sp0*k;if(vx<80)continue;
    const r=simArc(b.x,b.y,vx,vy,tgt,false,1/30);if(!r.hit||r.jelly||!(r.hit.lift||r.hit.im>0))continue;
    let md=1e9;for(const t of T){const dd=Math.hypot(r.x-t.x,(r.y-t.y)*.7)*(t.bal?.6:1);if(dd<md)md=dd}
    const sc=600-md-Math.abs(da)*120-Math.abs(k-1)*80;if(!best||!best.asst||sc>best.sc)best={sc,vx,vy,hit:r.hit,asst:1}}
-  if(!best||!best.hit||best.vy>0){const v=Math.max(sp0,700);best={sc:-1e9,vx:v*.72,vy:-v*.7,hit:null}}}
+  if(!best||!best.hit||best.vy>0){if(EZ){const v=Math.max(sp0,700);best={sc:-1e9,vx:v*.72,vy:-v*.7,hit:null}}else best={sc:-1e9,vx:b.vx*FLING,vy:b.vy*FLING,hit:null}}}
  return best}
 function simArc(x,y,vx,vy,tgt,pts,dt){dt=dt||1/60;const out=pts?[]:null;let hit=null,jelly=false;const N=1.85/dt;
  for(let i=0;i<N;i++){vy+=GR*dt;x+=vx*dt;y+=vy*dt;if(out&&i%2===0)out.push(x,y);
@@ -736,7 +742,7 @@ function subStep(h){
   const rvx=b.vx-R.pvx,rvy=b.vy;const vt=rvx*tx+rvy*ty;const th=Math.atan2(dx,dy);
   const E=.5*(rvx*rvx+rvy*rvy)+GR*(R.L-dy),Emax=GR*R.L*(1-Math.cos(1.9));
   const pumping=G.hold||(G.st==='menu'&&G.menuAI.ph===1);
-  if(pumping&&R.L>=ROPE-5){if(E<Emax){const dir=Math.abs(vt)<40?1:Math.sign(vt);const P=(Math.hypot(rvx,rvy)<500?1900:1450)*(.55+.45*Math.cos(th));b.vx+=tx*dir*P*h;b.vy+=ty*dir*P*h}else{b.vx*=1-.6*h;b.vy*=1-.6*h}}
+  if(pumping&&R.L>=ROPE-5){if(E<Emax){const dir=Math.abs(vt)<40?1:Math.sign(vt);const P=(Math.hypot(rvx,rvy)<500?1900:1450)*(.55+.45*Math.cos(th))*(1+.04*upL('winch'));b.vx+=tx*dir*P*h;b.vy+=ty*dir*P*h}else{b.vx*=1-.6*h;b.vy*=1-.6*h}}
   else{b.vx*=1-.08*h;b.vy*=1-.08*h}
   const side=Math.sign(dx);if(side!==G.lastSide&&G.lastSide!==0&&pumping){FX('sfx','chug',Math.abs(vt));G.hookT=1}G.lastSide=side;
   b.a=-th;b.w=0}
@@ -818,15 +824,18 @@ function update(dt){
   G.intro=Math.max(0,G.intro-dt);
   if(G.comboT>0){G.comboT-=sdt;if(G.comboT<=0)G.combo=0}
   if(G.hold)G.holdT+=dt;
-  if(G.queued){G.qT+=dt;const b=R.ball;if(!b||!R.on)G.queued=0;else if(b.vx-R.pvx>0&&((G.aim&&G.aim.hit&&!G.aim.jelly&&!G.aim.back)||b.x-R.px>60||G.qT>1.6)){G.queued=0;releaseBall()}}
+  if(G.queued){G.qT+=dt;const b=R.ball;if(!b||!R.on)G.queued=0;else if(b.vx-R.pvx>0&&(G.lvl>3?b.x-R.px>-10:((G.aim&&G.aim.hit&&!G.aim.jelly&&!G.aim.back)||b.x-R.px>60||G.qT>1.6))){G.queued=0;releaseBall()}}
   if(G.nextBallT>0){G.nextBallT-=sdt;if(G.nextBallT<=0&&G.balls>0&&!R.ball){spawnBall(false)}}
   if(!G.firstRel&&!G.tut){G.hintT+=dt}
   if(G.tut)updTut(dt);
   if(G.spec.boss){const hd=blocks.find(b=>b.role==='head');if(hd&&!hd.dead&&!hd.awake){G.bossT+=dt;if(G.bossT>3){G.bossT=0;G.shake=Math.max(G.shake,5);FX('sfx','hit','steel',.8);FX('sfx','hit','ground',1);for(const b of blocks)if(!b.dead&&b.y>-40&&b.mat!=='track')FX('dust',b.x,-4,.5);G.bsay=['Puny ball!','Is that all?','Beep. Boop. Bring it!','I AM TOWER!','Tickles!'][Math.random()*5|0];G.bsayT=1.8}}
    if(hd&&hd.awake&&!G.bOw){G.bOw=1;G.bsay='OW! My bolts!';G.bsayT=1.6}if(G.bsayT>0)G.bsayT-=dt}
   const all=flagsDown();
-  if(all){G.winT+=dt;if(G.winT>.35)winLevel()}else G.winT=0;
-  if(G.st==='play'&&G.balls<=0&&!R.ball){const busy=G.free.some(f=>!f.gone&&!f.b.ghost);if(!busy){G.setT+=dt;const asleep=!bodies.some(b=>b.im>0&&b.awake&&!b.ghost&&Math.hypot(b.vx,b.vy)>25);if((G.setT>1.2&&asleep)||G.setT>4)failLevel()}}
+  if(all&&!G.bonusSw&&G.balls>0&&!G.tut&&G.winT>.3){G.bonusSw=7;G.ballsAtWin=G.balls;SND.win();pose('cheer',1.5);say('Bonus swing! Double coins!',2);FX('pop',G.spec.x1*.55,-G.spec.top-70,'BONUS SWING! ×2','#ffd84a',46);G.shake=Math.max(G.shake,8);
+   const bx=clamp(G.spec.x1*.5,360,560);for(let i=0;i<6;i++){const m=i===2?'tnt':i%2?'glass':'wood';const q=body({x:bx+(i%2)*46,y:-(420+Math.floor(i/2)*50),w:44,h:44,mat:m});q.orig=true;q.bonusC=4;q.born=G.simT}SND.winch()}
+  if(G.bonusSw>0){const p=G.bonusSw;G.bonusSw-=dt;if(Math.ceil(p)!==Math.ceil(G.bonusSw)&&G.bonusSw>0)FX('pop',G.spec.x1*.55,-G.spec.top-20,''+Math.ceil(G.bonusSw),'#fff3c0',30);const busy=G.free.some(f=>!f.gone&&!f.b.ghost);if(G.bonusSw<=0||(G.balls<=0&&!R.ball&&!busy&&G.winT>1.5)){G.bonusSw=-1;winLevel()}}
+  if(all){G.winT+=dt;if(G.winT>.35&&(G.balls<=0||G.tut)&&!(G.bonusSw>0))winLevel()}else G.winT=0;
+  if(G.st==='play'&&G.balls<=0&&!R.ball&&!(G.bonusSw>0)&&!all){const busy=G.free.some(f=>!f.gone&&!f.b.ghost);if(!busy){G.setT+=dt;const asleep=!bodies.some(b=>b.im>0&&b.awake&&!b.ghost&&Math.hypot(b.vx,b.vy)>25);if((G.setT>1.2&&asleep)||G.setT>4)failLevel()}}
  }
  if(G.st==='win'){G.winClock+=dt;flagsDown();if(G.winClock>1.1){if(G.wantRep&&G.rec.length>20){startReplay()}else{G.tsT=1;showResults(true)}}}
  if(G.st==='results'){G.resT+=dt;G.tsT=1}
