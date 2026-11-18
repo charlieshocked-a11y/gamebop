@@ -382,7 +382,9 @@ window.GAMEBOP_GAMES = [
   "blurb": "Blast craters, bury rivals, climb the ranks to Marshal",
   "controls": "Arrows · A/D · Space · Q/E · Mouse/Touch aim",
   "added": "2026-11-08",
-  "keywords": "tanks artillery war army explosions turn based worms 2 player multiplayer tank duel tanks a lot",
+  "keywords": "tanks artillery war army explosions turn based worms 2 player multiplayer tank duel tanks a lot multiplayer online friends 2 player battle",
+  "multi": true,
+  "players": 4,
   "file": "games/tank-duel.html",
   "thumb": "thumbs/tank-duel.jpg"
  },
