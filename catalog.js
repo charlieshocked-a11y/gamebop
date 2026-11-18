@@ -984,7 +984,7 @@ window.GAMEBOP_GAMES = [
  {
   "slug": "bumpaloo",
   "title": "Bumper Brawl",
-  "keywords": "bumper cars sumo 3d island ram push brawl party cars arena boss bumpaloo bumper car island",
+  "keywords": "bumper cars sumo 3d island ram push brawl party cars arena boss bumpaloo bumper car island multiplayer online friends 2 player arena",
   "deep": false,
   "category": "Action",
   "tags": [
@@ -996,6 +996,8 @@ window.GAMEBOP_GAMES = [
   "blurb": "Rev, ram and boing rival bumper cars off the island!",
   "controls": "←/→ + Space · Mouse/Touch hold",
   "added": "2026-11-13",
+  "multi": true,
+  "players": 4,
   "file": "games/bumpaloo.html",
   "thumb": "thumbs/bumpaloo.jpg"
  },
