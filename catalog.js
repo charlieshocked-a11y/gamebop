@@ -85,15 +85,15 @@ window.GAMEBOP_GAMES = [
  {
   "slug": "hive-mind",
   "title": "Busy Bees",
-  "category": "Idle",
+  "category": "Action",
   "tags": [
-   "idle",
    "bees",
-   "prestige",
-   "strategy"
+   "grab and run",
+   "timed",
+   "bosses"
   ],
-  "blurb": "Grow a buzzing hex hive, survive seasons, repel wasp raids.",
-  "controls": "Mouse · Touch",
+  "blurb": "Grab nectar, race home with your bee train, bonk wasps!",
+  "controls": "Mouse / touch drag · Arrows + Space",
   "added": "2026-11-08",
   "keywords": "bee bees insect hive honey colony idle clicker incremental nature build hive mind bee business",
   "file": "games/hive-mind.html",
@@ -304,15 +304,15 @@ window.GAMEBOP_GAMES = [
  {
   "slug": "farm-loop",
   "title": "Tiny Farm",
-  "category": "Idle",
+  "category": "Arcade",
   "tags": [
    "farming",
-   "idle",
+   "swipe",
    "cozy",
-   "crafting"
+   "bosses"
   ],
-  "blurb": "Plant, harvest, bake and grow a cozy farm through the seasons",
-  "controls": "Mouse/Touch tap & drag · 1-9 pick seed",
+  "blurb": "Swipe ripe crops, feed hungry animals, bonk crows and raccoons!",
+  "controls": "Mouse drag / touch swipe · Arrow keys",
   "added": "2026-11-08",
   "keywords": "farming farm crops animals cows chickens harvest cozy idle simulation sim farm loop one more harvest",
   "file": "games/farm-loop.html",
@@ -471,17 +471,18 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "hex-merge",
-  "title": "Hex 2048",
+  "title": "Bee Merge",
   "category": "Puzzle",
   "tags": [
-   "2048",
    "merge",
-   "hexagon"
+   "hexagon",
+   "bees",
+   "chain"
   ],
-  "blurb": "Slide hexagon tiles six ways and merge your way to 2048.",
-  "controls": "Q W E A S D · Swipe/Drag · Z undo",
+  "blurb": "Drop honey, match 3, and chain merges to beat the hornets!",
+  "controls": "Mouse / touch · Arrows + Space · X swap · Z undo",
   "added": "2026-11-08",
-  "keywords": "2048 numbers merge math puzzle hexagon hex merge 2048 hex",
+  "keywords": "2048 numbers merge math puzzle hexagon hex merge 2048 hex Hex 2048 2048 hexagon",
   "file": "games/hex-merge.html",
   "thumb": "thumbs/hex-merge.jpg"
  },
@@ -520,7 +521,7 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "ghost-typer",
-  "title": "Beat Your Ghost",
+  "title": "Type Race",
   "category": "Typing",
   "tags": [
    "typing",
@@ -528,10 +529,10 @@ window.GAMEBOP_GAMES = [
    "hard",
    "ghosts"
   ],
-  "blurb": "Out-type your own ghost and rivals up to 140 WPM",
+  "blurb": "Type fast to race your car past rivals and your own ghost!",
   "controls": "Keyboard",
   "added": "2026-11-08",
-  "keywords": "typing race racing keyboard wpm hard words ghost typer race your ghost multiplayer online race friends 2 player",
+  "keywords": "typing race racing keyboard wpm hard words ghost typer race your ghost multiplayer online race friends 2 player Beat Your Ghost ghost",
   "multi": true,
   "players": 4,
   "file": "games/ghost-typer.html",
