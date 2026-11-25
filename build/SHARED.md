@@ -61,3 +61,8 @@ setInterval(() => {                                  // host plays for bots (and
 }, 700);
 ```
 Testing: everything works offline with bots. For online tests there is a mock Firebase (REST + streaming + rules) used by the platform tests; set `window.GB_FIREBASE = {apiKey:'t', projectId:'t', emulator:'http://localhost:9199'}` before gb.js loads (e.g. Playwright `addInitScript`). Never commit an emulator URL.
+
+## 4. All-leaderboards page (index.html#boards) — keep build/meta.json "boards" up to date
+Every game with a leaderboard must list its boards in build/meta.json so it shows on the site's 🏆 Leaderboards page:
+`"boards": [{"id": "slug" or "slug:variant", "label": "Arcade", "fmt": "int|m|time|sec2|wpm|x|money|rounds|planets|lines|strokes", "lower": true (only if lower wins)}]`
+Use exactly the board id the game passes to GBBoard.submit. For a daily board use `{day}` in the id (e.g. "gale-regatta:daily-{day}", day = UTC days since 1970). When you add, rename or change a board id, update this list too, then run `node build/build-catalog.js`.

@@ -33,6 +33,13 @@ window.GAMEBOP_GAMES = [
   "added": "2026-11-03",
   "mine": true,
   "keywords": "drawing draw doodle magic wizard spells monsters waves defense pen",
+  "boards": [
+   {
+    "id": "scribble-wizard",
+    "label": "Score",
+    "fmt": "int"
+   }
+  ],
   "file": "games/scribble-wizard.html",
   "thumb": "thumbs/scribble-wizard.jpg"
  },
@@ -62,6 +69,23 @@ window.GAMEBOP_GAMES = [
     "Insane mode"
    ]
   },
+  "boards": [
+   {
+    "id": "skybolt-roadster:normal",
+    "label": "Chase · Normal",
+    "fmt": "time"
+   },
+   {
+    "id": "skybolt-roadster:hard",
+    "label": "Chase · Hard",
+    "fmt": "time"
+   },
+   {
+    "id": "skybolt-roadster:insane",
+    "label": "Chase · Insane",
+    "fmt": "time"
+   }
+  ],
   "file": "games/skybolt-roadster.html",
   "thumb": "thumbs/skybolt-roadster.jpg"
  },
@@ -79,6 +103,26 @@ window.GAMEBOP_GAMES = [
   "controls": "Arrows/WASD · Space drift · Touch",
   "added": "2026-11-08",
   "keywords": "car racing drift race track time trial driving vehicle neon ember drift hot tires",
+  "boards": [
+   {
+    "id": "ember-drift:ash-canyon",
+    "label": "Ash Canyon cup",
+    "fmt": "sec2",
+    "lower": true
+   },
+   {
+    "id": "ember-drift:frost-neon",
+    "label": "Frost Neon cup",
+    "fmt": "sec2",
+    "lower": true
+   },
+   {
+    "id": "ember-drift:void-core",
+    "label": "Void Core cup",
+    "fmt": "sec2",
+    "lower": true
+   }
+  ],
   "file": "games/ember-drift.html",
   "thumb": "thumbs/ember-drift.jpg"
  },
@@ -96,6 +140,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Mouse / touch drag · Arrows + Space",
   "added": "2026-11-08",
   "keywords": "bee bees insect hive honey colony idle clicker incremental nature build hive mind bee business",
+  "boards": [
+   {
+    "id": "hive-mind",
+    "label": "Stars",
+    "fmt": "int"
+   }
+  ],
   "file": "games/hive-mind.html",
   "thumb": "thumbs/hive-mind.jpg"
  },
@@ -113,6 +164,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Keyboard",
   "added": "2026-11-08",
   "keywords": "typing keyboard words meteors space hard wpm type keystorm type or die",
+  "boards": [
+   {
+    "id": "keystorm",
+    "label": "Best WPM",
+    "fmt": "wpm"
+   }
+  ],
   "file": "games/keystorm.html",
   "thumb": "thumbs/keystorm.jpg"
  },
@@ -164,6 +222,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Arrows/WASD · Swipe",
   "added": "2026-11-08",
   "keywords": "snake retro classic arcade neon neon serpent snake, but glowy",
+  "boards": [
+   {
+    "id": "neon-serpent",
+    "label": "Endless",
+    "fmt": "int"
+   }
+  ],
   "file": "games/neon-serpent.html",
   "thumb": "thumbs/neon-serpent.jpg"
  },
@@ -198,6 +263,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Arrows/WASD · Space jump · Shift dash · Touch",
   "added": "2026-11-08",
   "keywords": "jumping jump climbing tower platformer endless lava sky hopper the lava is rising",
+  "boards": [
+   {
+    "id": "sky-hopper",
+    "label": "Height",
+    "fmt": "m"
+   }
+  ],
   "file": "games/sky-hopper.html",
   "thumb": "thumbs/sky-hopper.jpg"
  },
@@ -230,6 +302,26 @@ window.GAMEBOP_GAMES = [
   "controls": "Mouse drag · Touch · Arrows + Space",
   "added": "2026-11-08",
   "keywords": "golf minigolf mini golf putt sports ball physics pocket golf tricky putt",
+  "boards": [
+   {
+    "id": "pocket-golf:garden",
+    "label": "Garden",
+    "fmt": "strokes",
+    "lower": true
+   },
+   {
+    "id": "pocket-golf:frost",
+    "label": "Frost",
+    "fmt": "strokes",
+    "lower": true
+   },
+   {
+    "id": "pocket-golf:neon",
+    "label": "Neon",
+    "fmt": "strokes",
+    "lower": true
+   }
+  ],
   "file": "games/pocket-golf.html",
   "thumb": "thumbs/pocket-golf.jpg"
  },
@@ -247,6 +339,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Mouse/Touch drag · Space bake",
   "added": "2026-11-08",
   "keywords": "merge baking bakery cake food cooking cute cafe shop block bakery grandma's cake shop",
+  "boards": [
+   {
+    "id": "block-bakery",
+    "label": "Endless · served",
+    "fmt": "int"
+   }
+  ],
   "file": "games/block-bakery.html",
   "thumb": "thumbs/block-bakery.jpg"
  },
@@ -281,6 +380,13 @@ window.GAMEBOP_GAMES = [
   "controls": "WASD move · Mouse aim & shoot · Touch dual sticks",
   "added": "2026-11-08",
   "keywords": "space ship shooter asteroids aliens bullet hell roguelite asteroid miner space rock blaster",
+  "boards": [
+   {
+    "id": "asteroid-miner",
+    "label": "Ore in one run",
+    "fmt": "int"
+   }
+  ],
   "file": "games/asteroid-miner.html",
   "thumb": "thumbs/asteroid-miner.jpg"
  },
@@ -298,6 +404,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Keyboard · Tab autocomplete · Esc pause",
   "added": "2026-11-08",
   "keywords": "typing hacker hacking code programming keyboard hard computer terminal rush type like a hacker",
+  "boards": [
+   {
+    "id": "terminal-rush",
+    "label": "Overflow ∞",
+    "fmt": "lines"
+   }
+  ],
   "file": "games/terminal-rush.html",
   "thumb": "thumbs/terminal-rush.jpg"
  },
@@ -315,6 +428,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Mouse drag / touch swipe · Arrow keys",
   "added": "2026-11-08",
   "keywords": "farming farm crops animals cows chickens harvest cozy idle simulation sim farm loop one more harvest",
+  "boards": [
+   {
+    "id": "farm-loop",
+    "label": "Stars",
+    "fmt": "int"
+   }
+  ],
   "file": "games/farm-loop.html",
   "thumb": "thumbs/farm-loop.jpg"
  },
@@ -332,6 +452,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Mouse · Arrows/A D · Space · Touch drag",
   "added": "2026-11-08",
   "keywords": "brick breaker breakout paddle ball arcade bounce brigade bricks must fall",
+  "boards": [
+   {
+    "id": "bounce-brigade",
+    "label": "Score",
+    "fmt": "int"
+   }
+  ],
   "file": "games/bounce-brigade.html",
   "thumb": "thumbs/bounce-brigade.jpg"
  },
@@ -366,6 +493,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Mouse drag · Touch drag",
   "added": "2026-11-08",
   "keywords": "basketball sports shooting hoops ball hoop shot nothing but net",
+  "boards": [
+   {
+    "id": "hoop-shot",
+    "label": "Arcade",
+    "fmt": "int"
+   }
+  ],
   "file": "games/hoop-shot.html",
   "thumb": "thumbs/hoop-shot.jpg"
  },
@@ -434,6 +568,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Mouse/Touch · 1-4 / Q E pick tile · Enter place",
   "added": "2026-11-08",
   "keywords": "city builder town building island kingdom village strategy relaxing tile kingdom my tiny island",
+  "boards": [
+   {
+    "id": "tile-kingdom",
+    "label": "Best run",
+    "fmt": "int"
+   }
+  ],
   "file": "games/tile-kingdom.html",
   "thumb": "thumbs/tile-kingdom.jpg"
  },
@@ -450,6 +591,23 @@ window.GAMEBOP_GAMES = [
   "controls": "D F J K (or arrows) · Touch lanes",
   "added": "2026-11-08",
   "keywords": "music rhythm dance beat songs piano notes beat tapper tap the beat",
+  "boards": [
+   {
+    "id": "beat-tapper:easy",
+    "label": "Easy",
+    "fmt": "int"
+   },
+   {
+    "id": "beat-tapper:normal",
+    "label": "Normal",
+    "fmt": "int"
+   },
+   {
+    "id": "beat-tapper:hard",
+    "label": "Hard",
+    "fmt": "int"
+   }
+  ],
   "file": "games/beat-tapper.html",
   "thumb": "thumbs/beat-tapper.jpg"
  },
@@ -466,6 +624,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Mouse/Touch drag · Type letters + Enter",
   "added": "2026-11-08",
   "keywords": "word words boggle spelling vocabulary letters brain letter lattice big word energy",
+  "boards": [
+   {
+    "id": "letter-lattice",
+    "label": "Daily",
+    "fmt": "int"
+   }
+  ],
   "file": "games/letter-lattice.html",
   "thumb": "thumbs/letter-lattice.jpg"
  },
@@ -483,6 +648,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Mouse / touch · Arrows + Space · X swap · Z undo",
   "added": "2026-11-08",
   "keywords": "2048 numbers merge math puzzle hexagon hex merge 2048 hex Hex 2048 2048 hexagon",
+  "boards": [
+   {
+    "id": "hex-merge:v2",
+    "label": "Endless Hive",
+    "fmt": "int"
+   }
+  ],
   "file": "games/hex-merge.html",
   "thumb": "thumbs/hex-merge.jpg"
  },
@@ -516,6 +688,13 @@ window.GAMEBOP_GAMES = [
   "controls": "Arrows/WASD · Touch pedals",
   "added": "2026-11-08",
   "keywords": "motorbike motorcycle bike dirt hill climb physics driving vehicle stunts moto hill wheelie hills",
+  "boards": [
+   {
+    "id": "moto-hill",
+    "label": "Distance",
+    "fmt": "m"
+   }
+  ],
   "file": "games/moto-hill.html",
   "thumb": "thumbs/moto-hill.jpg"
  },
@@ -535,6 +714,13 @@ window.GAMEBOP_GAMES = [
   "keywords": "typing race racing keyboard wpm hard words ghost typer race your ghost multiplayer online race friends 2 player Beat Your Ghost ghost",
   "multi": true,
   "players": 4,
+  "boards": [
+   {
+    "id": "ghost-typer",
+    "label": "Best WPM",
+    "fmt": "wpm"
+   }
+  ],
   "file": "games/ghost-typer.html",
   "thumb": "thumbs/ghost-typer.jpg"
  },
@@ -585,6 +771,13 @@ window.GAMEBOP_GAMES = [
   "keywords": "bouncing ball bouncy platformer bounce springs combos worlds bosses skins jump physics cute boing voyage bouncy ball adventure",
   "deep": false,
   "added": "2026-11-09",
+  "boards": [
+   {
+    "id": "boing-voyage",
+    "label": "Gauntlet",
+    "fmt": "int"
+   }
+  ],
   "file": "games/boing-voyage.html",
   "thumb": "thumbs/boing-voyage.jpg"
  },
@@ -603,6 +796,28 @@ window.GAMEBOP_GAMES = [
   "keywords": "pinball arcade flippers ball tables multiball jackpot bumpers ramps physics retro high score tilt palace pinball palace",
   "deep": false,
   "added": "2026-11-09",
+  "boards": [
+   {
+    "id": "tilt-palace:crown",
+    "label": "Crown Jewel",
+    "fmt": "int"
+   },
+   {
+    "id": "tilt-palace:light",
+    "label": "Haunted Lighthouse",
+    "fmt": "int"
+   },
+   {
+    "id": "tilt-palace:volc",
+    "label": "Volcano Temple",
+    "fmt": "int"
+   },
+   {
+    "id": "tilt-palace:space",
+    "label": "Deep-Space Dock",
+    "fmt": "int"
+   }
+  ],
   "file": "games/tilt-palace.html",
   "thumb": "thumbs/tilt-palace.jpg"
  },
@@ -621,6 +836,13 @@ window.GAMEBOP_GAMES = [
   "keywords": "skateboard skating skate kickflip grind tricks combo sports sunset city ramps kickflip alley skate street",
   "deep": false,
   "added": "2026-11-09",
+  "boards": [
+   {
+    "id": "kickflip-alley",
+    "label": "2-min sessions",
+    "fmt": "int"
+   }
+  ],
   "file": "games/kickflip-alley.html",
   "thumb": "thumbs/kickflip-alley.jpg"
  },
@@ -639,6 +861,13 @@ window.GAMEBOP_GAMES = [
   "keywords": "train trains railway switches junction tracks routing stations model railroad diorama colours puzzle junction jam don't crash the trains",
   "deep": false,
   "added": "2026-11-09",
+  "boards": [
+   {
+    "id": "junction-jam",
+    "label": "Rush Hour",
+    "fmt": "int"
+   }
+  ],
   "file": "games/junction-jam.html",
   "thumb": "thumbs/junction-jam.jpg"
  },
@@ -656,6 +885,13 @@ window.GAMEBOP_GAMES = [
   "keywords": "cooking noodles ramen restaurant food time management chef customers kitchen serving night market noodle rush ramen stand",
   "deep": false,
   "added": "2026-11-09",
+  "boards": [
+   {
+    "id": "noodle-rush",
+    "label": "Endless",
+    "fmt": "money"
+   }
+  ],
   "file": "games/noodle-rush.html",
   "thumb": "thumbs/noodle-rush.jpg"
  },
@@ -674,6 +910,14 @@ window.GAMEBOP_GAMES = [
   "blurb": "Read the wind, trim your sail, and out-tack five rivals.",
   "controls": "A/D or ←→ steer · W/S trim · Space tack · Touch pads + trim slider",
   "added": "2026-11-10",
+  "boards": [
+   {
+    "id": "gale-regatta:daily-{day}",
+    "label": "Today’s race",
+    "fmt": "time",
+    "lower": true
+   }
+  ],
   "file": "games/gale-regatta.html",
   "thumb": "thumbs/gale-regatta.jpg"
  },
@@ -710,6 +954,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Swing through a living jungle, fling for combos, outrun the jaguar.",
   "controls": "Mouse hold · Arrows + Space · Touch hold",
   "added": "2026-11-10",
+  "boards": [
+   {
+    "id": "canopy-swing",
+    "label": "Endless",
+    "fmt": "m"
+   }
+  ],
   "file": "games/canopy-swing.html",
   "thumb": "thumbs/canopy-swing.jpg"
  },
@@ -728,6 +979,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Ride a safari jeep and snap legendary wildlife shots.",
   "controls": "Mouse aim · Scroll zoom · Click/Space snap · S stop · W faster · 1-4 tools · Touch: drag, pinch, shutter",
   "added": "2026-11-10",
+  "boards": [
+   {
+    "id": "wild-lens",
+    "label": "Tour score",
+    "fmt": "int"
+   }
+  ],
   "file": "games/wild-lens.html",
   "thumb": "thumbs/wild-lens.jpg"
  },
@@ -746,6 +1004,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Draw, breathe, release. Beat the wind to win the Summit.",
   "controls": "Mouse drag · Shift/right-click steady · Touch + Steady button",
   "added": "2026-11-10",
+  "boards": [
+   {
+    "id": "quiver-peak",
+    "label": "Storm Range",
+    "fmt": "int"
+   }
+  ],
   "file": "games/quiver-peak.html",
   "thumb": "thumbs/quiver-peak.jpg"
  },
@@ -781,6 +1046,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Whip a comet planet to planet with one perfect tap.",
   "controls": "Space / Click / Tap to let go",
   "added": "2026-11-11",
+  "boards": [
+   {
+    "id": "slingstar",
+    "label": "Comet Run",
+    "fmt": "planets"
+   }
+  ],
   "file": "games/slingstar.html",
   "thumb": "thumbs/slingstar.jpg"
  },
@@ -799,6 +1071,14 @@ window.GAMEBOP_GAMES = [
   "blurb": "Hold to tether a corner post, swing, release and rocket!",
   "controls": "Hold Space / Mouse / Touch",
   "added": "2026-11-11",
+  "boards": [
+   {
+    "id": "tetherdrift",
+    "label": "All tracks total",
+    "fmt": "sec2",
+    "lower": true
+   }
+  ],
   "file": "games/tetherdrift.html",
   "thumb": "thumbs/tetherdrift.jpg"
  },
@@ -835,6 +1115,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Hold to flip, let go to stick the landing!",
   "controls": "Hold Space / Mouse / Touch",
   "added": "2026-11-11",
+  "boards": [
+   {
+    "id": "springflip-circus",
+    "label": "Encore",
+    "fmt": "int"
+   }
+  ],
   "file": "games/springflip-circus.html",
   "thumb": "thumbs/springflip-circus.jpg"
  },
@@ -871,6 +1158,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Rocket-punch goblins across the sky and never touch the ground.",
   "controls": "Space / click / tap punch · ←→ pick target",
   "added": "2026-11-12",
+  "boards": [
+   {
+    "id": "knuckle-comet",
+    "label": "Best combo",
+    "fmt": "x"
+   }
+  ],
   "file": "games/knuckle-comet.html",
   "thumb": "thumbs/knuckle-comet.jpg"
  },
@@ -889,6 +1183,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Every throw is an explosion. Curve, smash, bonk the badger!",
   "controls": "Mouse drag · Touch drag · ←/→ + hold Space",
   "added": "2026-11-12",
+  "boards": [
+   {
+    "id": "pinquake",
+    "label": "Quake Mode",
+    "fmt": "rounds"
+   }
+  ],
   "file": "games/pinquake.html",
   "thumb": "thumbs/pinquake.jpg"
  },
@@ -925,6 +1226,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Tap the beat as your ball hops across singing drums!",
   "controls": "Space / Click / Tap (hold on long drums)",
   "added": "2026-11-12",
+  "boards": [
+   {
+    "id": "drumhop",
+    "label": "Total score",
+    "fmt": "int"
+   }
+  ],
   "file": "games/drumhop.html",
   "thumb": "thumbs/drumhop.jpg"
  },
@@ -979,6 +1287,13 @@ window.GAMEBOP_GAMES = [
   "blurb": "Pull back, let go, sink wild trick shots on the pier!",
   "controls": "Drag & release · ←/→ + Space · Touch",
   "added": "2026-11-13",
+  "boards": [
+   {
+    "id": "breakshot-bay",
+    "label": "Speed Rack",
+    "fmt": "int"
+   }
+  ],
   "file": "games/breakshot-bay.html",
   "thumb": "thumbs/breakshot-bay.jpg"
  },
