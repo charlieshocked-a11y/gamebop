@@ -201,10 +201,17 @@ window.GAMEBOP_GAMES = [
    "pixel art",
    "campaign"
   ],
-  "blurb": "Command a pixel squad through 20 battles of grid tactics.",
-  "controls": "Mouse · Touch",
+  "blurb": "Bonk goblins, outsmart wolf packs, and storm the Warlord’s keep!",
+  "controls": "Mouse · Touch · Arrows/Enter",
   "added": "2026-11-08",
-  "keywords": "turn based tactics strategy chess army knights medieval rpg battle war tiny tactics little guys at war",
+  "keywords": "turn based tactics strategy chess army knights medieval rpg battle war tiny tactics little guys at war goblins wolves archers squad",
+  "boards": [
+   {
+    "id": "tiny-tactics",
+    "label": "Total stars",
+    "fmt": "int"
+   }
+  ],
   "file": "games/tiny-tactics.html",
   "thumb": "thumbs/tiny-tactics.jpg"
  },
@@ -276,16 +283,24 @@ window.GAMEBOP_GAMES = [
  {
   "slug": "orbit-defense",
   "title": "Spin Defense",
-  "category": "Strategy",
+  "category": "Action",
   "tags": [
-   "tower defense",
-   "space",
-   "research"
+   "spin shooter",
+   "defense",
+   "bosses",
+   "upgrades"
   ],
-  "blurb": "Rotate orbital rings of turrets to stop spiraling alien swarms",
-  "controls": "Mouse · Touch",
+  "blurb": "Spin your gun ring, whack biters, save the cute planet!",
+  "controls": "A/D · Arrows · Drag · Touch",
   "added": "2026-11-08",
-  "keywords": "tower defense td space planet aliens turrets strategy orbit defense spin the turrets",
+  "keywords": "tower defense td space planet aliens turrets strategy orbit defense spin the turrets spin ring bosses arcade",
+  "boards": [
+   {
+    "id": "orbit-defense",
+    "label": "Endless",
+    "fmt": "int"
+   }
+  ],
   "file": "games/orbit-defense.html",
   "thumb": "thumbs/orbit-defense.jpg"
  },
@@ -354,15 +369,22 @@ window.GAMEBOP_GAMES = [
   "title": "Laser Bounce",
   "category": "Puzzle",
   "tags": [
-   "lasers",
-   "logic",
-   "mirrors",
-   "neon"
+   "aiming",
+   "bank shots",
+   "goo",
+   "levels"
   ],
-  "blurb": "Bend glowing beams through mirrors and prisms to power up",
-  "controls": "Mouse/Touch · Tap rotate · Drag place · Z undo",
+  "blurb": "Aim, bounce your laser off walls and mirrors, and zap all the goo!",
+  "controls": "Mouse drag · Arrows + Space · Touch",
   "added": "2026-11-08",
-  "keywords": "lasers mirrors light logic puzzle brain science laser lab mirrors and lasers",
+  "keywords": "lasers mirrors light logic puzzle brain science laser lab mirrors and lasers laser bounce goo zap bank shot trick shot aim",
+  "boards": [
+   {
+    "id": "laser-lab:rush",
+    "label": "Rush",
+    "fmt": "int"
+   }
+  ],
   "file": "games/laser-lab.html",
   "thumb": "thumbs/laser-lab.jpg"
  },
@@ -557,21 +579,21 @@ window.GAMEBOP_GAMES = [
  },
  {
   "slug": "tile-kingdom",
-  "title": "Island Builder",
+  "title": "Island Town",
   "category": "Strategy",
   "tags": [
-   "city builder",
-   "relaxing",
-   "score attack"
+   "merge",
+   "town builder",
+   "bosses"
   ],
-  "blurb": "Place buildings, chain neighbour combos, grow a thriving island.",
-  "controls": "Mouse/Touch · 1-4 / Q E pick tile · Enter place",
+  "blurb": "Merge huts into castles before the tide and the Kraken win!",
+  "controls": "Mouse/Touch tap · Arrows + Space · Z undo",
   "added": "2026-11-08",
-  "keywords": "city builder town building island kingdom village strategy relaxing tile kingdom my tiny island",
+  "keywords": "city builder town building island kingdom village strategy relaxing tile kingdom my tiny island island builder island town merge hex kraken goats tide",
   "boards": [
    {
-    "id": "tile-kingdom",
-    "label": "Best run",
+    "id": "tile-kingdom:v2",
+    "label": "Endless",
     "fmt": "int"
    }
   ],
